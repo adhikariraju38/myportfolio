@@ -2,8 +2,6 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-<img width="1266" alt="Screen Shot" src="https://photos.app.goo.gl/SpvbMLgaQwtZd7VG6">
-
 Built using:
 
 - Front-end library: React
