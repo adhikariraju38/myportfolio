@@ -107,7 +107,7 @@ export const Projects = () => {
                   }}
                 >
                   <Tab.Container id="projects-tabs" defaultActiveKey="first">
-                    <Nav
+                    {/* <Nav
                       variant="pills"
                       className="nav-pills mb-5 justify-content-center align-items-center"
                       id="pills-tab"
@@ -115,13 +115,13 @@ export const Projects = () => {
                       <Nav.Item>
                         <Nav.Link eventKey="first">Projects</Nav.Link>
                       </Nav.Item>
-                      {/* <Nav.Item>
+                      <Nav.Item>
                       <Nav.Link eventKey="second">Tab 2</Nav.Link>
-                    </Nav.Item> */}
-                      {/* <Nav.Item>
+                    </Nav.Item>
+                      <Nav.Item>
                       <Nav.Link eventKey="third">Tab 3</Nav.Link>
-                    </Nav.Item> */}
-                    </Nav>
+                    </Nav.Item>
+                    </Nav> */}
 
                     <Tab.Content
                       id="slideInUp"
