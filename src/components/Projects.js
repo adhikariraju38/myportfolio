@@ -106,7 +106,6 @@ export const Projects = () => {
                     delay: 0.3, // Delays the animation
                   }}
                 >
-                  {console.log(projectsIsInView)}
                   <Tab.Container id="projects-tabs" defaultActiveKey="first">
                     <Nav
                       variant="pills"

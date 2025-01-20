@@ -60,7 +60,7 @@ export const Skills = () => {
                 scalable web applications with efficiency, precision, and a
                 focus on delivering high-quality solutions.
               </motion.p>
-              <div style={{ position: "relative", overflow: "auto" }}>
+              <div style={{ position: "relative", overflow: "hidden" }}>
                 <motion.div
                   ref={carouselRef}
                   initial={{ opacity: 0, x: -150 }} // Start off-screen to the right
