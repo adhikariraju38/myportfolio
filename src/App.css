@@ -230,14 +230,21 @@ nav.navbar .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
 	border-color: transparent;
 }
 
+.App {
+  background-image: url('./assets/img/galaxy-night-view.jpg');
+  background-position: top center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 /************ Banner Css ************/
 .banner {
   margin-top: 0;
   padding: 260px 0 100px 0;
-  background-image: url('./assets/img/banner-bg.png');
+  /* background-image: url('./assets/img/banner-bg.png');
   background-position: top center;
   background-size: cover;
-  background-repeat: no-repeat;
+  background-repeat: no-repeat; */
 }
 .banner .tagline {
   font-weight: 700;
@@ -306,7 +313,7 @@ nav.navbar .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
   position: relative;
 }
 .skill-bx {
-  background: #151515;
+  /* background: #151515; */
   border-radius: 64px;
   text-align: center;
   padding: 60px 50px;
@@ -344,7 +351,7 @@ nav.navbar .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
 .project {
   padding: 80px 0;
   position: relative;
-  background-color: black;
+  /* background-color: black; */
 }
 .project h2 {
 	font-size: 45px;
@@ -540,11 +547,11 @@ nav.navbar .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
 
 /************ Footer Css ************/
 .footer {
-  padding: 0 0 50px 0;
-  background-image: url('./assets/img/footer-bg.png');
+  /* padding: 0 0 100px 0; */
+  /* background-image: url('./assets/img/footer-bg.png');
   background-position: center center;
   background-size: cover;
-  background-repeat: no-repeat;
+  background-repeat: no-repeat; */
 }
 .newsletter-bx {
   background: #FFFFFF;
@@ -606,9 +613,10 @@ nav.navbar .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
   letter-spacing: 0.5px;
   border-radius: 18px;
 }
-.footer img {
+/* .footer img {
   width: 26%;
-}
+} */
+
 .footer p {
   font-weight: 400;
   font-size: 14px;
