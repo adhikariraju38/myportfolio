@@ -84,6 +84,7 @@ export const Projects = () => {
                     Welcome to my portfolio! I'm a passionate developer with a
                     robust skill set in crafting dynamic web applications.
                   </motion.p>
+
                   <motion.p
                     ref={ref}
                     initial={{ opacity: 0, y: 30 }}
@@ -95,55 +96,59 @@ export const Projects = () => {
                     Explore my projects below to witness the fusion of
                     innovation, functionality, and elegant design.
                   </motion.p>
-                  <motion.div
-                    ref={projectsRef}
-                    initial={{ opacity: 0, x: 400 }} // Start off-screen to the right
-                    animate={
-                      projectsIsInView
-                        ? { opacity: 1, x: 0 }
-                        : { opacity: 0, x: 400 }
-                    }
-                    transition={{
-                      type: "spring", // Use spring for bounce effect
-                      stiffness: 100, // Controls the "bounciness"
-                      damping: 10, // Controls how quickly it settles
-                      duration: 1.2, // Optional: duration of the animation
-                      delay: 0.3, // Delays the animation
-                    }}
-                  >
-                    <Tab.Container id="projects-tabs" defaultActiveKey="first">
-                      <Nav
-                        variant="pills"
-                        className="nav-pills mb-5 justify-content-center align-items-center"
-                        id="pills-tab"
+                  <div style={{ position: "relative", overflow: "hidden" }}>
+                    <motion.div
+                      ref={projectsRef}
+                      initial={{ opacity: 0, x: 400 }} // Start off-screen to the right
+                      animate={
+                        projectsIsInView
+                          ? { opacity: 1, x: 0 }
+                          : { opacity: 0, x: 400 }
+                      }
+                      transition={{
+                        type: "spring", // Use spring for bounce effect
+                        stiffness: 100, // Controls the "bounciness"
+                        damping: 10, // Controls how quickly it settles
+                        duration: 1.2, // Optional: duration of the animation
+                        delay: 0.3, // Delays the animation
+                      }}
+                    >
+                      <Tab.Container
+                        id="projects-tabs"
+                        defaultActiveKey="first"
                       >
-                        <Nav.Item>
-                          <Nav.Link eventKey="first">Projects</Nav.Link>
-                        </Nav.Item>
-                        {/* <Nav.Item>
+                        <Nav
+                          variant="pills"
+                          className="nav-pills mb-5 justify-content-center align-items-center"
+                          id="pills-tab"
+                        >
+                          <Nav.Item>
+                            <Nav.Link eventKey="first">Projects</Nav.Link>
+                          </Nav.Item>
+                          {/* <Nav.Item>
                       <Nav.Link eventKey="second">Tab 2</Nav.Link>
                     </Nav.Item> */}
-                        {/* <Nav.Item>
+                          {/* <Nav.Item>
                       <Nav.Link eventKey="third">Tab 3</Nav.Link>
                     </Nav.Item> */}
-                      </Nav>
+                        </Nav>
 
-                      <Tab.Content
-                        id="slideInUp"
-                        className={
-                          isVisible
-                            ? "animate__animated animate__slideInUp"
-                            : ""
-                        }
-                      >
-                        <Tab.Pane eventKey="first">
-                          <Row>
-                            {projects.map((project, index) => {
-                              return <ProjectCard key={index} {...project} />;
-                            })}
-                          </Row>
-                        </Tab.Pane>
-                        {/* <Tab.Pane eventKey="second">
+                        <Tab.Content
+                          id="slideInUp"
+                          className={
+                            isVisible
+                              ? "animate__animated animate__slideInUp"
+                              : ""
+                          }
+                        >
+                          <Tab.Pane eventKey="first">
+                            <Row>
+                              {projects.map((project, index) => {
+                                return <ProjectCard key={index} {...project} />;
+                              })}
+                            </Row>
+                          </Tab.Pane>
+                          {/* <Tab.Pane eventKey="second">
                       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque quam, quod neque provident velit, rem explicabo excepturi id illo molestiae blanditiis, eligendi dicta officiis asperiores delectus quasi inventore debitis quo.</p>
                       <Row>
                         {
@@ -158,7 +163,7 @@ export const Projects = () => {
                         }
                       </Row>
                     </Tab.Pane> */}
-                        {/* <Tab.Pane eventKey="third">
+                          {/* <Tab.Pane eventKey="third">
                       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque quam, quod neque provident velit, rem explicabo excepturi id illo molestiae blanditiis, eligendi dicta officiis asperiores delectus quasi inventore debitis quo.</p>
                       <Row>
                         {
@@ -173,16 +178,17 @@ export const Projects = () => {
                         }
                       </Row>
                     </Tab.Pane> */}
-                      </Tab.Content>
-                    </Tab.Container>
-                  </motion.div>
+                        </Tab.Content>
+                      </Tab.Container>
+                    </motion.div>
+                  </div>
                 </div>
               )}
             </TrackVisibility>
           </Col>
         </Row>
       </Container>
-      <img className="background-image-right" alt = "" src={colorSharp2}></img>
+      <img className="background-image-right" alt="" src={colorSharp2}></img>
     </section>
   );
 };
