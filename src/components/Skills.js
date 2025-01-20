@@ -60,67 +60,69 @@ export const Skills = () => {
                 scalable web applications with efficiency, precision, and a
                 focus on delivering high-quality solutions.
               </motion.p>
-              <motion.div
-                ref={carouselRef}
-                initial={{ opacity: 0, x: -300 }} // Start off-screen to the right
-                animate={
-                  carouselIsInView
-                    ? { opacity: 1, x: 0 }
-                    : { opacity: 0, x: -300 }
-                }
-                transition={{
-                  type: "spring", // Use spring for bounce effect
-                  stiffness: 100, // Controls the "bounciness"
-                  damping: 10, // Controls how quickly it settles
-                  duration: 1.2, // Optional: duration of the animation
-                  delay: 0.3, // Delays the animation
-                }}
-              >
-                <Carousel
-                  responsive={responsive}
-                  infinite={true}
-                  className="owl-carousel owl-theme skill-slider"
-                  ssr={true}
-                  autoPlay={true}
-                  autoPlaySpeed={1000}
-                  keyBoardControl={true}
-                  removeArrowOnDeviceType={["tablet", "mobile"]}
-                  containerClass="carousel-container"
+              <div style={{ position: "relative", overflow: "hidden" }}>
+                <motion.div
+                  ref={carouselRef}
+                  initial={{ opacity: 0, x: -300 }} // Start off-screen to the right
+                  animate={
+                    carouselIsInView
+                      ? { opacity: 1, x: 0 }
+                      : { opacity: 0, x: -300 }
+                  }
+                  transition={{
+                    type: "spring", // Use spring for bounce effect
+                    stiffness: 100, // Controls the "bounciness"
+                    damping: 10, // Controls how quickly it settles
+                    duration: 1.2, // Optional: duration of the animation
+                    delay: 0.3, // Delays the animation
+                  }}
                 >
-                  <div className="item">
-                    <img src={meter1} alt="" />
-                    <h5>Python, Flask Restful</h5>
-                  </div>
-                  <div className="item">
-                    <img src={meter3} alt="" />
-                    <h5>ReactJS Development</h5>
-                  </div>
-                  <div className="item">
-                    <img src={meter2} alt="" />
-                    <h5>NEXTJS Development</h5>
-                  </div>
-                  <div className="item">
-                    <img src={meter2} alt="" />
-                    <h5>ExpressJS Development</h5>
-                  </div>
-                  <div className="item">
-                    <img src={meter1} alt="" />
-                    <h5>HTML</h5>
-                  </div>
-                  <div className="item">
-                    <img src={meter3} alt="" />
-                    <h5>CSS</h5>
-                  </div>
-                  <div className="item">
-                    <img src={meter3} alt="" />
-                    <h5>TailwindCSS, MaterialUi</h5>
-                  </div>
-                  <div className="item">
-                    <img src={meter2} alt="" />
-                    <h5>BootStrap</h5>
-                  </div>
-                </Carousel>
-              </motion.div>
+                  <Carousel
+                    responsive={responsive}
+                    infinite={true}
+                    className="owl-carousel owl-theme skill-slider"
+                    ssr={true}
+                    autoPlay={true}
+                    autoPlaySpeed={1000}
+                    keyBoardControl={true}
+                    removeArrowOnDeviceType={["tablet", "mobile"]}
+                    containerClass="carousel-container"
+                  >
+                    <div className="item">
+                      <img src={meter1} alt="" />
+                      <h5>Python, Flask Restful</h5>
+                    </div>
+                    <div className="item">
+                      <img src={meter3} alt="" />
+                      <h5>ReactJS Development</h5>
+                    </div>
+                    <div className="item">
+                      <img src={meter2} alt="" />
+                      <h5>NEXTJS Development</h5>
+                    </div>
+                    <div className="item">
+                      <img src={meter2} alt="" />
+                      <h5>ExpressJS Development</h5>
+                    </div>
+                    <div className="item">
+                      <img src={meter1} alt="" />
+                      <h5>HTML</h5>
+                    </div>
+                    <div className="item">
+                      <img src={meter3} alt="" />
+                      <h5>CSS</h5>
+                    </div>
+                    <div className="item">
+                      <img src={meter3} alt="" />
+                      <h5>TailwindCSS, MaterialUi</h5>
+                    </div>
+                    <div className="item">
+                      <img src={meter2} alt="" />
+                      <h5>BootStrap</h5>
+                    </div>
+                  </Carousel>
+                </motion.div>
+              </div>
             </div>
           </div>
         </div>
