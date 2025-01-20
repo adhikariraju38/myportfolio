@@ -13,9 +13,9 @@ export const Skills = () => {
   const carouselRef = useRef(null);
   const carouselIsInView = useInView(carouselRef, {
     once: false,
-    margin: "-200px",
+    margin: "200px",
   });
-  const isInView = useInView(ref, { once: false, margin: "-200px" });
+  const isInView = useInView(ref, { once: false, margin: "200px" });
   const responsive = {
     superLargeDesktop: {
       // the naming can be any, depends on you.
@@ -32,7 +32,7 @@ export const Skills = () => {
     },
     mobile: {
       breakpoint: { max: 464, min: 0 },
-      items: 2,
+      items: 1,
     },
   };
 
@@ -63,11 +63,11 @@ export const Skills = () => {
               <div style={{ position: "relative", overflow: "hidden" }}>
                 <motion.div
                   ref={carouselRef}
-                  initial={{ opacity: 0, x: -300 }} // Start off-screen to the right
+                  initial={{ opacity: 0, x: -150 }} // Start off-screen to the right
                   animate={
                     carouselIsInView
                       ? { opacity: 1, x: 0 }
-                      : { opacity: 0, x: -300 }
+                      : { opacity: 0, x: -150 }
                   }
                   transition={{
                     type: "spring", // Use spring for bounce effect

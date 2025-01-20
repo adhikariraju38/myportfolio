@@ -84,7 +84,6 @@ export const Banner = () => {
                         <span className="wrap">{text}</span>
                       </span>
                     </h1>
-                    {console.log(isInView)}
                     <motion.p
                       ref={ref}
                       initial={{ opacity: 0, y: 20 }}
