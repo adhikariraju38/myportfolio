@@ -36,7 +36,7 @@ export function ThemeToggle() {
       onClick={toggle}
       whileTap={{ scale: 0.9, rotate: 15 }}
       transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      className="rounded-full p-2 text-text-secondary transition-colors hover:text-text"
+      className="glass-pill rounded-full p-2 text-text-secondary transition-colors hover:text-text"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? <Sun size={16} /> : <Moon size={16} />}

@@ -57,12 +57,12 @@ export function Card({ children, className, spotlight = true }: CardProps) {
         transformPerspective: 800,
       }}
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-border bg-bg-secondary p-6 transition-all duration-300 focus-within:ring-2 focus-within:ring-accent/30",
-        "hover:-translate-y-1 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5",
+        "group relative overflow-hidden rounded-xl glass-card glass-highlight p-6 transition-all duration-300 focus-within:ring-2 focus-within:ring-accent/30",
+        "hover:-translate-y-1 hover:shadow-[0_8px_40px_-12px_rgba(59,130,246,0.15)]",
         spotlight &&
-          "before:pointer-events-none before:absolute before:inset-0 before:rounded-xl before:opacity-0 before:transition-opacity hover:before:opacity-100",
+          "after:pointer-events-none after:absolute after:inset-0 after:z-2 after:rounded-xl after:opacity-0 after:transition-opacity hover:after:opacity-100",
         spotlight &&
-          "before:bg-[radial-gradient(400px_circle_at_var(--spotlight-x)_var(--spotlight-y),var(--accent-blue)/0.08,transparent_60%)]",
+          "after:bg-[radial-gradient(400px_circle_at_var(--spotlight-x)_var(--spotlight-y),var(--accent-blue)/0.08,transparent_60%)]",
         className
       )}
     >

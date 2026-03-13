@@ -69,7 +69,7 @@ export function SkillsSection() {
               className={cn(
                 "rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200",
                 activeCategory === cat
-                  ? "bg-accent text-white"
+                  ? "glass-pill text-accent shadow-[0_0_12px_-3px_var(--accent-blue)]"
                   : "border border-border text-text-secondary hover:border-accent/30 hover:text-text"
               )}
             >

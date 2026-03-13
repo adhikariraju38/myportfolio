@@ -61,7 +61,7 @@ function MagneticLink({
       {isActive && (
         <motion.span
           layoutId="nav-indicator"
-          className="absolute inset-0 rounded-full bg-bg-tertiary"
+          className="absolute inset-0 rounded-full glass-pill"
           transition={{
             type: "spring",
             stiffness: 400,
@@ -103,7 +103,7 @@ export function Navbar() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="fixed top-4 left-1/2 z-50 -translate-x-1/2"
         >
-          <nav className="flex items-center gap-1 rounded-full border border-border bg-bg/80 px-2 py-2 backdrop-blur-xl">
+          <nav className="glass glass-highlight flex items-center gap-1 rounded-full px-2 py-2">
             {/* Desktop nav */}
             <div className="hidden items-center gap-1 md:flex">
               {NAV_LINKS.map((link) => (
@@ -139,7 +139,7 @@ export function Navbar() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="mt-1 overflow-hidden rounded-2xl border border-border bg-bg/95 backdrop-blur-xl md:hidden"
+                className="glass glass-highlight mt-1 overflow-hidden rounded-2xl md:hidden"
               >
                 <div className="flex flex-col p-2">
                   {NAV_LINKS.map((link) => (
@@ -151,7 +151,7 @@ export function Navbar() {
                       className={cn(
                         "rounded-xl px-4 py-2.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                         activeSection === link.href.slice(1)
-                          ? "bg-bg-tertiary text-text"
+                          ? "glass-pill text-text"
                           : "text-text-secondary hover:text-text"
                       )}
                     >
