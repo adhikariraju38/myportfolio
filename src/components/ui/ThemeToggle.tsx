@@ -18,6 +18,8 @@ export function ThemeToggle() {
   }, []);
 
   const toggle = () => {
+    // Disable all transitions during theme switch to prevent flicker
+    document.documentElement.classList.add("no-transitions");
     setIsDark((prev) => {
       const next = !prev;
       if (next) {
@@ -28,6 +30,12 @@ export function ThemeToggle() {
         localStorage.setItem("theme", "light");
       }
       return next;
+    });
+    // Re-enable transitions after paint
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove("no-transitions");
+      });
     });
   };
 

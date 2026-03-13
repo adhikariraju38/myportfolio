@@ -65,6 +65,13 @@ body {
   }
 }
 
+/* Kill all transitions during theme switch to prevent flicker */
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+  transition-duration: 0s !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
