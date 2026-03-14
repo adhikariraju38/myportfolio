@@ -6,10 +6,12 @@ import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Badge } from "@/components/ui/Badge";
 import { SKILLS, SKILL_CATEGORIES } from "@/lib/data";
 import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { cn } from "@/lib/utils";
 import type { SkillCategory } from "@/types";
 
 export function SkillsSection() {
+  const mounted = useHasMounted();
   const [activeCategory, setActiveCategory] = useState<SkillCategory | "All">(
     "All"
   );
@@ -23,13 +25,13 @@ export function SkillsSection() {
     <SectionWrapper id="skills">
       <motion.div
         variants={staggerContainer}
-        initial="hidden"
+        initial={mounted ? "hidden" : false}
         whileInView="visible"
         viewport={{ once: true }}
       >
         <motion.h2
           variants={wordReveal}
-          initial="hidden"
+          initial={mounted ? "hidden" : false}
           whileInView="visible"
           viewport={{ once: true }}
           className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"

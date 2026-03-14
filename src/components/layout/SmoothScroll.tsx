@@ -12,9 +12,11 @@ declare global {
 export function SmoothScroll() {
   useEffect(() => {
     const lenis = new Lenis({
-      lerp: 0.1,
-      duration: 1.2,
+      lerp: 0.075,
+      duration: 1.8,
       smoothWheel: true,
+      wheelMultiplier: 0.8,
+      touchMultiplier: 1.5,
     });
 
     window.__lenis = lenis;

@@ -6,13 +6,15 @@ import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Counter } from "@/components/ui/Counter";
 import { ABOUT } from "@/lib/data";
 import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import { useHasMounted } from "@/hooks/useHasMounted";
 
 export function AboutSection() {
+  const mounted = useHasMounted();
   return (
     <SectionWrapper id="about">
       <motion.div
         variants={staggerContainer}
-        initial="hidden"
+        initial={mounted ? "hidden" : false}
         whileInView="visible"
         viewport={{ once: true }}
         className="grid gap-12 md:grid-cols-2 md:items-center"
@@ -42,7 +44,7 @@ export function AboutSection() {
         <div>
           <motion.h2
             variants={wordReveal}
-            initial="hidden"
+            initial={mounted ? "hidden" : false}
             whileInView="visible"
             viewport={{ once: true }}
             className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"

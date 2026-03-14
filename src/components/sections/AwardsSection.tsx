@@ -6,6 +6,7 @@ import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Card } from "@/components/ui/Card";
 import { AWARDS, CERTIFICATIONS } from "@/lib/data";
 import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import { useHasMounted } from "@/hooks/useHasMounted";
 
 const rankConfig = {
   winner: {
@@ -39,17 +40,18 @@ const rankConfig = {
 };
 
 export function AwardsSection() {
+  const mounted = useHasMounted();
   return (
     <SectionWrapper id="awards">
       <motion.div
         variants={staggerContainer}
-        initial="hidden"
+        initial={mounted ? "hidden" : false}
         whileInView="visible"
         viewport={{ once: true }}
       >
         <motion.h2
           variants={wordReveal}
-          initial="hidden"
+          initial={mounted ? "hidden" : false}
           whileInView="visible"
           viewport={{ once: true }}
           className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"

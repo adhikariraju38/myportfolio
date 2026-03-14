@@ -250,6 +250,28 @@ export const PROJECTS: Project[] = [
     metric: "1,000+ daily transactions",
     github: "https://github.com/adhikariraju38/marketplace",
   },
+  {
+    slug: "mockify-ts",
+    title: "mockify-ts",
+    subtitle: "Published npm Package",
+    description:
+      "Lightweight TypeScript mock data factory with smart field inference for Jest/Vitest and React Testing Library — eliminates boilerplate in unit tests.",
+    tech: ["TypeScript", "Node.js", "npm"],
+    metric: "Published on npm",
+    link: "https://www.npmjs.com/package/mockify-ts",
+    github: "https://github.com/adhikariraju38/mockify-ts",
+  },
+  {
+    slug: "dev-env-toolkit",
+    title: "dev-env-toolkit",
+    subtitle: "Published npm Package",
+    description:
+      "Type-safe environment variables, config management, and debugging utilities for Node.js and TypeScript projects.",
+    tech: ["TypeScript", "Node.js", "npm", "CLI"],
+    metric: "Published on npm",
+    link: "https://www.npmjs.com/package/dev-env-toolkit",
+    github: "https://github.com/adhikariraju38/dot-env-toolkit",
+  },
 ];
 
 export const AWARDS: Award[] = [

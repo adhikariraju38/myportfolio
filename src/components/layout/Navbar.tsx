@@ -89,7 +89,7 @@ export function Navbar() {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    window.__lenis?.scrollTo(href, { offset: -80, duration: 1.2 });
+    window.__lenis?.scrollTo(href, { offset: -80, duration: 2.5, easing: (t: number) => 1 - Math.pow(1 - t, 4) });
     setIsMobileOpen(false);
   };
 

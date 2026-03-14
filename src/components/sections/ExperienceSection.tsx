@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Briefcase, ChevronDown, MapPin } from "lucide-react";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Badge } from "@/components/ui/Badge";
 import { EXPERIENCES } from "@/lib/data";
 import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import { useHasMounted } from "@/hooks/useHasMounted";
 
 function TimelineItem({
   exp,
@@ -16,7 +17,6 @@ function TimelineItem({
   index: number;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const visibleBullets = expanded ? exp.bullets : exp.bullets.slice(0, 3);
   const hasMore = exp.bullets.length > 3;
 
   return (
@@ -59,14 +59,8 @@ function TimelineItem({
           </span>
         </div>
 
-        <motion.ul
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mb-4 space-y-2"
-        >
-          {visibleBullets.map((bullet, i) => (
+        <ul className="mb-4 space-y-2">
+          {exp.bullets.slice(0, 3).map((bullet, i) => (
             <motion.li
               key={i}
               variants={fadeInUp}
@@ -76,7 +70,23 @@ function TimelineItem({
               {bullet}
             </motion.li>
           ))}
-        </motion.ul>
+          <AnimatePresence>
+            {expanded &&
+              exp.bullets.slice(3).map((bullet, i) => (
+                <motion.li
+                  key={`extra-${i}`}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  className="flex gap-2 overflow-hidden text-sm leading-relaxed text-text-secondary"
+                >
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent/60" />
+                  {bullet}
+                </motion.li>
+              ))}
+          </AnimatePresence>
+        </ul>
 
         {hasMore && (
           <motion.button
@@ -106,17 +116,18 @@ function TimelineItem({
 }
 
 export function ExperienceSection() {
+  const mounted = useHasMounted();
   return (
     <SectionWrapper id="experience">
       <motion.div
         variants={staggerContainer}
-        initial="hidden"
+        initial={mounted ? "hidden" : false}
         whileInView="visible"
         viewport={{ once: true }}
       >
         <motion.h2
           variants={wordReveal}
-          initial="hidden"
+          initial={mounted ? "hidden" : false}
           whileInView="visible"
           viewport={{ once: true }}
           className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"

@@ -7,6 +7,7 @@ import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { CONTACT } from "@/lib/data";
 import { DynamicContactCanvas } from "@/components/3d/SceneLoaders";
 import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import { useHasMounted } from "@/hooks/useHasMounted";
 
 function MagneticIcon({
   href,
@@ -59,6 +60,7 @@ function MagneticIcon({
 }
 
 export function ContactSection() {
+  const mounted = useHasMounted();
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -82,13 +84,13 @@ export function ContactSection() {
       </div>
       <motion.div
         variants={staggerContainer}
-        initial="hidden"
+        initial={mounted ? "hidden" : false}
         whileInView="visible"
         viewport={{ once: true }}
       >
         <motion.h2
           variants={wordReveal}
-          initial="hidden"
+          initial={mounted ? "hidden" : false}
           whileInView="visible"
           viewport={{ once: true }}
           className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"
