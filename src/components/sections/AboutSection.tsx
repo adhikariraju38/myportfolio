@@ -31,7 +31,7 @@ export function AboutSection() {
                 alt="Raju Kumar Yadav"
                 fill
                 className="object-cover object-[center_20%] brightness-[1.02] contrast-[1.05]"
-                sizes="(max-width: 768px) 288px, 320px"
+                sizes="(max-width: 768px) 288px, 640px"
                 priority
               />
               {/* Subtle vignette overlay */}

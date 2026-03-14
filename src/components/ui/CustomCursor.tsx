@@ -18,32 +18,23 @@ export function CustomCursor() {
       target.current = { x: e.clientX, y: e.clientY };
     };
 
-    const handleEnterInteractive = () => setIsHovering(true);
-    const handleLeaveInteractive = () => setIsHovering(false);
-
     window.addEventListener("mousemove", handleMove);
 
-    // Track interactive elements
-    const observer = new MutationObserver(() => {
-      const elements = document.querySelectorAll(
-        "a, button, [role='button'], input, textarea, select"
-      );
-      elements.forEach((el) => {
-        el.addEventListener("mouseenter", handleEnterInteractive);
-        el.addEventListener("mouseleave", handleLeaveInteractive);
-      });
-    });
+    // Event delegation — single listener, no MutationObserver needed
+    const isInteractive = (el: Element | null): boolean => {
+      if (!el) return false;
+      return el.closest("a, button, [role='button'], input, textarea, select") !== null;
+    };
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    const handleOver = (e: MouseEvent) => {
+      if (isInteractive(e.target as Element)) setIsHovering(true);
+    };
+    const handleOut = (e: MouseEvent) => {
+      if (isInteractive(e.target as Element)) setIsHovering(false);
+    };
 
-    // Initial scan
-    const elements = document.querySelectorAll(
-      "a, button, [role='button'], input, textarea, select"
-    );
-    elements.forEach((el) => {
-      el.addEventListener("mouseenter", handleEnterInteractive);
-      el.addEventListener("mouseleave", handleLeaveInteractive);
-    });
+    document.addEventListener("mouseover", handleOver);
+    document.addEventListener("mouseout", handleOut);
 
     // Animation loop
     let raf: number;
@@ -67,7 +58,8 @@ export function CustomCursor() {
 
     return () => {
       window.removeEventListener("mousemove", handleMove);
-      observer.disconnect();
+      document.removeEventListener("mouseover", handleOver);
+      document.removeEventListener("mouseout", handleOut);
       cancelAnimationFrame(raf);
       document.body.style.cursor = "";
     };
@@ -78,7 +70,7 @@ export function CustomCursor() {
       {/* Outer ring */}
       <div
         ref={cursorRef}
-        className="pointer-events-none fixed top-0 left-0 z-[9999] hidden -translate-x-1/2 -translate-y-1/2 md:block"
+        className="pointer-events-none fixed top-0 left-0 z-9999 hidden -translate-x-1/2 -translate-y-1/2 md:block"
         style={{ willChange: "transform" }}
       >
         <div
@@ -92,7 +84,7 @@ export function CustomCursor() {
       {/* Inner dot */}
       <div
         ref={dotRef}
-        className="pointer-events-none fixed top-0 left-0 z-[9999] hidden -translate-x-1/2 -translate-y-1/2 md:block"
+        className="pointer-events-none fixed top-0 left-0 z-9999 hidden -translate-x-1/2 -translate-y-1/2 md:block"
         style={{ willChange: "transform" }}
       >
         <div className="h-1 w-1 rounded-full bg-accent" />
