@@ -4,7 +4,7 @@
 
 **Full Stack Engineer** | Microservices | React/Next.js | Cloud Infrastructure
 
-[![Live Site](https://img.shields.io/badge/Live-rajukumaryadav.com-3B82F6?style=for-the-badge&logo=vercel&logoColor=white)](https://rajukumaryadav.com)
+[![Live Site](https://img.shields.io/badge/Live-rajukumaryadav.com-3B82F6?style=for-the-badge&logo=vercel&logoColor=white)](https://portfolio.rajukumaryadav38.com.np)
 [![Next.js](https://img.shields.io/badge/Next.js_15-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![Tailwind](https://img.shields.io/badge/Tailwind_CSS_4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
