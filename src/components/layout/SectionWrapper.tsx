@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -12,23 +12,43 @@ interface SectionWrapperProps {
 
 export function SectionWrapper({ id, children, className }: SectionWrapperProps) {
   const ref = useRef<HTMLElement>(null);
+  // Start true to match SSR — IntersectionObserver will flip to false for off-screen sections
+  const [isNear, setIsNear] = useState(true);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsNear(entry.isIntersecting),
+      { rootMargin: "200px 0px" }
+    );
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
 
-  // Subtle parallax: content shifts up slightly as you scroll through
-  const y = useTransform(scrollYProgress, [0, 1], [20, -20]);
-  // Fade edges: full opacity in the middle, slightly faded at entry/exit
-  const opacity = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0.6, 1, 1, 0.6]);
+  // Parallax and fade only produce values when near viewport
+  const y = useTransform(scrollYProgress, [0, 1], isNear ? [20, -20] : [0, 0]);
+  const opacity = useTransform(
+    scrollYProgress,
+    [0, 0.15, 0.85, 1],
+    isNear ? [0.6, 1, 1, 0.6] : [1, 1, 1, 1]
+  );
+
+  // Apply contain only after hydration, via IntersectionObserver flipping isNear to false
+  const sectionStyle = !isNear ? { contain: "layout style paint" as const } : undefined;
 
   return (
     <section
       ref={ref}
       id={id}
       className={cn("relative mx-auto max-w-6xl px-6 py-24 md:py-32", className)}
+      style={sectionStyle}
     >
-      <motion.div style={{ y, opacity, willChange: "transform, opacity" }}>
+      <motion.div style={{ y, opacity, willChange: isNear ? "transform, opacity" : "auto" }}>
         {children}
       </motion.div>
     </section>

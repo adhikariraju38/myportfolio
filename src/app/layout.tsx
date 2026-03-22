@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -26,6 +26,13 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
   variable: "--font-jetbrains-mono",
 });
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0f" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f8fa" },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rajukumaryadav.com"),
@@ -63,10 +70,6 @@ export const metadata: Metadata = {
     description:
       "Full Stack Engineer specializing in microservices, React/Next.js, and cloud architecture.",
   },
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0f" },
-    { media: "(prefers-color-scheme: light)", color: "#f8f8fa" },
-  ],
   robots: {
     index: true,
     follow: true,

@@ -128,12 +128,12 @@ function ConnectionGrid({ count = 50 }: { count?: number }) {
 function ContactFallback() {
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-t from-accent/3 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-accent/3 via-transparent to-transparent" />
     </div>
   );
 }
 
-export function ContactCanvas() {
+export function ContactCanvas({ frameloop = "always" }: { frameloop?: "always" | "demand" }) {
   return (
     <ThreeErrorBoundary fallback={<ContactFallback />}>
       <Suspense fallback={<ContactFallback />}>
@@ -146,6 +146,7 @@ export function ContactCanvas() {
             pointerEvents: "none",
           }}
           dpr={[1, 1.5]}
+          frameloop={frameloop}
           gl={{ antialias: false, alpha: true }}
         >
           <ConnectionGrid count={40} />

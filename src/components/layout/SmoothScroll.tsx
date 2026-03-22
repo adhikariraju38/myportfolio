@@ -21,6 +21,16 @@ export function SmoothScroll() {
 
     window.__lenis = lenis;
 
+    // Phase 4: Reduce backdrop-filter blur during active scroll
+    let scrollTimeout: number;
+    lenis.on("scroll", () => {
+      document.documentElement.classList.add("is-scrolling");
+      clearTimeout(scrollTimeout);
+      scrollTimeout = window.setTimeout(() => {
+        document.documentElement.classList.remove("is-scrolling");
+      }, 150);
+    });
+
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -28,6 +38,8 @@ export function SmoothScroll() {
     requestAnimationFrame(raf);
 
     return () => {
+      clearTimeout(scrollTimeout);
+      document.documentElement.classList.remove("is-scrolling");
       lenis.destroy();
       window.__lenis = undefined;
     };

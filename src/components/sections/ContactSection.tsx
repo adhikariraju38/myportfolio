@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, type FormEvent } from "react";
+import { useRef, useState, useEffect, useCallback, type FormEvent } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { Mail, Phone, MapPin, Github, Linkedin, Send } from "lucide-react";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
@@ -61,6 +61,20 @@ function MagneticIcon({
 
 export function ContactSection() {
   const mounted = useHasMounted();
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // Phase 2: Pause Three.js when contact is off-screen
+  useEffect(() => {
+    if (!sectionRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: "200px" }
+    );
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -78,9 +92,9 @@ export function ContactSection() {
 
   return (
     <SectionWrapper id="contact" className="relative">
-      {/* 3D background — desktop only */}
-      <div className="absolute inset-0 -z-10 hidden md:block" aria-hidden="true">
-        <DynamicContactCanvas />
+      {/* 3D background — desktop only, pauses when off-screen */}
+      <div ref={sectionRef} className="absolute inset-0 -z-10 hidden md:block" aria-hidden="true">
+        <DynamicContactCanvas frameloop={isVisible ? "always" : "demand"} />
       </div>
       <motion.div
         variants={staggerContainer}

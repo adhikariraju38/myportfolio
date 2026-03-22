@@ -214,6 +214,7 @@ body {
   }
 }
 
+/* will-change on class for GPU promotion, auto-cleared via animationend in HeroSection */
 .hero-fade-in {
   opacity: 0;
   animation: hero-fade-in 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
@@ -327,6 +328,17 @@ body {
     rgba(255, 255, 255, 0.2) 40%,
     transparent 60%
   );
+}
+
+/* Phase 4: Reduce backdrop-filter during active scroll for performance.
+   Transition only lives inside .is-scrolling so idle glass has zero transition overhead. */
+.is-scrolling .glass,
+.is-scrolling .glass-subtle,
+.is-scrolling .glass-pill,
+.is-scrolling .glass-card {
+  backdrop-filter: blur(4px) saturate(1.2);
+  -webkit-backdrop-filter: blur(4px) saturate(1.2);
+  transition: backdrop-filter 0.2s ease, -webkit-backdrop-filter 0.2s ease;
 }
 
 /* Validation shake */

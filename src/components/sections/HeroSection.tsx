@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { HERO } from "@/lib/data";
@@ -9,11 +9,24 @@ import { DynamicHeroCanvas } from "@/components/3d/SceneLoaders";
 
 export function HeroSection() {
   const [show3D, setShow3D] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  // Defer 3D canvas until after text animations finish
+  // Defer 3D canvas until text animations are well underway
   useEffect(() => {
-    const timer = setTimeout(() => setShow3D(true), 800);
+    const timer = setTimeout(() => setShow3D(true), 500);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Phase 2: Pause Three.js when hero is off-screen
+  useEffect(() => {
+    if (!sectionRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: "100px" }
+    );
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
   }, []);
 
   const handleCTAClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -27,6 +40,7 @@ export function HeroSection() {
 
   return (
     <section
+      ref={sectionRef}
       id="hero"
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6"
     >
@@ -36,19 +50,28 @@ export function HeroSection() {
         aria-hidden="true"
         initial={{ opacity: 0 }}
         animate={{ opacity: show3D ? 1 : 0 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        {show3D && <DynamicHeroCanvas />}
+        {show3D && <DynamicHeroCanvas frameloop={isVisible ? "always" : "demand"} />}
       </motion.div>
       {/* Mobile fallback with CSS stars */}
       <div className="absolute inset-0 md:hidden" aria-hidden="true">
         <div className="mobile-stars absolute inset-0" />
-        <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-b from-accent/5 via-transparent to-transparent" />
         <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-3xl" />
       </div>
 
       {/* All hero text uses CSS animations — zero JS overhead, pure compositor */}
-      <div className="relative z-10 flex max-w-4xl flex-col items-center text-center">
+      {/* Phase 5: Clear will-change after animations finish to free GPU memory */}
+      <div
+        className="relative z-10 flex max-w-4xl flex-col items-center text-center"
+        onAnimationEnd={(e) => {
+          const target = e.target as HTMLElement;
+          if (target.classList.contains("hero-fade-in") || target.classList.contains("hero-word-reveal")) {
+            target.style.willChange = "auto";
+          }
+        }}
+      >
         <p className="hero-fade-in mb-4 font-mono text-sm text-accent" style={{ animationDelay: "0ms" }}>
           Hi, I&apos;m
         </p>

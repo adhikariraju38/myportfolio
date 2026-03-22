@@ -23,8 +23,8 @@ export function AboutSection() {
         <motion.div variants={fadeInUp} className="flex justify-center">
           <div className="relative">
             {/* Gradient ring glow */}
-            <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-accent via-accent-emerald to-cyan-400 opacity-50 blur-md" />
-            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-accent via-accent-emerald to-cyan-400 opacity-70" />
+            <div className="absolute -inset-1.5 rounded-2xl bg-linear-to-br from-accent via-accent-emerald to-cyan-400 opacity-50 blur-md" />
+            <div className="absolute -inset-1 rounded-2xl bg-linear-to-br from-accent via-accent-emerald to-cyan-400 opacity-70" />
             <div className="relative h-72 w-72 overflow-hidden rounded-2xl md:h-80 md:w-80">
               <Image
                 src="/images/raju-profile.jpg"
@@ -35,7 +35,7 @@ export function AboutSection() {
                 priority
               />
               {/* Subtle vignette overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-bg/30 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-bg/30 via-transparent to-transparent" />
             </div>
           </div>
         </motion.div>
