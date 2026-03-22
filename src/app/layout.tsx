@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { CustomCursor } from "@/components/ui/CustomCursor";
+import { PerformanceProvider } from "@/hooks/usePerformanceTier";
 import "./globals.css";
 
 const inter = Inter({
@@ -102,20 +103,22 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-bg text-text antialiased">
-        <a
-          href="#about"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-200 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
-        >
-          Skip to content
-        </a>
-        <SmoothScroll />
-        <ScrollProgress />
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        <CustomCursor />
-        <Analytics />
-        <SpeedInsights />
+        <PerformanceProvider>
+          <a
+            href="#about"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-200 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
+          >
+            Skip to content
+          </a>
+          <SmoothScroll />
+          <ScrollProgress />
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+          <CustomCursor />
+          <Analytics />
+          <SpeedInsights />
+        </PerformanceProvider>
       </body>
     </html>
   );

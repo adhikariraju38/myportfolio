@@ -3,6 +3,7 @@
 import { useRef, useCallback, type MouseEvent } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { usePerformance } from "@/hooks/usePerformanceTier";
 
 interface CardProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface CardProps {
 
 export function Card({ children, className, spotlight = true }: CardProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const perf = usePerformance();
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
   const springRotateX = useSpring(rotateX, { stiffness: 300, damping: 20 });
@@ -21,6 +23,9 @@ export function Card({ children, className, spotlight = true }: CardProps) {
     typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches
   );
 
+  const enableTilt = perf.enableCardTilt;
+  const enableSpotlight = spotlight && perf.enableCardTilt;
+
   const handleMouseMove = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
       if (!ref.current) return;
@@ -28,17 +33,17 @@ export function Card({ children, className, spotlight = true }: CardProps) {
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      if (spotlight) {
+      if (enableSpotlight) {
         ref.current.style.setProperty("--spotlight-x", `${x}px`);
         ref.current.style.setProperty("--spotlight-y", `${y}px`);
       }
 
-      if (isPointerFine.current) {
+      if (enableTilt && isPointerFine.current) {
         rotateX.set(((y - rect.height / 2) / rect.height) * -8);
         rotateY.set(((x - rect.width / 2) / rect.width) * 8);
       }
     },
-    [spotlight, rotateX, rotateY]
+    [enableSpotlight, enableTilt, rotateX, rotateY]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -49,19 +54,23 @@ export function Card({ children, className, spotlight = true }: CardProps) {
   return (
     <motion.div
       ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        rotateX: springRotateX,
-        rotateY: springRotateY,
-        transformPerspective: 800,
-      }}
+      onMouseMove={enableTilt || enableSpotlight ? handleMouseMove : undefined}
+      onMouseLeave={enableTilt ? handleMouseLeave : undefined}
+      style={
+        enableTilt
+          ? {
+              rotateX: springRotateX,
+              rotateY: springRotateY,
+              transformPerspective: 800,
+            }
+          : undefined
+      }
       className={cn(
         "group relative overflow-hidden rounded-xl glass-card glass-highlight p-6 transition-all duration-300 focus-within:ring-2 focus-within:ring-accent/30",
         "hover:-translate-y-1 hover:shadow-[0_8px_40px_-12px_rgba(59,130,246,0.15)]",
-        spotlight &&
+        enableSpotlight &&
           "after:pointer-events-none after:absolute after:inset-0 after:z-2 after:rounded-xl after:opacity-0 after:transition-opacity hover:after:opacity-100",
-        spotlight &&
+        enableSpotlight &&
           "after:bg-[radial-gradient(400px_circle_at_var(--spotlight-x)_var(--spotlight-y),var(--accent-blue)/0.08,transparent_60%)]",
         className
       )}

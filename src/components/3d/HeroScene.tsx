@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useMemo, useEffect, createContext, useContext } from "react";
+import { useRef, useState, useMemo, useEffect, createContext, useContext } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, Stars } from "@react-three/drei";
 import * as THREE from "three";
 import { Suspense } from "react";
 import { ThreeErrorBoundary } from "./ErrorBoundary";
 
-// Shared entrance progress context — ramps 0→1 over ~1.5s
+// Shared entrance progress context — ramps 0→1 over ~1s
 const EntranceContext = createContext<React.RefObject<number>>({ current: 0 });
 
 function EntranceController({ children }: { children: React.ReactNode }) {
@@ -26,12 +26,10 @@ function EntranceController({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Compute a staggered 0→1 value for a child element */
 function getChildProgress(globalProgress: number, start: number, end: number): number {
   if (globalProgress <= start) return 0;
   if (globalProgress >= end) return 1;
   const t = (globalProgress - start) / (end - start);
-  // smoothstep easing
   return t * t * (3 - 2 * t);
 }
 
@@ -73,14 +71,10 @@ function HexRing({
     const progress = entrance.current ?? 0;
     const p = getChildProgress(progress, enterStart, enterEnd);
 
-    // Scale in from 0.5→1
     const scale = 0.5 + p * 0.5;
     ref.current.scale.setScalar(scale);
-
-    // Fade in
     matRef.current.opacity = p * 0.6;
 
-    // Normal rotation/float animation
     ref.current.rotation.z = state.clock.elapsedTime * speed;
     ref.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.1;
     ref.current.position.y =
@@ -96,26 +90,30 @@ function HexRing({
   );
 }
 
+// Generate random positions outside component to satisfy purity rules
+function generateParticlePositions(count: number) {
+  const arr = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = 0.5 + Math.random() * 2.5;
+    arr[i * 3] = Math.cos(angle) * r;
+    arr[i * 3 + 1] = (Math.random() - 0.5) * 2;
+    arr[i * 3 + 2] = Math.sin(angle) * r + (Math.random() - 0.5) * 1;
+  }
+  return arr;
+}
+
+function generateParticleSpeeds(count: number) {
+  return Array.from({ length: count }, () => 0.2 + Math.random() * 0.8);
+}
+
 function Particles({ count = 60 }: { count?: number }) {
   const ref = useRef<THREE.Points>(null);
   const matRef = useRef<THREE.PointsMaterial>(null);
   const entrance = useContext(EntranceContext);
 
-  const positions = useMemo(() => {
-    const arr = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = 0.5 + Math.random() * 2.5;
-      arr[i * 3] = Math.cos(angle) * r;
-      arr[i * 3 + 1] = (Math.random() - 0.5) * 2;
-      arr[i * 3 + 2] = Math.sin(angle) * r + (Math.random() - 0.5) * 1;
-    }
-    return arr;
-  }, [count]);
-
-  const speeds = useMemo(() => {
-    return Array.from({ length: count }, () => 0.2 + Math.random() * 0.8);
-  }, [count]);
+  const [positions] = useState(() => generateParticlePositions(count));
+  const [speeds] = useState(() => generateParticleSpeeds(count));
 
   useFrame((state) => {
     if (!ref.current || !matRef.current) return;
@@ -156,13 +154,11 @@ function Particles({ count = 60 }: { count?: number }) {
   );
 }
 
-// Fix #1: Cache material ref once after mount instead of iterating children every frame
 function FadingStars() {
   const groupRef = useRef<THREE.Group>(null);
   const cachedMaterial = useRef<THREE.PointsMaterial | null>(null);
   const entrance = useContext(EntranceContext);
 
-  // Find and cache the PointsMaterial after Stars mounts
   useEffect(() => {
     if (!groupRef.current) return;
     groupRef.current.traverse((child) => {
@@ -174,7 +170,6 @@ function FadingStars() {
 
   useFrame(() => {
     if (!cachedMaterial.current) {
-      // Retry finding material if Stars hadn't mounted yet
       if (groupRef.current) {
         groupRef.current.traverse((child) => {
           if (child instanceof THREE.Points && child.material instanceof THREE.PointsMaterial) {
@@ -213,16 +208,18 @@ function MouseParallax() {
     target.current.x = pointer.x * 0.3;
     target.current.y = pointer.y * 0.2;
 
+    /* eslint-disable react-hooks/immutability -- Three.js camera mutation is the standard R3F pattern */
     camera.position.x += (target.current.x - camera.position.x) * 0.02;
     camera.position.y +=
       (target.current.y + 1.5 - camera.position.y) * 0.02;
     camera.lookAt(0, 0, 0);
+    /* eslint-enable react-hooks/immutability */
   });
 
   return null;
 }
 
-function Scene() {
+function Scene({ particleCount, showStars }: { particleCount: number; showStars: boolean }) {
   return (
     <EntranceController>
       <ambientLight intensity={0.15} />
@@ -231,17 +228,14 @@ function Scene() {
 
       <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
         <group>
-          {/* Inner ring — stagger: first */}
           <HexRing radius={0.8} color="#f59e0b" speed={0.15} yOffset={0} enterStart={0.0} enterEnd={0.4} />
-          {/* Middle ring — stagger: second */}
           <HexRing radius={1.4} color="#3b82f6" speed={-0.1} yOffset={0} enterStart={0.15} enterEnd={0.55} />
-          {/* Outer ring — stagger: third */}
           <HexRing radius={2.0} color="#6b7280" speed={0.05} yOffset={0} enterStart={0.3} enterEnd={0.7} />
         </group>
       </Float>
 
-      <Particles count={50} />
-      <FadingStars />
+      {particleCount > 0 && <Particles count={particleCount} />}
+      {showStars && <FadingStars />}
       <MouseParallax />
     </EntranceController>
   );
@@ -256,18 +250,29 @@ function HeroFallback() {
   );
 }
 
-export function HeroCanvas({ frameloop = "always" }: { frameloop?: "always" | "demand" }) {
+export function HeroCanvas({
+  frameloop = "always",
+  dpr = [1, 1.5],
+  particleMultiplier = 1,
+}: {
+  frameloop?: "always" | "demand";
+  dpr?: [number, number];
+  particleMultiplier?: number;
+}) {
+  const particleCount = Math.round(50 * particleMultiplier);
+  const showStars = particleMultiplier > 0;
+
   return (
     <ThreeErrorBoundary fallback={<HeroFallback />}>
       <Suspense fallback={<HeroFallback />}>
         <Canvas
           camera={{ position: [0, 1.5, 5], fov: 50 }}
           style={{ position: "absolute", inset: 0 }}
-          dpr={[1, 1.5]}
+          dpr={dpr}
           frameloop={frameloop}
           gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
         >
-          <Scene />
+          <Scene particleCount={particleCount} showStars={showStars} />
         </Canvas>
       </Suspense>
     </ThreeErrorBoundary>

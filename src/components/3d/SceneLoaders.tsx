@@ -5,6 +5,8 @@ import type { ComponentType } from "react";
 
 interface CanvasProps {
   frameloop?: "always" | "demand";
+  dpr?: [number, number];
+  particleMultiplier?: number;
 }
 
 export const DynamicHeroCanvas: ComponentType<CanvasProps> = dynamic(

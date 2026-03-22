@@ -6,19 +6,22 @@ import { ArrowDown, ArrowRight } from "lucide-react";
 import { HERO } from "@/lib/data";
 import { Button } from "@/components/ui/Button";
 import { DynamicHeroCanvas } from "@/components/3d/SceneLoaders";
+import { usePerformance } from "@/hooks/usePerformanceTier";
 
 export function HeroSection() {
+  const perf = usePerformance();
   const [show3D, setShow3D] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
 
   // Defer 3D canvas until text animations are well underway
   useEffect(() => {
+    if (!perf.enable3D) return;
     const timer = setTimeout(() => setShow3D(true), 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [perf.enable3D]);
 
-  // Phase 2: Pause Three.js when hero is off-screen
+  // Pause Three.js when hero is off-screen
   useEffect(() => {
     if (!sectionRef.current) return;
     const observer = new IntersectionObserver(
@@ -38,22 +41,39 @@ export function HeroSection() {
     window.__lenis?.scrollTo("#about", { offset: -80, duration: 2.5, easing: (t: number) => 1 - Math.pow(1 - t, 4) });
   };
 
+  const show3DCanvas = perf.enable3D && show3D;
+
   return (
     <section
       ref={sectionRef}
       id="hero"
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6"
     >
-      {/* 3D scene — deferred to avoid jank during text animations */}
-      <motion.div
-        className="absolute inset-0 hidden md:block"
-        aria-hidden="true"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: show3D ? 1 : 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-      >
-        {show3D && <DynamicHeroCanvas frameloop={isVisible ? "always" : "demand"} />}
-      </motion.div>
+      {/* 3D scene — only on capable devices */}
+      {perf.enable3D ? (
+        <motion.div
+          className="absolute inset-0 hidden md:block"
+          aria-hidden="true"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: show3DCanvas ? 1 : 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          {show3DCanvas && (
+            <DynamicHeroCanvas
+              frameloop={isVisible ? "always" : "demand"}
+              dpr={perf.dpr}
+              particleMultiplier={perf.particleMultiplier}
+            />
+          )}
+        </motion.div>
+      ) : (
+        /* Static fallback for low-tier devices */
+        <div className="absolute inset-0 hidden md:block" aria-hidden="true">
+          <div className="absolute inset-0 bg-linear-to-b from-accent/5 via-transparent to-transparent" />
+          <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-3xl" />
+        </div>
+      )}
+
       {/* Mobile fallback with CSS stars */}
       <div className="absolute inset-0 md:hidden" aria-hidden="true">
         <div className="mobile-stars absolute inset-0" />
@@ -62,7 +82,6 @@ export function HeroSection() {
       </div>
 
       {/* All hero text uses CSS animations — zero JS overhead, pure compositor */}
-      {/* Phase 5: Clear will-change after animations finish to free GPU memory */}
       <div
         className="relative z-10 flex max-w-4xl flex-col items-center text-center"
         onAnimationEnd={(e) => {

@@ -1,40 +1,41 @@
 "use client";
 
-import { useRef, useMemo } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useRef, useState, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Suspense } from "react";
 import { ThreeErrorBoundary } from "./ErrorBoundary";
+
+function generateGrid(count: number) {
+  const base = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    base[i * 3] = (Math.random() - 0.5) * 8;
+    base[i * 3 + 1] = (Math.random() - 0.5) * 6;
+    base[i * 3 + 2] = (Math.random() - 0.5) * 3 - 2;
+  }
+
+  const conns: number[] = [];
+  for (let i = 0; i < count; i++) {
+    for (let j = i + 1; j < count; j++) {
+      const dx = base[i * 3] - base[j * 3];
+      const dy = base[i * 3 + 1] - base[j * 3 + 1];
+      const dz = base[i * 3 + 2] - base[j * 3 + 2];
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (dist < 2.5) {
+        conns.push(i, j);
+      }
+    }
+  }
+
+  return { basePositions: base, connections: conns };
+}
 
 function ConnectionGrid({ count = 50 }: { count?: number }) {
   const pointsRef = useRef<THREE.Points>(null);
   const linesRef = useRef<THREE.LineSegments>(null);
   const mouse = useRef({ x: 0, y: 0 });
 
-  const { basePositions, connections } = useMemo(() => {
-    const base = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      base[i * 3] = (Math.random() - 0.5) * 8;
-      base[i * 3 + 1] = (Math.random() - 0.5) * 6;
-      base[i * 3 + 2] = (Math.random() - 0.5) * 3 - 2;
-    }
-
-    // Pre-compute connections for nearby points
-    const conns: number[] = [];
-    for (let i = 0; i < count; i++) {
-      for (let j = i + 1; j < count; j++) {
-        const dx = base[i * 3] - base[j * 3];
-        const dy = base[i * 3 + 1] - base[j * 3 + 1];
-        const dz = base[i * 3 + 2] - base[j * 3 + 2];
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (dist < 2.5) {
-          conns.push(i, j);
-        }
-      }
-    }
-
-    return { basePositions: base, connections: conns };
-  }, [count]);
+  const [{ basePositions, connections }] = useState(() => generateGrid(count));
 
   const linePositions = useMemo(
     () => new Float32Array(connections.length * 3),
@@ -56,11 +57,9 @@ function ConnectionGrid({ count = 50 }: { count?: number }) {
       const by = basePositions[i * 3 + 1];
       const bz = basePositions[i * 3 + 2];
 
-      // Gentle float
       const x = bx + Math.sin(time * 0.3 + i) * 0.1;
       const y = by + Math.cos(time * 0.2 + i * 0.5) * 0.1;
 
-      // Mouse attraction
       const dx = mouse.current.x - x;
       const dy = mouse.current.y - y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -70,7 +69,6 @@ function ConnectionGrid({ count = 50 }: { count?: number }) {
     }
     pos.needsUpdate = true;
 
-    // Update lines
     if (linesRef.current) {
       const lp = linesRef.current.geometry.attributes
         .position as THREE.BufferAttribute;
@@ -133,7 +131,17 @@ function ContactFallback() {
   );
 }
 
-export function ContactCanvas({ frameloop = "always" }: { frameloop?: "always" | "demand" }) {
+export function ContactCanvas({
+  frameloop = "always",
+  dpr = [1, 1.5],
+  particleMultiplier = 1,
+}: {
+  frameloop?: "always" | "demand";
+  dpr?: [number, number];
+  particleMultiplier?: number;
+}) {
+  const count = Math.round(40 * particleMultiplier);
+
   return (
     <ThreeErrorBoundary fallback={<ContactFallback />}>
       <Suspense fallback={<ContactFallback />}>
@@ -145,11 +153,11 @@ export function ContactCanvas({ frameloop = "always" }: { frameloop?: "always" |
             zIndex: -1,
             pointerEvents: "none",
           }}
-          dpr={[1, 1.5]}
+          dpr={dpr}
           frameloop={frameloop}
           gl={{ antialias: false, alpha: true }}
         >
-          <ConnectionGrid count={40} />
+          <ConnectionGrid count={count} />
         </Canvas>
       </Suspense>
     </ThreeErrorBoundary>

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePerformance } from "@/hooks/usePerformanceTier";
 
 export function CustomCursor() {
+  const perf = usePerformance();
   const cursorRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -10,7 +12,9 @@ export function CustomCursor() {
   const target = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    // Only show on desktop with pointer device
+    // Skip entirely on low-tier devices
+    if (!perf.enableCursor) return;
+
     const mql = window.matchMedia("(pointer: fine) and (min-width: 768px)");
     if (!mql.matches) return;
 
@@ -20,7 +24,6 @@ export function CustomCursor() {
 
     window.addEventListener("mousemove", handleMove);
 
-    // Event delegation — single listener, no MutationObserver needed
     const isInteractive = (el: Element | null): boolean => {
       if (!el) return false;
       return el.closest("a, button, [role='button'], input, textarea, select") !== null;
@@ -36,7 +39,6 @@ export function CustomCursor() {
     document.addEventListener("mouseover", handleOver);
     document.addEventListener("mouseout", handleOut);
 
-    // Animation loop
     let raf: number;
     const animate = () => {
       pos.current.x += (target.current.x - pos.current.x) * 0.15;
@@ -53,7 +55,6 @@ export function CustomCursor() {
     };
     raf = requestAnimationFrame(animate);
 
-    // Hide default cursor
     document.body.style.cursor = "none";
 
     return () => {
@@ -63,11 +64,13 @@ export function CustomCursor() {
       cancelAnimationFrame(raf);
       document.body.style.cursor = "";
     };
-  }, []);
+  }, [perf.enableCursor]);
+
+  // Don't render DOM elements if cursor is disabled
+  if (!perf.enableCursor) return null;
 
   return (
     <>
-      {/* Outer ring */}
       <div
         ref={cursorRef}
         className="pointer-events-none fixed top-0 left-0 z-9999 hidden -translate-x-1/2 -translate-y-1/2 md:block"
@@ -81,7 +84,6 @@ export function CustomCursor() {
           }`}
         />
       </div>
-      {/* Inner dot */}
       <div
         ref={dotRef}
         className="pointer-events-none fixed top-0 left-0 z-9999 hidden -translate-x-1/2 -translate-y-1/2 md:block"

@@ -1,43 +1,48 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
 
-export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("theme") !== "light";
-    }
-    return true;
-  });
+// External store for theme state
+const listeners = new Set<() => void>();
 
-  useEffect(() => {
-    const isLight = document.documentElement.classList.contains("light");
-    setIsDark(!isLight);
-  }, []);
+function subscribeTheme(cb: () => void) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
 
-  const toggle = () => {
-    // Disable all transitions during theme switch to prevent flicker
-    document.documentElement.classList.add("no-transitions");
-    setIsDark((prev) => {
-      const next = !prev;
-      if (next) {
-        document.documentElement.classList.remove("light");
-        localStorage.setItem("theme", "dark");
-      } else {
-        document.documentElement.classList.add("light");
-        localStorage.setItem("theme", "light");
-      }
-      return next;
-    });
-    // Re-enable transitions after paint
+function getThemeSnapshot() {
+  return !document.documentElement.classList.contains("light");
+}
+
+function getThemeServerSnapshot() {
+  return true;
+}
+
+function setTheme(dark: boolean) {
+  document.documentElement.classList.add("no-transitions");
+  if (dark) {
+    document.documentElement.classList.remove("light");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.documentElement.classList.add("light");
+    localStorage.setItem("theme", "light");
+  }
+  // Notify subscribers so useSyncExternalStore re-renders
+  listeners.forEach((cb) => cb());
+  // Re-enable transitions after paint
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        document.documentElement.classList.remove("no-transitions");
-      });
+      document.documentElement.classList.remove("no-transitions");
     });
-  };
+  });
+}
+
+export function ThemeToggle() {
+  const isDark = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
+
+  const toggle = () => setTheme(!isDark);
 
   return (
     <motion.button

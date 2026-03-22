@@ -7,15 +7,18 @@ import { NAV_LINKS } from "@/lib/data";
 import { useScrollSection } from "@/hooks/useScrollSection";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { usePerformance } from "@/hooks/usePerformanceTier";
 
 function MagneticLink({
   href,
   isActive,
+  magnetic,
   onClick,
   children,
 }: {
   href: string;
   isActive: boolean;
+  magnetic: boolean;
   onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   children: React.ReactNode;
 }) {
@@ -27,14 +30,14 @@ function MagneticLink({
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (!ref.current) return;
+      if (!magnetic || !ref.current) return;
       const rect = ref.current.getBoundingClientRect();
       const dx = e.clientX - (rect.left + rect.width / 2);
       const dy = e.clientY - (rect.top + rect.height / 2);
       x.set(Math.max(-5, Math.min(5, dx * 0.3)));
       y.set(Math.max(-5, Math.min(5, dy * 0.3)));
     },
-    [x, y]
+    [x, y, magnetic]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -49,7 +52,7 @@ function MagneticLink({
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{ x: springX, y: springY }}
+      style={magnetic ? { x: springX, y: springY } : undefined}
       aria-current={isActive ? "page" : undefined}
       className={cn(
         "relative rounded-full px-4 py-1.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
@@ -75,6 +78,7 @@ function MagneticLink({
 }
 
 export function Navbar() {
+  const perf = usePerformance();
   const [isVisible, setIsVisible] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const activeSection = useScrollSection();
@@ -104,13 +108,13 @@ export function Navbar() {
           className="fixed top-4 left-1/2 z-50 -translate-x-1/2"
         >
           <nav className="glass glass-highlight flex items-center gap-1 rounded-full px-2 py-2">
-            {/* Desktop nav */}
             <div className="hidden items-center gap-1 md:flex">
               {NAV_LINKS.map((link) => (
                 <MagneticLink
                   key={link.href}
                   href={link.href}
                   isActive={activeSection === link.href.slice(1)}
+                  magnetic={perf.enableMagnetic}
                   onClick={(e) => handleNavClick(e, link.href)}
                 >
                   {link.label}
@@ -120,7 +124,6 @@ export function Navbar() {
 
             <ThemeToggle />
 
-            {/* Mobile toggle */}
             <motion.button
               onClick={() => setIsMobileOpen(!isMobileOpen)}
               whileTap={{ scale: 0.9 }}
@@ -131,7 +134,6 @@ export function Navbar() {
             </motion.button>
           </nav>
 
-          {/* Mobile menu */}
           <AnimatePresence>
             {isMobileOpen && (
               <motion.div

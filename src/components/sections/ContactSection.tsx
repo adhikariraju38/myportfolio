@@ -8,14 +8,17 @@ import { CONTACT } from "@/lib/data";
 import { DynamicContactCanvas } from "@/components/3d/SceneLoaders";
 import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
 import { useHasMounted } from "@/hooks/useHasMounted";
+import { usePerformance } from "@/hooks/usePerformanceTier";
 
 function MagneticIcon({
   href,
   label,
+  magnetic,
   children,
 }: {
   href: string;
   label: string;
+  magnetic: boolean;
   children: React.ReactNode;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -26,14 +29,14 @@ function MagneticIcon({
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (!ref.current) return;
+      if (!magnetic || !ref.current) return;
       const rect = ref.current.getBoundingClientRect();
       const dx = e.clientX - (rect.left + rect.width / 2);
       const dy = e.clientY - (rect.top + rect.height / 2);
       x.set(Math.max(-3, Math.min(3, dx * 0.3)));
       y.set(Math.max(-3, Math.min(3, dy * 0.3)));
     },
-    [x, y]
+    [x, y, magnetic]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -50,7 +53,7 @@ function MagneticIcon({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       whileTap={{ scale: 0.95 }}
-      style={{ x: springX, y: springY }}
+      style={magnetic ? { x: springX, y: springY } : undefined}
       className="flex h-10 w-10 items-center justify-center rounded-full glass-pill text-text-secondary transition-all hover:-translate-y-0.5 hover:text-text hover:shadow-[0_0_12px_-3px_var(--accent-blue)]"
       aria-label={label}
     >
@@ -61,10 +64,10 @@ function MagneticIcon({
 
 export function ContactSection() {
   const mounted = useHasMounted();
+  const perf = usePerformance();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  // Phase 2: Pause Three.js when contact is off-screen
   useEffect(() => {
     if (!sectionRef.current) return;
     const observer = new IntersectionObserver(
@@ -92,10 +95,20 @@ export function ContactSection() {
 
   return (
     <SectionWrapper id="contact" className="relative">
-      {/* 3D background — desktop only, pauses when off-screen */}
-      <div ref={sectionRef} className="absolute inset-0 -z-10 hidden md:block" aria-hidden="true">
-        <DynamicContactCanvas frameloop={isVisible ? "always" : "demand"} />
-      </div>
+      {/* 3D background — only on capable devices */}
+      {perf.enable3D ? (
+        <div ref={sectionRef} className="absolute inset-0 -z-10 hidden md:block" aria-hidden="true">
+          <DynamicContactCanvas
+            frameloop={isVisible ? "always" : "demand"}
+            dpr={perf.dpr}
+            particleMultiplier={perf.particleMultiplier}
+          />
+        </div>
+      ) : (
+        <div ref={sectionRef} className="absolute inset-0 -z-10 hidden md:block" aria-hidden="true">
+          <div className="absolute inset-0 bg-linear-to-t from-accent/3 via-transparent to-transparent" />
+        </div>
+      )}
       <motion.div
         variants={staggerContainer}
         initial={mounted ? "hidden" : false}
@@ -132,7 +145,6 @@ export function ContactSection() {
         </motion.p>
 
         <div className="grid gap-12 md:grid-cols-2">
-          {/* Form */}
           <motion.form
             variants={fadeInUp}
             onSubmit={handleSubmit}
@@ -198,7 +210,6 @@ export function ContactSection() {
             </motion.button>
           </motion.form>
 
-          {/* Contact info */}
           <motion.div variants={fadeInUp} className="space-y-6">
             <div className="space-y-4">
               <a
@@ -232,10 +243,10 @@ export function ContactSection() {
                 Find me on
               </p>
               <div className="flex gap-3">
-                <MagneticIcon href={CONTACT.github} label="GitHub">
+                <MagneticIcon href={CONTACT.github} label="GitHub" magnetic={perf.enableMagnetic}>
                   <Github size={18} />
                 </MagneticIcon>
-                <MagneticIcon href={CONTACT.linkedin} label="LinkedIn">
+                <MagneticIcon href={CONTACT.linkedin} label="LinkedIn" magnetic={perf.enableMagnetic}>
                   <Linkedin size={18} />
                 </MagneticIcon>
               </div>

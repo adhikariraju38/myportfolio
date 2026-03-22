@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
+import { usePerformance } from "@/hooks/usePerformanceTier";
 
 declare global {
   interface Window {
@@ -10,7 +11,12 @@ declare global {
 }
 
 export function SmoothScroll() {
+  const perf = usePerformance();
+
   useEffect(() => {
+    // Skip Lenis entirely on low-tier — use native scroll
+    if (!perf.enableSmoothScroll) return;
+
     const lenis = new Lenis({
       lerp: 0.075,
       duration: 1.8,
@@ -21,7 +27,7 @@ export function SmoothScroll() {
 
     window.__lenis = lenis;
 
-    // Phase 4: Reduce backdrop-filter blur during active scroll
+    // Reduce backdrop-filter blur during active scroll
     let scrollTimeout: number;
     lenis.on("scroll", () => {
       document.documentElement.classList.add("is-scrolling");
@@ -43,7 +49,7 @@ export function SmoothScroll() {
       lenis.destroy();
       window.__lenis = undefined;
     };
-  }, []);
+  }, [perf.enableSmoothScroll]);
 
   return null;
 }

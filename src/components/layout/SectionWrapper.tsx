@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { usePerformance } from "@/hooks/usePerformanceTier";
 
 interface SectionWrapperProps {
   id: string;
@@ -12,7 +13,8 @@ interface SectionWrapperProps {
 
 export function SectionWrapper({ id, children, className }: SectionWrapperProps) {
   const ref = useRef<HTMLElement>(null);
-  // Start true to match SSR — IntersectionObserver will flip to false for off-screen sections
+  const perf = usePerformance();
+  // Start true to match SSR
   const [isNear, setIsNear] = useState(true);
 
   useEffect(() => {
@@ -30,15 +32,14 @@ export function SectionWrapper({ id, children, className }: SectionWrapperProps)
     offset: ["start end", "end start"],
   });
 
-  // Parallax and fade only produce values when near viewport
-  const y = useTransform(scrollYProgress, [0, 1], isNear ? [20, -20] : [0, 0]);
+  const shouldAnimate = perf.enableParallax && isNear;
+  const y = useTransform(scrollYProgress, [0, 1], shouldAnimate ? [20, -20] : [0, 0]);
   const opacity = useTransform(
     scrollYProgress,
     [0, 0.15, 0.85, 1],
-    isNear ? [0.6, 1, 1, 0.6] : [1, 1, 1, 1]
+    shouldAnimate ? [0.6, 1, 1, 0.6] : [1, 1, 1, 1]
   );
 
-  // Apply contain only after hydration, via IntersectionObserver flipping isNear to false
   const sectionStyle = !isNear ? { contain: "layout style paint" as const } : undefined;
 
   return (
@@ -48,7 +49,7 @@ export function SectionWrapper({ id, children, className }: SectionWrapperProps)
       className={cn("relative mx-auto max-w-6xl px-6 py-24 md:py-32", className)}
       style={sectionStyle}
     >
-      <motion.div style={{ y, opacity, willChange: isNear ? "transform, opacity" : "auto" }}>
+      <motion.div style={{ y, opacity, willChange: shouldAnimate ? "transform, opacity" : "auto" }}>
         {children}
       </motion.div>
     </section>
