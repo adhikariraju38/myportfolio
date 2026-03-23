@@ -4,6 +4,8 @@ import type {
   Skill,
   Award,
   Certification,
+  Publication,
+  OpenSourceContribution,
   NavLink,
 } from "@/types";
 
@@ -12,6 +14,8 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Experience", href: "#experience" },
   { label: "Skills", href: "#skills" },
   { label: "Projects", href: "#projects" },
+  { label: "Publications", href: "#publications" },
+  { label: "Open Source", href: "#open-source" },
   { label: "Awards", href: "#awards" },
   { label: "Education", href: "#education" },
   { label: "Contact", href: "#contact" },
@@ -337,6 +341,88 @@ export const COMMUNITY = [
     year: "2022",
     description:
       "Taught Computer Programming course to junior students based on IOE syllabus.",
+  },
+];
+
+export const PUBLICATIONS: Publication[] = [
+  {
+    title:
+      "MaiBERT: A Pre-training Corpus and Language Model for Low-Resourced Maithili Language",
+    authors:
+      "Sumit Yadav, Raju Kumar Yadav, Utsav Maskey, Gautam Siddharth Kashyap, Ganesh Gautam, Usman Naseem",
+    venue: "LoResLM 2026 Workshop, co-located with EACL 2026",
+    year: "2026",
+    description:
+      "Introduced maiBERT, a BERT-based language model pre-trained on a newly constructed Maithili corpus using Masked Language Modeling. Achieved 87.02% accuracy on news classification, outperforming NepBERTa and HindiBERT by 0.13% overall and 5–7% across individual classes. Model open-sourced on Hugging Face.",
+  },
+  {
+    title:
+      "SimAM-KD: Attention-Enhanced Knowledge Distillation for Efficient Image Classification",
+    authors:
+      "Raju Kumar Yadav, Rajesh Khanal, Safalta Kumari Yadav, Rikesh Kumar Shah, Bibek Kumar Gupta",
+    venue: "Preprint, TechRxiv",
+    year: "2026",
+    doi: "10.36227/techrxiv.177006059.90655311/v1",
+    description:
+      "Proposed an attention-enhanced knowledge distillation framework using SimAM for efficient image classification, enabling lightweight student models to retain teacher-level accuracy.",
+  },
+  {
+    title:
+      'The "For You" Page Problem: Explicit Content Exposure and Mental Health Concerns',
+    authors: "Raju Kumar Yadav, Safalta Kumari Yadav",
+    venue: "Preprint, PsyArXiv",
+    year: "2026",
+    doi: "10.31234/osf.io/8rbhq_v2",
+    description:
+      "Investigated the relationship between algorithmic content curation on short-form video platforms and mental health outcomes, analyzing explicit content exposure patterns.",
+  },
+  {
+    title: "Machine Learning Analysis of Tirhuta Lipi",
+    authors: "Sumit Yadav, Raju Kumar Yadav. Tribhuvan University",
+    venue: "Tribhuvan University",
+    year: "2023",
+    doi: "10.13140/RG.2.2.15213.97765",
+    description:
+      "Explored ML techniques for character recognition of the low-resource Tirhuta script. Achieved 0.97 accuracy using MobileNet embeddings with logistic regression. Demonstrated feasibility of ML-based OCR for endangered scripts.",
+  },
+];
+
+export const OPEN_SOURCE_CONTRIBUTIONS: OpenSourceContribution[] = [
+  {
+    project: "SAFE MCP Framework",
+    organization: "Linux Foundation",
+    description:
+      "Contributed security technique specifications to the SAFE (Safe Agentic Framework for Everyone) MCP project, focused on securing AI agent tool-use workflows.",
+    repoUrl: "https://github.com/safe-agentic-framework/safe-mcp",
+    contributions: [
+      {
+        id: "SAFE-T1009",
+        title: "Authorization Server Mix-up",
+        severity: "critical",
+        description:
+          "Documented OAuth 2.0 attack where adversaries exploit client confusion via lookalike authorization server domains (typosquatting, homograph attacks), enabling token theft across MCP-integrated services.",
+        url:
+          "https://github.com/safe-agentic-framework/safe-mcp/tree/main/techniques/SAFE-T1009",
+      },
+      {
+        id: "SAFE-T1308",
+        title: "Token Scope Substitution",
+        severity: "high",
+        description:
+          "Documented privilege escalation attack where limited-scope OAuth tokens are swapped with elevated-scope tokens, exploiting insufficient scope validation at resource servers in multi-tool MCP environments.",
+        url:
+          "https://github.com/safe-agentic-framework/safe-mcp/tree/main/techniques/SAFE-T1308",
+      },
+      {
+        id: "SAFE-T1401",
+        title: "Line Jumping",
+        severity: "high",
+        description:
+          "Documented defense evasion technique where attackers manipulate context structure and instruction ordering to bypass security checkpoints in LLM-based AI systems by exploiting sequential context processing.",
+        url:
+          "https://github.com/safe-agentic-framework/safe-mcp/tree/main/techniques/SAFE-T1401",
+      },
+    ],
   },
 ];
 

@@ -46,6 +46,29 @@ export interface Certification {
   link: string;
 }
 
+export interface Publication {
+  title: string;
+  authors: string;
+  venue: string;
+  year: string;
+  doi?: string;
+  description: string;
+}
+
+export interface OpenSourceContribution {
+  project: string;
+  organization: string;
+  description: string;
+  contributions: {
+    id: string;
+    title: string;
+    severity: "critical" | "high" | "medium";
+    description: string;
+    url: string;
+  }[];
+  repoUrl: string;
+}
+
 export interface NavLink {
   label: string;
   href: string;
