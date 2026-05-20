@@ -25,7 +25,7 @@ export function HeroSection() {
   useEffect(() => {
     if (!sectionRef.current) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
+      ([entry]) => setIsVisible(entry?.isIntersecting ?? false),
       { rootMargin: "100px" }
     );
     observer.observe(sectionRef.current);

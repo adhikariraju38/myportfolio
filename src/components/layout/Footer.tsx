@@ -1,4 +1,5 @@
-import { Github, Linkedin, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
+import { Github, Linkedin } from "@/components/ui/BrandIcons";
 import { CONTACT } from "@/lib/data";
 
 export function Footer() {

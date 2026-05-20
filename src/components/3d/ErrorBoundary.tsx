@@ -12,17 +12,17 @@ interface State {
 }
 
 export class ThreeErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  override state: State = { hasError: false };
 
   static getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error) {
+  override componentDidCatch(error: Error) {
     console.error("3D scene error:", error.message);
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) return this.props.fallback;
     return this.props.children;
   }

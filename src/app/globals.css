@@ -42,6 +42,10 @@
   --font-mono: var(--font-jetbrains-mono);
 }
 
+html {
+  position: relative;
+}
+
 html.lenis, html.lenis body {
   height: auto;
 }

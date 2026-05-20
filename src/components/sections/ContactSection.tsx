@@ -2,7 +2,8 @@
 
 import { useRef, useState, useEffect, useCallback, type FormEvent } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
-import { Mail, Phone, MapPin, Github, Linkedin, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Github, Linkedin } from "@/components/ui/BrandIcons";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { CONTACT } from "@/lib/data";
 import { DynamicContactCanvas } from "@/components/3d/SceneLoaders";
@@ -71,7 +72,7 @@ export function ContactSection() {
   useEffect(() => {
     if (!sectionRef.current) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
+      ([entry]) => setIsVisible(entry?.isIntersecting ?? false),
       { rootMargin: "200px" }
     );
     observer.observe(sectionRef.current);

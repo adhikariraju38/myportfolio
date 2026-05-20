@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight, Github } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { Github } from "@/components/ui/BrandIcons";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";

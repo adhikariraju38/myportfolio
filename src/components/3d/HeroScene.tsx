@@ -125,7 +125,7 @@ function Particles({ count = 60 }: { count?: number }) {
       .position as THREE.BufferAttribute;
     for (let i = 0; i < count; i++) {
       const angle =
-        state.clock.elapsedTime * speeds[i] * 0.3 +
+        state.clock.elapsedTime * (speeds[i] ?? 0) * 0.3 +
         (i / count) * Math.PI * 2;
       const r = 0.5 + ((i * 7) % 25) * 0.08;
       posAttr.setX(i, Math.cos(angle) * r);
