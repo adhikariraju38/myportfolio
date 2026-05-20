@@ -3,24 +3,45 @@
 import { useRef, useState, useEffect, useCallback, type FormEvent } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
-import { Github, Linkedin } from "@/components/ui/BrandIcons";
+import { toast } from "sonner";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
-import { CONTACT } from "@/lib/data";
 import { DynamicContactCanvas } from "@/components/3d/SceneLoaders";
-import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import {
+  staggerContainer,
+  fadeInUp,
+  wordReveal,
+  wordRevealChild,
+} from "@/styles/animations";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { usePerformance } from "@/hooks/usePerformanceTier";
+import { apiClient, ApiClientError } from "@/lib/api-client";
+import { getIcon } from "@/lib/icons";
+import type { PublicSocialLink } from "@/types/public";
+
+interface ContactInfo {
+  email?: string;
+  phone?: string;
+  location?: string;
+}
+
+interface ContactSectionProps {
+  contact: ContactInfo;
+  socials: PublicSocialLink[];
+  enable3dCanvas?: boolean;
+}
 
 function MagneticIcon({
   href,
   label,
   magnetic,
   children,
+  opensInNewTab = true,
 }: {
   href: string;
   label: string;
   magnetic: boolean;
   children: React.ReactNode;
+  opensInNewTab?: boolean;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const x = useMotionValue(0);
@@ -37,7 +58,7 @@ function MagneticIcon({
       x.set(Math.max(-3, Math.min(3, dx * 0.3)));
       y.set(Math.max(-3, Math.min(3, dy * 0.3)));
     },
-    [x, y, magnetic]
+    [x, y, magnetic],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -49,8 +70,8 @@ function MagneticIcon({
     <motion.a
       ref={ref}
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
+      target={opensInNewTab ? "_blank" : undefined}
+      rel={opensInNewTab ? "noopener noreferrer" : undefined}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       whileTap={{ scale: 0.95 }}
@@ -63,41 +84,52 @@ function MagneticIcon({
   );
 }
 
-export function ContactSection() {
+export function ContactSection({ contact, socials, enable3dCanvas = true }: ContactSectionProps) {
   const mounted = useHasMounted();
   const perf = usePerformance();
+  const enable3d = perf.enable3D && enable3dCanvas;
   const [isVisible, setIsVisible] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!sectionRef.current) return;
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry?.isIntersecting ?? false),
-      { rootMargin: "200px" }
+      { rootMargin: "200px" },
     );
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (submitting) return;
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const message = formData.get("message") as string;
-
-    const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
-    window.location.href = `mailto:${CONTACT.email}?subject=${subject}&body=${body}`;
+    const body = {
+      name: String(formData.get("name") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      message: String(formData.get("message") ?? "").trim(),
+    };
+    setSubmitting(true);
+    try {
+      await apiClient.post("/api/public/inquiries", body);
+      toast.success("Thanks — I'll get back to you soon.");
+      form.reset();
+    } catch (err) {
+      const msg = err instanceof ApiClientError ? err.message : "Submit failed";
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const heading = "Let's Build Something Together";
 
   return (
     <SectionWrapper id="contact" className="relative">
-      {/* 3D background — only on capable devices */}
-      {perf.enable3D ? (
+      {enable3d ? (
         <div ref={sectionRef} className="absolute inset-0 -z-10 hidden md:block" aria-hidden="true">
           <DynamicContactCanvas
             frameloop={isVisible ? "always" : "demand"}
@@ -124,11 +156,7 @@ export function ContactSection() {
           className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"
         >
           {heading.split(" ").map((word, i) => (
-            <motion.span
-              key={i}
-              variants={wordRevealChild}
-              className="mr-[0.25em] inline-block last:mr-0"
-            >
+            <motion.span key={i} variants={wordRevealChild} className="mr-[0.25em] inline-block last:mr-0">
               {word}
             </motion.span>
           ))}
@@ -137,25 +165,14 @@ export function ContactSection() {
           variants={fadeInUp}
           className="mb-4 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-emerald"
         />
-        <motion.p
-          variants={fadeInUp}
-          className="mb-12 max-w-lg text-sm text-text-secondary"
-        >
-          Have a project in mind or want to discuss an opportunity? I&apos;d love to
-          hear from you.
+        <motion.p variants={fadeInUp} className="mb-12 max-w-lg text-sm text-text-secondary">
+          Have a project in mind or want to discuss an opportunity? I&apos;d love to hear from you.
         </motion.p>
 
         <div className="grid gap-12 md:grid-cols-2">
-          <motion.form
-            variants={fadeInUp}
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
+          <motion.form variants={fadeInUp} onSubmit={handleSubmit} className="space-y-5">
             <div className="input-wrapper">
-              <label
-                htmlFor="name"
-                className="mb-1.5 block text-xs font-medium text-text-secondary"
-              >
+              <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-text-secondary">
                 Name
               </label>
               <input
@@ -168,10 +185,7 @@ export function ContactSection() {
               />
             </div>
             <div className="input-wrapper">
-              <label
-                htmlFor="email"
-                className="mb-1.5 block text-xs font-medium text-text-secondary"
-              >
+              <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-text-secondary">
                 Email
               </label>
               <input
@@ -184,10 +198,7 @@ export function ContactSection() {
               />
             </div>
             <div className="input-wrapper">
-              <label
-                htmlFor="message"
-                className="mb-1.5 block text-xs font-medium text-text-secondary"
-              >
+              <label htmlFor="message" className="mb-1.5 block text-xs font-medium text-text-secondary">
                 Message
               </label>
               <textarea
@@ -201,57 +212,71 @@ export function ContactSection() {
             </div>
             <motion.button
               type="submit"
+              disabled={submitting}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.97, y: 1 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
-              className="flex items-center gap-2 rounded-full bg-accent/90 backdrop-blur-sm px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-accent/20 transition-all hover:bg-accent hover:shadow-[0_0_24px_-4px_var(--accent-blue)]"
+              className="flex items-center gap-2 rounded-full bg-accent/90 backdrop-blur-sm px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-accent/20 transition-all hover:bg-accent hover:shadow-[0_0_24px_-4px_var(--accent-blue)] disabled:opacity-60"
             >
               <Send size={16} />
-              Send Message
+              {submitting ? "Sending…" : "Send Message"}
             </motion.button>
           </motion.form>
 
           <motion.div variants={fadeInUp} className="space-y-6">
             <div className="space-y-4">
-              <a
-                href={`mailto:${CONTACT.email}`}
-                className="flex items-center gap-3 text-sm text-text-secondary transition-colors hover:text-text link-underline"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full glass-pill">
-                  <Mail size={16} className="text-accent" />
+              {contact.email && (
+                <a
+                  href={`mailto:${contact.email}`}
+                  className="flex items-center gap-3 text-sm text-text-secondary transition-colors hover:text-text link-underline"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full glass-pill">
+                    <Mail size={16} className="text-accent" />
+                  </div>
+                  {contact.email}
+                </a>
+              )}
+              {contact.phone && (
+                <a
+                  href={`tel:${contact.phone}`}
+                  className="flex items-center gap-3 text-sm text-text-secondary transition-colors hover:text-text link-underline"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full glass-pill">
+                    <Phone size={16} className="text-accent" />
+                  </div>
+                  {contact.phone}
+                </a>
+              )}
+              {contact.location && (
+                <div className="flex items-center gap-3 text-sm text-text-secondary">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full glass-pill">
+                    <MapPin size={16} className="text-accent" />
+                  </div>
+                  {contact.location}
                 </div>
-                {CONTACT.email}
-              </a>
-              <a
-                href={`tel:${CONTACT.phone}`}
-                className="flex items-center gap-3 text-sm text-text-secondary transition-colors hover:text-text link-underline"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full glass-pill">
-                  <Phone size={16} className="text-accent" />
-                </div>
-                {CONTACT.phone}
-              </a>
-              <div className="flex items-center gap-3 text-sm text-text-secondary">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full glass-pill">
-                  <MapPin size={16} className="text-accent" />
-                </div>
-                {CONTACT.location}
-              </div>
+              )}
             </div>
 
-            <div className="border-t border-border pt-6">
-              <p className="mb-3 text-xs font-medium text-text-tertiary">
-                Find me on
-              </p>
-              <div className="flex gap-3">
-                <MagneticIcon href={CONTACT.github} label="GitHub" magnetic={perf.enableMagnetic}>
-                  <Github size={18} />
-                </MagneticIcon>
-                <MagneticIcon href={CONTACT.linkedin} label="LinkedIn" magnetic={perf.enableMagnetic}>
-                  <Linkedin size={18} />
-                </MagneticIcon>
+            {socials.length > 0 && (
+              <div className="border-t border-border pt-6">
+                <p className="mb-3 text-xs font-medium text-text-tertiary">Find me on</p>
+                <div className="flex flex-wrap gap-3">
+                  {socials.map((s) => {
+                    const Icon = getIcon(s.icon ?? s.platform);
+                    return (
+                      <MagneticIcon
+                        key={s.url}
+                        href={s.url}
+                        label={s.label ?? s.platform}
+                        magnetic={perf.enableMagnetic}
+                      >
+                        {Icon ? <Icon size={18} /> : <span className="text-xs font-medium">{s.platform[0]?.toUpperCase()}</span>}
+                      </MagneticIcon>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
           </motion.div>
         </div>
       </motion.div>

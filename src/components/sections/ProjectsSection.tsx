@@ -6,12 +6,22 @@ import { Github } from "@/components/ui/BrandIcons";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { PROJECTS } from "@/lib/data";
-import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import {
+  staggerContainer,
+  fadeInUp,
+  wordReveal,
+  wordRevealChild,
+} from "@/styles/animations";
 import { useHasMounted } from "@/hooks/useHasMounted";
+import type { PublicProject } from "@/types/public";
 
-export function ProjectsSection() {
+interface ProjectsSectionProps {
+  projects: PublicProject[];
+}
+
+export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const mounted = useHasMounted();
+  if (projects.length === 0) return null;
   return (
     <SectionWrapper id="projects">
       <motion.div
@@ -28,11 +38,7 @@ export function ProjectsSection() {
           className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"
         >
           {"Projects".split(" ").map((word, i) => (
-            <motion.span
-              key={i}
-              variants={wordRevealChild}
-              className="mr-[0.25em] inline-block last:mr-0"
-            >
+            <motion.span key={i} variants={wordRevealChild} className="mr-[0.25em] inline-block last:mr-0">
               {word}
             </motion.span>
           ))}
@@ -43,15 +49,13 @@ export function ProjectsSection() {
         />
 
         <div className="grid gap-6 md:grid-cols-2">
-          {PROJECTS.map((project) => (
+          {projects.map((project) => (
             <motion.div key={project.slug} variants={fadeInUp}>
               <Card className="flex h-full flex-col">
                 <div className="mb-3 flex items-start justify-between">
                   <div>
-                    <h3 className="font-display text-lg font-semibold text-text">
-                      {project.title}
-                    </h3>
-                    <p className="text-sm text-accent">{project.subtitle}</p>
+                    <h3 className="font-display text-lg font-semibold text-text">{project.title}</h3>
+                    {project.subtitle && <p className="text-sm text-accent">{project.subtitle}</p>}
                   </div>
                   <div className="flex gap-2">
                     {project.github && (
@@ -78,17 +82,18 @@ export function ProjectsSection() {
                     )}
                   </div>
                 </div>
-
-                <p className="mb-4 flex-1 text-sm leading-relaxed text-text-secondary">
-                  {project.description}
-                </p>
-
-                <div className="mb-3 flex items-center gap-1.5">
-                  <span className="rounded-md bg-accent/10 px-2 py-0.5 font-mono text-xs text-accent">
-                    {project.metric}
-                  </span>
-                </div>
-
+                {project.description && (
+                  <p className="mb-4 flex-1 text-sm leading-relaxed text-text-secondary">
+                    {project.description}
+                  </p>
+                )}
+                {project.metric && (
+                  <div className="mb-3 flex items-center gap-1.5">
+                    <span className="rounded-md bg-accent/10 px-2 py-0.5 font-mono text-xs text-accent">
+                      {project.metric}
+                    </span>
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-1.5">
                   {project.tech.map((t) => (
                     <Badge key={t} variant="tech">

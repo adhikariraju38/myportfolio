@@ -4,22 +4,32 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Badge } from "@/components/ui/Badge";
-import { SKILLS, SKILL_CATEGORIES } from "@/lib/data";
-import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import {
+  staggerContainer,
+  fadeInUp,
+  wordReveal,
+  wordRevealChild,
+} from "@/styles/animations";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { cn } from "@/lib/utils";
-import type { SkillCategory } from "@/types";
+import type { PublicSkill, PublicSkillCategory } from "@/types/public";
 
-export function SkillsSection() {
+interface SkillsSectionProps {
+  categories: PublicSkillCategory[];
+  skills: PublicSkill[];
+}
+
+export function SkillsSection({ categories, skills }: SkillsSectionProps) {
   const mounted = useHasMounted();
-  const [activeCategory, setActiveCategory] = useState<SkillCategory | "All">(
-    "All"
-  );
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+  if (skills.length === 0) return null;
 
-  const filteredSkills =
+  const filtered =
     activeCategory === "All"
-      ? SKILLS
-      : SKILLS.filter((s) => s.category === activeCategory);
+      ? skills
+      : skills.filter((s) => s.categoryId === activeCategory);
+
+  const catById = new Map(categories.map((c) => [c.id, c]));
 
   return (
     <SectionWrapper id="skills">
@@ -37,11 +47,7 @@ export function SkillsSection() {
           className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"
         >
           {"Technical Skills".split(" ").map((word, i) => (
-            <motion.span
-              key={i}
-              variants={wordRevealChild}
-              className="mr-[0.25em] inline-block last:mr-0"
-            >
+            <motion.span key={i} variants={wordRevealChild} className="mr-[0.25em] inline-block last:mr-0">
               {word}
             </motion.span>
           ))}
@@ -57,51 +63,49 @@ export function SkillsSection() {
           </span>
         </motion.p>
 
-        {/* Category tabs */}
-        <motion.div
-          variants={fadeInUp}
-          className="mb-8 flex flex-wrap gap-2"
-        >
-          {["All", ...SKILL_CATEGORIES].map((cat) => (
-            <motion.button
-              key={cat}
-              onClick={() => setActiveCategory(cat as SkillCategory | "All")}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              className={cn(
-                "rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200",
-                activeCategory === cat
-                  ? "glass-pill text-accent shadow-[0_0_12px_-3px_var(--accent-blue)]"
-                  : "border border-border text-text-secondary hover:border-accent/30 hover:text-text"
-              )}
-            >
-              {cat}
-            </motion.button>
-          ))}
+        <motion.div variants={fadeInUp} className="mb-8 flex flex-wrap gap-2">
+          {["All", ...categories.map((c) => c.id)].map((catId) => {
+            const label = catId === "All" ? "All" : catById.get(catId)?.name ?? catId;
+            return (
+              <motion.button
+                key={catId}
+                onClick={() => setActiveCategory(catId)}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200",
+                  activeCategory === catId
+                    ? "glass-pill text-accent shadow-[0_0_12px_-3px_var(--accent-blue)]"
+                    : "border border-border text-text-secondary hover:border-accent/30 hover:text-text",
+                )}
+              >
+                {label}
+              </motion.button>
+            );
+          })}
         </motion.div>
 
-        {/* Skills grid */}
-        <motion.div
-          layout
-          className="flex flex-wrap gap-2"
-        >
-          {filteredSkills.map((skill) => (
-            <motion.div
-              key={skill.name}
-              layout
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Badge
-                category={skill.category}
-                variant={skill.production ? "production" : "default"}
+        <motion.div layout className="flex flex-wrap gap-2">
+          {filtered.map((skill) => {
+            const catName = catById.get(skill.categoryId)?.name ?? "";
+            return (
+              <motion.div
+                key={skill.id}
+                layout
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3 }}
               >
-                {skill.name}
-              </Badge>
-            </motion.div>
-          ))}
+                <Badge
+                  category={catName as never}
+                  variant={skill.production ? "production" : "default"}
+                >
+                  {skill.name}
+                </Badge>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </motion.div>
     </SectionWrapper>

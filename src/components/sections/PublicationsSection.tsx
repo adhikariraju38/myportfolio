@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { BookOpen, ExternalLink } from "lucide-react";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Card } from "@/components/ui/Card";
-import { PUBLICATIONS } from "@/lib/data";
 import {
   staggerContainer,
   fadeInUp,
@@ -12,9 +11,15 @@ import {
   wordRevealChild,
 } from "@/styles/animations";
 import { useHasMounted } from "@/hooks/useHasMounted";
+import type { PublicPublication } from "@/types/public";
 
-export function PublicationsSection() {
+interface PublicationsSectionProps {
+  publications: PublicPublication[];
+}
+
+export function PublicationsSection({ publications }: PublicationsSectionProps) {
   const mounted = useHasMounted();
+  if (publications.length === 0) return null;
   return (
     <SectionWrapper id="publications">
       <motion.div
@@ -31,11 +36,7 @@ export function PublicationsSection() {
           className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"
         >
           {"Publications".split(" ").map((word, i) => (
-            <motion.span
-              key={i}
-              variants={wordRevealChild}
-              className="mr-[0.25em] inline-block last:mr-0"
-            >
+            <motion.span key={i} variants={wordRevealChild} className="mr-[0.25em] inline-block last:mr-0">
               {word}
             </motion.span>
           ))}
@@ -46,8 +47,8 @@ export function PublicationsSection() {
         />
 
         <div className="grid gap-6">
-          {PUBLICATIONS.map((pub) => (
-            <motion.div key={pub.title} variants={fadeInUp}>
+          {publications.map((pub) => (
+            <motion.div key={pub.id} variants={fadeInUp}>
               <Card className="flex gap-4">
                 <div className="flex-shrink-0 pt-1">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
@@ -56,22 +57,16 @@ export function PublicationsSection() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-display text-base font-semibold text-text">
-                      {pub.title}
-                    </h3>
+                    <h3 className="font-display text-base font-semibold text-text">{pub.title}</h3>
                     <span className="flex-shrink-0 rounded-md bg-accent/10 px-2 py-0.5 font-mono text-xs text-accent">
                       {pub.year}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-text-tertiary">
-                    {pub.authors}
-                  </p>
-                  <p className="mt-1 text-sm font-medium text-accent-emerald">
-                    {pub.venue}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                    {pub.description}
-                  </p>
+                  <p className="mt-1 text-sm text-text-tertiary">{pub.authors}</p>
+                  <p className="mt-1 text-sm font-medium text-accent-emerald">{pub.venue}</p>
+                  {pub.description && (
+                    <p className="mt-2 text-sm leading-relaxed text-text-secondary">{pub.description}</p>
+                  )}
                   {pub.doi && (
                     <a
                       href={`https://doi.org/${pub.doi}`}

@@ -5,58 +5,54 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Briefcase, ChevronDown, MapPin } from "lucide-react";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Badge } from "@/components/ui/Badge";
-import { EXPERIENCES } from "@/lib/data";
-import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import {
+  staggerContainer,
+  fadeInUp,
+  wordReveal,
+  wordRevealChild,
+} from "@/styles/animations";
 import { useHasMounted } from "@/hooks/useHasMounted";
+import type { PublicExperience } from "@/types/public";
 
 function TimelineItem({
   exp,
-  index,
+  isLast,
 }: {
-  exp: (typeof EXPERIENCES)[0];
-  index: number;
+  exp: PublicExperience;
+  isLast: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const hasMore = exp.bullets.length > 3;
 
   return (
-    <motion.div
-      variants={fadeInUp}
-      className="relative grid gap-4 md:grid-cols-[200px_1fr]"
-    >
-      {/* Timeline dot + line */}
+    <motion.div variants={fadeInUp} className="relative grid gap-4 md:grid-cols-[200px_1fr]">
       <div className="hidden md:flex md:flex-col md:items-center">
         <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-bg-secondary">
           <Briefcase size={16} className="text-accent" />
         </div>
-        {index < EXPERIENCES.length - 1 && (
-          <div className="w-px flex-1 bg-linear-to-b from-accent/30 to-border" />
-        )}
+        {!isLast && <div className="w-px flex-1 bg-linear-to-b from-accent/30 to-border" />}
       </div>
 
-      {/* Content */}
       <div className="pb-12">
         <div className="mb-1 flex flex-wrap items-center gap-2">
-          <h3 className="font-display text-xl font-semibold text-text">
-            {exp.role}
-          </h3>
+          <h3 className="font-display text-xl font-semibold text-text">{exp.role}</h3>
           <span className="text-text-tertiary">@</span>
           <span className="font-medium text-accent">{exp.company}</span>
-          {exp.type === "remote" && (
-            <Badge variant="tech" className="text-[10px]">Remote</Badge>
-          )}
-          {exp.type === "freelance" && (
-            <Badge variant="tech" className="text-[10px]">Freelance</Badge>
-          )}
+          {exp.type === "remote" && <Badge variant="tech" className="text-[10px]">Remote</Badge>}
+          {exp.type === "freelance" && <Badge variant="tech" className="text-[10px]">Freelance</Badge>}
+          {exp.type === "contract" && <Badge variant="tech" className="text-[10px]">Contract</Badge>}
+          {exp.type === "internship" && <Badge variant="tech" className="text-[10px]">Internship</Badge>}
         </div>
 
         <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-text-tertiary">
-          <span>{exp.period}</span>
-          <span className="hidden sm:inline">·</span>
-          <span className="flex items-center gap-1">
-            <MapPin size={12} />
-            {exp.location}
-          </span>
+          {exp.period && <span>{exp.period}</span>}
+          {exp.period && exp.location && <span className="hidden sm:inline">·</span>}
+          {exp.location && (
+            <span className="flex items-center gap-1">
+              <MapPin size={12} />
+              {exp.location}
+            </span>
+          )}
         </div>
 
         <ul className="mb-4 space-y-2">
@@ -96,10 +92,7 @@ function TimelineItem({
             className="mb-4 flex items-center gap-1 text-xs font-medium text-accent transition-colors hover:text-accent/80"
           >
             {expanded ? "Show less" : `Show ${exp.bullets.length - 3} more`}
-            <ChevronDown
-              size={14}
-              className={`transition-transform ${expanded ? "rotate-180" : ""}`}
-            />
+            <ChevronDown size={14} className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
           </motion.button>
         )}
 
@@ -115,8 +108,13 @@ function TimelineItem({
   );
 }
 
-export function ExperienceSection() {
+interface ExperienceSectionProps {
+  experiences: PublicExperience[];
+}
+
+export function ExperienceSection({ experiences }: ExperienceSectionProps) {
   const mounted = useHasMounted();
+  if (experiences.length === 0) return null;
   return (
     <SectionWrapper id="experience">
       <motion.div
@@ -146,10 +144,9 @@ export function ExperienceSection() {
           variants={fadeInUp}
           className="mb-12 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-emerald"
         />
-
         <div className="relative">
-          {EXPERIENCES.map((exp, i) => (
-            <TimelineItem key={exp.company} exp={exp} index={i} />
+          {experiences.map((exp, i) => (
+            <TimelineItem key={exp.id} exp={exp} isLast={i === experiences.length - 1} />
           ))}
         </div>
       </motion.div>

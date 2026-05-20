@@ -14,8 +14,7 @@
     "db:seed:settings": "tsx --env-file=.env.local scripts/seed-site-settings.ts",
     "db:seed:sections": "tsx --env-file=.env.local scripts/seed-home-sections.ts",
     "db:seed:navbar": "tsx --env-file=.env.local scripts/seed-navbar.ts",
-    "db:seed:content": "tsx --env-file=.env.local scripts/seed-content.ts",
-    "db:seed:all": "npm run db:seed:admin && npm run db:seed:settings && npm run db:seed:sections && npm run db:seed:navbar && npm run db:seed:content"
+    "db:seed:all": "npm run db:seed:admin && npm run db:seed:settings && npm run db:seed:sections && npm run db:seed:navbar"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
