@@ -1,12 +1,6 @@
 import "server-only";
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error("MONGODB_URI is not defined in environment.");
-}
-
 type Cached = {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -21,8 +15,12 @@ if (!globalForMongoose._mongoose) {
 
 export async function getDb(): Promise<typeof mongoose> {
   if (cached.conn) return cached.conn;
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error("MONGODB_URI is not defined in environment.");
+  }
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI as string, {
+    cached.promise = mongoose.connect(uri, {
       dbName: "myportfolio",
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 10_000,
