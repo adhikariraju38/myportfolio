@@ -17,7 +17,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: devpassword
       MONGO_INITDB_DATABASE: myportfolio
     ports:
-      - "27017:27017"
+      # Host 27018 → container 27017 (host already runs a mongod on 27017)
+      - "27018:27017"
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
