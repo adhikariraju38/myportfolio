@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NavbarShell } from "@/components/layout/NavbarShell";
 import { FooterShell } from "@/components/layout/FooterShell";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
@@ -152,8 +150,6 @@ export default async function RootLayout({
             <FooterShell />
             {enableCustomCursor && <CustomCursor />}
             <Toaster />
-            <Analytics />
-            <SpeedInsights />
           </PerformanceProvider>
         </QueryProvider>
       </body>
