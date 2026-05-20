@@ -89,6 +89,9 @@ export default async function RootLayout({
     s?.themeLight as Record<string, unknown> | undefined,
   );
   const darkDefault = (s?.darkModeDefault as boolean | undefined) ?? true;
+  const enableSmoothScroll = (s?.enableSmoothScroll as boolean | undefined) ?? true;
+  const enableScrollProgress = (s?.enableScrollProgress as boolean | undefined) ?? true;
+  const enableCustomCursor = (s?.enableCustomCursor as boolean | undefined) ?? true;
   const jsonLd = s?.jsonLd
     ? {
         "@context": "https://schema.org",
@@ -142,12 +145,12 @@ export default async function RootLayout({
             >
               Skip to content
             </a>
-            <SmoothScroll />
-            <ScrollProgress />
+            {enableSmoothScroll && <SmoothScroll />}
+            {enableScrollProgress && <ScrollProgress />}
             <NavbarShell />
             <main>{children}</main>
             <FooterShell />
-            <CustomCursor />
+            {enableCustomCursor && <CustomCursor />}
             <Toaster />
             <Analytics />
             <SpeedInsights />
