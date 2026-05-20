@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# private planning + spec docs (kept locally, not pushed)
+/docs
+/CLAUDE.md
+/REQUIREMENTS.md
 # debug
 npm-debug.log*
 yarn-debug.log*
