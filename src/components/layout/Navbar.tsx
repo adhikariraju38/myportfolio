@@ -3,11 +3,17 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { NAV_LINKS } from "@/lib/data";
 import { useScrollSection } from "@/hooks/useScrollSection";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { usePerformance } from "@/hooks/usePerformanceTier";
+
+export interface NavItemProp {
+  label: string;
+  href: string;
+  icon?: string;
+  opensInNewTab?: boolean;
+}
 
 function MagneticLink({
   href,
@@ -37,7 +43,7 @@ function MagneticLink({
       x.set(Math.max(-5, Math.min(5, dx * 0.3)));
       y.set(Math.max(-5, Math.min(5, dy * 0.3)));
     },
-    [x, y, magnetic]
+    [x, y, magnetic],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -58,18 +64,14 @@ function MagneticLink({
         "relative rounded-full px-4 py-1.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
         isActive
           ? "text-text"
-          : "text-text-secondary hover:text-text link-underline"
+          : "text-text-secondary hover:text-text link-underline",
       )}
     >
       {isActive && (
         <motion.span
           layoutId="nav-indicator"
           className="absolute inset-0 rounded-full glass-pill"
-          transition={{
-            type: "spring",
-            stiffness: 400,
-            damping: 30,
-          }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
       <span className="relative z-10">{children}</span>
@@ -77,7 +79,13 @@ function MagneticLink({
   );
 }
 
-export function Navbar() {
+interface NavbarProps {
+  items: NavItemProp[];
+  brand: string;
+  logoUrl?: string | null;
+}
+
+export function Navbar({ items, brand, logoUrl }: NavbarProps) {
   const perf = usePerformance();
   const [isVisible, setIsVisible] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -92,10 +100,18 @@ export function Navbar() {
   }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    window.__lenis?.scrollTo(href, { offset: -80, duration: 2.5, easing: (t: number) => 1 - Math.pow(1 - t, 4) });
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      window.__lenis?.scrollTo(href, {
+        offset: -80,
+        duration: 2.5,
+        easing: (t: number) => 1 - Math.pow(1 - t, 4),
+      });
+    }
     setIsMobileOpen(false);
   };
+
+  if (items.length === 0) return null;
 
   return (
     <AnimatePresence>
@@ -108,8 +124,21 @@ export function Navbar() {
           className="fixed top-4 left-1/2 z-50 -translate-x-1/2"
         >
           <nav className="glass glass-highlight flex items-center gap-1 rounded-full px-2 py-2">
+            {(logoUrl || brand) && (
+              <a
+                href="#"
+                onClick={(e) => handleNavClick(e, "#")}
+                className="flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-text"
+              >
+                {logoUrl ? (
+                  <img src={logoUrl} alt={brand} className="h-5 w-auto" />
+                ) : (
+                  <span>{brand}</span>
+                )}
+              </a>
+            )}
             <div className="hidden items-center gap-1 md:flex">
-              {NAV_LINKS.map((link) => (
+              {items.map((link) => (
                 <MagneticLink
                   key={link.href}
                   href={link.href}
@@ -121,9 +150,7 @@ export function Navbar() {
                 </MagneticLink>
               ))}
             </div>
-
             <ThemeToggle />
-
             <motion.button
               onClick={() => setIsMobileOpen(!isMobileOpen)}
               whileTap={{ scale: 0.9 }}
@@ -144,7 +171,7 @@ export function Navbar() {
                 className="glass glass-highlight mt-1 overflow-hidden rounded-2xl md:hidden"
               >
                 <div className="flex flex-col p-2">
-                  {NAV_LINKS.map((link) => (
+                  {items.map((link) => (
                     <a
                       key={link.href}
                       href={link.href}
@@ -154,7 +181,7 @@ export function Navbar() {
                         "rounded-xl px-4 py-2.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                         activeSection === link.href.slice(1)
                           ? "glass-pill text-text"
-                          : "text-text-secondary hover:text-text"
+                          : "text-text-secondary hover:text-text",
                       )}
                     >
                       {link.label}

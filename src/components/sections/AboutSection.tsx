@@ -4,12 +4,24 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
 import { Counter } from "@/components/ui/Counter";
-import { ABOUT } from "@/lib/data";
-import { staggerContainer, fadeInUp, wordReveal, wordRevealChild } from "@/styles/animations";
+import {
+  staggerContainer,
+  fadeInUp,
+  wordReveal,
+  wordRevealChild,
+} from "@/styles/animations";
 import { useHasMounted } from "@/hooks/useHasMounted";
+import type { PublicAbout } from "@/types/public";
 
-export function AboutSection() {
+interface AboutSectionProps {
+  about: PublicAbout;
+}
+
+export function AboutSection({ about }: AboutSectionProps) {
   const mounted = useHasMounted();
+  const heading = about.heading ?? "About Me";
+  const imageUrl = about.profileImage?.url ?? "/images/raju-profile.jpg";
+
   return (
     <SectionWrapper id="about">
       <motion.div
@@ -19,28 +31,25 @@ export function AboutSection() {
         viewport={{ once: true }}
         className="grid gap-12 md:grid-cols-2 md:items-center"
       >
-        {/* Photo with professional treatment */}
         <motion.div variants={fadeInUp} className="flex justify-center">
           <div className="relative">
-            {/* Gradient ring glow */}
             <div className="absolute -inset-1.5 rounded-2xl bg-linear-to-br from-accent via-accent-emerald to-cyan-400 opacity-50 blur-md" />
             <div className="absolute -inset-1 rounded-2xl bg-linear-to-br from-accent via-accent-emerald to-cyan-400 opacity-70" />
             <div className="relative h-72 w-72 overflow-hidden rounded-2xl md:h-80 md:w-80">
               <Image
-                src="/images/raju-profile.jpg"
-                alt="Raju Kumar Yadav"
+                src={imageUrl}
+                alt={about.profileAlt ?? "Profile photo"}
                 fill
                 className="object-cover object-[center_20%] brightness-[1.02] contrast-[1.05]"
                 sizes="(max-width: 768px) 288px, 640px"
                 priority
+                unoptimized={imageUrl.startsWith("/api/media/")}
               />
-              {/* Subtle vignette overlay */}
               <div className="absolute inset-0 bg-linear-to-t from-bg/30 via-transparent to-transparent" />
             </div>
           </div>
         </motion.div>
 
-        {/* Content */}
         <div>
           <motion.h2
             variants={wordReveal}
@@ -49,7 +58,7 @@ export function AboutSection() {
             viewport={{ once: true }}
             className="mb-2 font-display text-3xl font-bold text-text md:text-4xl"
           >
-            {"About Me".split(" ").map((word, i) => (
+            {heading.split(" ").map((word, i) => (
               <motion.span
                 key={i}
                 variants={wordRevealChild}
@@ -67,15 +76,11 @@ export function AboutSection() {
             variants={fadeInUp}
             className="mb-8 text-base leading-relaxed text-text-secondary"
           >
-            {ABOUT.summary}
+            {about.summary}
           </motion.p>
 
-          {/* Stats */}
-          <motion.div
-            variants={staggerContainer}
-            className="grid grid-cols-2 gap-4"
-          >
-            {ABOUT.stats.map((stat) => (
+          <motion.div variants={staggerContainer} className="grid grid-cols-2 gap-4">
+            {about.stats.map((stat) => (
               <motion.div
                 key={stat.label}
                 variants={fadeInUp}
@@ -84,9 +89,7 @@ export function AboutSection() {
                 <div className="font-display text-3xl font-bold text-accent">
                   <Counter value={stat.value} suffix={stat.suffix} />
                 </div>
-                <div className="mt-1 text-xs text-text-secondary">
-                  {stat.label}
-                </div>
+                <div className="mt-1 text-xs text-text-secondary">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>

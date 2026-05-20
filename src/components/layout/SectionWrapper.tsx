@@ -20,7 +20,7 @@ export function SectionWrapper({ id, children, className }: SectionWrapperProps)
   useEffect(() => {
     if (!ref.current) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setIsNear(entry.isIntersecting),
+      ([entry]) => setIsNear(entry?.isIntersecting ?? false),
       { rootMargin: "200px 0px" }
     );
     observer.observe(ref.current);

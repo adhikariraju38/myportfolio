@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# private planning + spec docs (kept locally, not pushed)
+/docs
+/CLAUDE.md
+/REQUIREMENTS.md
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -32,6 +36,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -42,3 +47,12 @@ next-env.d.ts
 
 # local config
 .mcp.json
+
+# Local-only secrets file mirrored from docs/CREDENTIALS.md.example
+docs/CREDENTIALS.md
+
+# Docker volumes (only used if mounted locally outside docker-compose volumes)
+.docker-data/
+
+# Local plan + worktree state
+.local/

@@ -3,45 +3,60 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown, ArrowRight } from "lucide-react";
-import { HERO } from "@/lib/data";
 import { Button } from "@/components/ui/Button";
 import { DynamicHeroCanvas } from "@/components/3d/SceneLoaders";
 import { usePerformance } from "@/hooks/usePerformanceTier";
+import type { PublicHero } from "@/types/public";
 
-export function HeroSection() {
+interface HeroSectionProps {
+  hero: PublicHero;
+}
+
+export function HeroSection({ hero }: HeroSectionProps) {
   const perf = usePerformance();
   const [show3D, setShow3D] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Defer 3D canvas until text animations are well underway
+  const enable3d = perf.enable3D && (hero.enable3dCanvas ?? true);
+
   useEffect(() => {
-    if (!perf.enable3D) return;
+    if (!enable3d) return;
     const timer = setTimeout(() => setShow3D(true), 500);
     return () => clearTimeout(timer);
-  }, [perf.enable3D]);
+  }, [enable3d]);
 
-  // Pause Three.js when hero is off-screen
   useEffect(() => {
     if (!sectionRef.current) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      { rootMargin: "100px" }
+      ([entry]) => setIsVisible(entry?.isIntersecting ?? false),
+      { rootMargin: "100px" },
     );
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   const handleCTAClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!href.startsWith("#")) return;
     e.preventDefault();
-    window.__lenis?.scrollTo(href, { offset: -80, duration: 2.5, easing: (t: number) => 1 - Math.pow(1 - t, 4) });
+    window.__lenis?.scrollTo(href, {
+      offset: -80,
+      duration: 2.5,
+      easing: (t: number) => 1 - Math.pow(1 - t, 4),
+    });
   };
 
   const handleScrollClick = () => {
-    window.__lenis?.scrollTo("#about", { offset: -80, duration: 2.5, easing: (t: number) => 1 - Math.pow(1 - t, 4) });
+    window.__lenis?.scrollTo("#about", {
+      offset: -80,
+      duration: 2.5,
+      easing: (t: number) => 1 - Math.pow(1 - t, 4),
+    });
   };
 
-  const show3DCanvas = perf.enable3D && show3D;
+  const show3DCanvas = enable3d && show3D;
+  const primary = hero.primaryCta ?? {};
+  const secondary = hero.secondaryCta ?? {};
 
   return (
     <section
@@ -49,8 +64,7 @@ export function HeroSection() {
       id="hero"
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6"
     >
-      {/* 3D scene — only on capable devices */}
-      {perf.enable3D ? (
+      {enable3d ? (
         <motion.div
           className="absolute inset-0 hidden md:block"
           aria-hidden="true"
@@ -67,36 +81,29 @@ export function HeroSection() {
           )}
         </motion.div>
       ) : (
-        /* Static fallback for low-tier devices */
         <div className="absolute inset-0 hidden md:block" aria-hidden="true">
           <div className="absolute inset-0 bg-linear-to-b from-accent/5 via-transparent to-transparent" />
           <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-3xl" />
         </div>
       )}
 
-      {/* Mobile fallback with CSS stars */}
       <div className="absolute inset-0 md:hidden" aria-hidden="true">
         <div className="mobile-stars absolute inset-0" />
         <div className="absolute inset-0 bg-linear-to-b from-accent/5 via-transparent to-transparent" />
         <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-3xl" />
       </div>
 
-      {/* All hero text uses CSS animations — zero JS overhead, pure compositor */}
-      <div
-        className="relative z-10 flex max-w-4xl flex-col items-center text-center"
-        onAnimationEnd={(e) => {
-          const target = e.target as HTMLElement;
-          if (target.classList.contains("hero-fade-in") || target.classList.contains("hero-word-reveal")) {
-            target.style.willChange = "auto";
-          }
-        }}
-      >
-        <p className="hero-fade-in mb-4 font-mono text-sm text-accent" style={{ animationDelay: "0ms" }}>
-          Hi, I&apos;m
-        </p>
-
+      <div className="relative z-10 flex max-w-4xl flex-col items-center text-center">
+        {hero.eyebrowText && (
+          <p
+            className="hero-fade-in mb-4 font-mono text-sm text-accent"
+            style={{ animationDelay: "0ms" }}
+          >
+            {hero.eyebrowText}
+          </p>
+        )}
         <h1 className="mb-4 font-display text-5xl font-bold tracking-tight text-text md:text-7xl">
-          {HERO.name.split(" ").map((word, i) => (
+          {hero.name.split(" ").map((word, i) => (
             <span
               key={i}
               className="hero-word-reveal mr-[0.25em] inline-block last:mr-0"
@@ -106,9 +113,8 @@ export function HeroSection() {
             </span>
           ))}
         </h1>
-
         <h2 className="mb-6 font-mono text-xl text-text-secondary md:text-2xl">
-          {HERO.title.split(" ").map((word, i) => (
+          {hero.title.split(" ").map((word, i) => (
             <span
               key={i}
               className="hero-word-reveal mr-[0.25em] inline-block last:mr-0"
@@ -118,36 +124,37 @@ export function HeroSection() {
             </span>
           ))}
         </h2>
-
-        <p
-          className="hero-fade-in mb-10 max-w-2xl text-base leading-relaxed text-text-secondary md:text-lg"
-          style={{ animationDelay: "400ms" }}
-        >
-          {HERO.tagline}
-        </p>
+        {hero.tagline && (
+          <p
+            className="hero-fade-in mb-10 max-w-2xl text-base leading-relaxed text-text-secondary md:text-lg"
+            style={{ animationDelay: "400ms" }}
+          >
+            {hero.tagline}
+          </p>
+        )}
 
         <div
           className="hero-fade-in flex flex-col gap-4 sm:flex-row"
           style={{ animationDelay: "500ms" }}
         >
-          <Button
-            href={HERO.cta.primary.href}
-            onClick={(e) => handleCTAClick(e, HERO.cta.primary.href)}
-          >
-            {HERO.cta.primary.label}
-            <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-          </Button>
-          <Button
-            href={HERO.cta.secondary.href}
-            onClick={(e) => handleCTAClick(e, HERO.cta.secondary.href)}
-            variant="secondary"
-          >
-            {HERO.cta.secondary.label}
-          </Button>
+          {primary.label && primary.href && (
+            <Button href={primary.href} onClick={(e) => handleCTAClick(e, primary.href!)}>
+              {primary.label}
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            </Button>
+          )}
+          {secondary.label && secondary.href && (
+            <Button
+              href={secondary.href}
+              onClick={(e) => handleCTAClick(e, secondary.href!)}
+              variant="secondary"
+            >
+              {secondary.label}
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Scroll indicator — clickable */}
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

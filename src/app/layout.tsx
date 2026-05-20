@@ -2,93 +2,120 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { NavbarShell } from "@/components/layout/NavbarShell";
+import { FooterShell } from "@/components/layout/FooterShell";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { PerformanceProvider } from "@/hooks/usePerformanceTier";
+import { QueryProvider } from "@/providers/query-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { getSiteSettings } from "@/lib/queries/site";
+import { buildThemeOverride } from "@/lib/theme";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
-
+const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-space-grotesk",
 });
-
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-jetbrains-mono",
 });
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0f" },
-    { media: "(prefers-color-scheme: light)", color: "#f8f8fa" },
-  ],
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSiteSettings().catch(() => null);
+  const siteUrl = (s?.siteUrl as string | undefined) || "http://localhost:3000";
+  const title = (s?.siteTitle as string | undefined) || "Portfolio";
+  const titleTemplate = (s?.siteTitleTemplate as string | undefined) || `%s | ${title}`;
+  const description = (s?.siteDescription as string | undefined) || "";
+  const keywords = (s?.keywords as string[] | undefined) ?? [];
+  const ogTitle = (s?.ogTitle as string | undefined) || title;
+  const ogSubtitle = (s?.ogSubtitle as string | undefined) || description;
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://rajukumaryadav.com"),
-  title: {
-    default: "Raju Kumar Yadav | Full Stack Engineer",
-    template: "%s | Raju Kumar Yadav",
-  },
-  description:
-    "Full Stack Engineer with 3.5+ years of experience building production-grade microservices platforms, React/Next.js frontends, and cloud infrastructure with AWS + Terraform.",
-  keywords: [
-    "Full Stack Engineer",
-    "Software Engineer",
-    "React Developer",
-    "Next.js",
-    "FastAPI",
-    "Python",
-    "TypeScript",
-    "Portfolio",
-    "Nepal",
-  ],
-  authors: [{ name: "Raju Kumar Yadav" }],
-  creator: "Raju Kumar Yadav",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://rajukumaryadav.com",
-    siteName: "Raju Kumar Yadav Portfolio",
-    title: "Raju Kumar Yadav | Full Stack Engineer",
-    description:
-      "Full Stack Engineer specializing in microservices, React/Next.js, and cloud architecture.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Raju Kumar Yadav | Full Stack Engineer",
-    description:
-      "Full Stack Engineer specializing in microservices, React/Next.js, and cloud architecture.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+  return {
+    metadataBase: new URL(siteUrl),
+    title: { default: title, template: titleTemplate },
+    description,
+    keywords,
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: siteUrl,
+      siteName: title,
+      title: ogTitle,
+      description: ogSubtitle,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: ogSubtitle,
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-};
+  };
+}
 
-export default function RootLayout({
+export async function generateViewport(): Promise<Viewport> {
+  const s = await getSiteSettings().catch(() => null);
+  const dark = (s?.themeDark as { themeColor?: string } | undefined)?.themeColor ?? "#0a0a0f";
+  const light = (s?.themeLight as { themeColor?: string } | undefined)?.themeColor ?? "#f8f8fa";
+  return {
+    themeColor: [
+      { media: "(prefers-color-scheme: dark)", color: dark },
+      { media: "(prefers-color-scheme: light)", color: light },
+    ],
+  };
+}
+
+export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
+  const s = await getSiteSettings().catch(() => null);
+  const themeCss = buildThemeOverride(
+    s?.themeDark as Record<string, unknown> | undefined,
+    s?.themeLight as Record<string, unknown> | undefined,
+  );
+  const darkDefault = (s?.darkModeDefault as boolean | undefined) ?? true;
+  const enableSmoothScroll = (s?.enableSmoothScroll as boolean | undefined) ?? true;
+  const enableScrollProgress = (s?.enableScrollProgress as boolean | undefined) ?? true;
+  const enableCustomCursor = (s?.enableCustomCursor as boolean | undefined) ?? true;
+  const jsonLd = s?.jsonLd
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        name: (s.jsonLd as Record<string, unknown>).name,
+        jobTitle: (s.jsonLd as Record<string, unknown>).jobTitle,
+        url: (s.jsonLd as Record<string, unknown>).url,
+        email: (s.jsonLd as Record<string, unknown>).email,
+        sameAs: (s.jsonLd as Record<string, unknown>).sameAs,
+        knowsAbout: (s.jsonLd as Record<string, unknown>).knowsAbout,
+        alumniOf: (s.jsonLd as Record<string, unknown>).alumniOfName
+          ? {
+              "@type": "EducationalOrganization",
+              name: (s.jsonLd as Record<string, unknown>).alumniOfName,
+            }
+          : undefined,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: (s.jsonLd as Record<string, unknown>).addressLocality,
+          addressCountry: (s.jsonLd as Record<string, unknown>).addressCountry,
+        },
+      }
+    : null;
+
   return (
     <html
       lang="en"
@@ -96,29 +123,39 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {themeCss && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light")document.documentElement.classList.add("light")}catch(e){}})()`,
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light")document.documentElement.classList.add("light");else if(!t && ${!darkDefault})document.documentElement.classList.add("light")}catch(e){}})()`,
           }}
         />
+        {jsonLd && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
+        )}
       </head>
       <body className="bg-bg text-text antialiased">
-        <PerformanceProvider>
-          <a
-            href="#about"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-200 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
-          >
-            Skip to content
-          </a>
-          <SmoothScroll />
-          <ScrollProgress />
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <CustomCursor />
-          <Analytics />
-          <SpeedInsights />
-        </PerformanceProvider>
+        <QueryProvider>
+          <PerformanceProvider>
+            <a
+              href="#about"
+              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-200 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
+            >
+              Skip to content
+            </a>
+            {enableSmoothScroll && <SmoothScroll />}
+            {enableScrollProgress && <ScrollProgress />}
+            <NavbarShell />
+            <main>{children}</main>
+            <FooterShell />
+            {enableCustomCursor && <CustomCursor />}
+            <Toaster />
+            <Analytics />
+            <SpeedInsights />
+          </PerformanceProvider>
+        </QueryProvider>
       </body>
     </html>
   );

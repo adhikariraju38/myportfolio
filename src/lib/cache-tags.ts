@@ -1,0 +1,21 @@
+export const CACHE_TAGS = {
+  settings: "settings",
+  sections: "sections",
+  nav: "nav",
+  hero: "hero",
+  about: "about",
+  education: "education",
+  experiences: "experiences",
+  skillCategories: "skill-categories",
+  skills: "skills",
+  projects: "projects",
+  publications: "publications",
+  openSource: "open-source",
+  awards: "awards",
+  certifications: "certifications",
+  community: "community",
+  inquiries: "inquiries",
+  media: "media",
+  all: "all",
+} as const;
+export type CacheTag = (typeof CACHE_TAGS)[keyof typeof CACHE_TAGS];

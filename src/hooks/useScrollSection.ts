@@ -8,6 +8,8 @@ const SECTIONS = [
   "experience",
   "skills",
   "projects",
+  "publications",
+  "open-source",
   "awards",
   "education",
   "contact",

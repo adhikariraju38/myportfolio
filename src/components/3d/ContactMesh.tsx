@@ -17,9 +17,9 @@ function generateGrid(count: number) {
   const conns: number[] = [];
   for (let i = 0; i < count; i++) {
     for (let j = i + 1; j < count; j++) {
-      const dx = base[i * 3] - base[j * 3];
-      const dy = base[i * 3 + 1] - base[j * 3 + 1];
-      const dz = base[i * 3 + 2] - base[j * 3 + 2];
+      const dx = (base[i * 3] ?? 0) - (base[j * 3] ?? 0);
+      const dy = (base[i * 3 + 1] ?? 0) - (base[j * 3 + 1] ?? 0);
+      const dz = (base[i * 3 + 2] ?? 0) - (base[j * 3 + 2] ?? 0);
       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
       if (dist < 2.5) {
         conns.push(i, j);
@@ -53,9 +53,9 @@ function ConnectionGrid({ count = 50 }: { count?: number }) {
     const time = state.clock.elapsedTime;
 
     for (let i = 0; i < count; i++) {
-      const bx = basePositions[i * 3];
-      const by = basePositions[i * 3 + 1];
-      const bz = basePositions[i * 3 + 2];
+      const bx = basePositions[i * 3] ?? 0;
+      const by = basePositions[i * 3 + 1] ?? 0;
+      const bz = basePositions[i * 3 + 2] ?? 0;
 
       const x = bx + Math.sin(time * 0.3 + i) * 0.1;
       const y = by + Math.cos(time * 0.2 + i * 0.5) * 0.1;
@@ -73,8 +73,8 @@ function ConnectionGrid({ count = 50 }: { count?: number }) {
       const lp = linesRef.current.geometry.attributes
         .position as THREE.BufferAttribute;
       for (let c = 0; c < connections.length; c += 2) {
-        const i = connections[c];
-        const j = connections[c + 1];
+        const i = connections[c] ?? 0;
+        const j = connections[c + 1] ?? 0;
         const idx = c * 3;
         lp.array[idx] = pos.getX(i);
         lp.array[idx + 1] = pos.getY(i);

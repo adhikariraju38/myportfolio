@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import type { SkillCategory } from "@/types";
 
-const categoryColors: Record<SkillCategory, string> = {
+// Color hint per skill category name. Falls back to default if no match.
+const categoryColors: Record<string, string> = {
   Languages: "hover:border-accent-amber/50 hover:text-accent-amber",
   Backend: "hover:border-accent/50 hover:text-accent",
   Frontend: "hover:border-cyan-400/50 hover:text-cyan-400",
@@ -16,7 +16,7 @@ const categoryColors: Record<SkillCategory, string> = {
 
 interface BadgeProps {
   children: React.ReactNode;
-  category?: SkillCategory;
+  category?: string;
   variant?: "default" | "production" | "tech";
   className?: string;
 }
@@ -33,19 +33,16 @@ export function Badge({
       transition={{ type: "spring", stiffness: 400, damping: 10 }}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all duration-200",
-        variant === "tech" &&
-          "border-border bg-bg-secondary text-text-secondary",
+        variant === "tech" && "border-border bg-bg-secondary text-text-secondary",
         variant === "production" &&
           "border-accent-emerald/30 bg-accent-emerald/10 text-accent-emerald",
         variant === "default" &&
           "border-border bg-bg-secondary text-text-secondary hover:scale-105",
         category && categoryColors[category],
-        className
+        className,
       )}
     >
-      {variant === "production" && (
-        <span className="h-1.5 w-1.5 rounded-full bg-accent-emerald" />
-      )}
+      {variant === "production" && <span className="h-1.5 w-1.5 rounded-full bg-accent-emerald" />}
       {children}
     </motion.span>
   );
