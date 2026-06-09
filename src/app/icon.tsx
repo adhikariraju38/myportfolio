@@ -8,7 +8,7 @@ export const contentType = "image/png";
 export default async function Icon() {
   const s = await getSiteSettings().catch(() => null);
   const glyph = (s?.faviconGlyph as string | undefined) || "R";
-  const bg = (s?.faviconBgGradient as string | undefined) || "linear-gradient(135deg, #3B82F6, #6366F1)";
+  const bg = (s?.faviconBgGradient as string | undefined) || "linear-gradient(135deg, #8C7CFF, #6E5BFF)";
   const color = (s?.faviconTextColor as string | undefined) || "#FFFFFF";
 
   return new ImageResponse(

@@ -76,9 +76,9 @@ const siteSettingSchema = new Schema(
     // Theme tokens
     themeDark: { type: themeTokens, default: {} },
     themeLight: { type: themeTokens, default: {} },
-    fontSans: { type: String, default: "Inter" },
-    fontDisplay: { type: String, default: "Space Grotesk" },
-    fontMono: { type: String, default: "JetBrains Mono" },
+    fontSans: { type: String, default: "Geist" },
+    fontDisplay: { type: String, default: "Bricolage Grotesque" },
+    fontMono: { type: String, default: "Geist Mono" },
 
     // "Engineered Motion" — switchable accent + typeface set ([data-*])
     themeAccent: {
@@ -96,16 +96,16 @@ const siteSettingSchema = new Schema(
     ogTitle: { type: String, default: "" },
     ogSubtitle: { type: String, default: "" },
     ogChips: [{ type: String }],
-    ogBgGradient: { type: String, default: "linear-gradient(135deg, #0A0A0F 0%, #111118 50%, #0A0A0F 100%)" },
-    ogTextColor: { type: String, default: "#F0F0F5" },
-    ogAccentColor: { type: String, default: "#3B82F6" },
+    ogBgGradient: { type: String, default: "linear-gradient(135deg, #08090C 0%, #0D0F13 50%, #08090C 100%)" },
+    ogTextColor: { type: String, default: "#F2F3F5" },
+    ogAccentColor: { type: String, default: "#8C7CFF" },
     ogImage: { type: mediaRef, default: {} },
 
     // Favicon (dynamic)
     faviconGlyph: { type: String, default: "R" },
     faviconBgGradient: {
       type: String,
-      default: "linear-gradient(135deg, #3B82F6, #6366F1)",
+      default: "linear-gradient(135deg, #8C7CFF, #6E5BFF)",
     },
     faviconTextColor: { type: String, default: "#FFFFFF" },
     faviconImage: { type: mediaRef, default: {} },

@@ -96,8 +96,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export async function generateViewport(): Promise<Viewport> {
   const s = await getSiteSettings().catch(() => null);
-  const dark = (s?.themeDark as { themeColor?: string } | undefined)?.themeColor ?? "#0a0a0f";
-  const light = (s?.themeLight as { themeColor?: string } | undefined)?.themeColor ?? "#f8f8fa";
+  const dark = (s?.themeDark as { themeColor?: string } | undefined)?.themeColor ?? "#08090c";
+  const light = (s?.themeLight as { themeColor?: string } | undefined)?.themeColor ?? "#f6f7f3";
   return {
     themeColor: [
       { media: "(prefers-color-scheme: dark)", color: dark },
