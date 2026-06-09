@@ -59,10 +59,10 @@ export function AdminSidebar() {
         <div className="mb-4 px-2 font-display text-lg font-bold text-text">Portfolio CMS</div>
         {GROUPS.map((group) => (
           <div key={group.title} className="mb-4">
-            <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-text-tertiary">
+            <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
               {group.title}
             </div>
-            <nav className="flex flex-col">
+            <nav className="flex flex-col gap-0.5">
               {group.items.map((it) => {
                 if (it.superAdminOnly && !isSuper) return null;
                 const active =
@@ -74,7 +74,7 @@ export function AdminSidebar() {
                     key={it.href}
                     href={it.href}
                     className={cn(
-                      "rounded-md px-2 py-1.5 text-xs transition-colors",
+                      "rounded-md px-2.5 py-2 text-sm transition-colors",
                       active
                         ? "bg-accent-soft text-accent-ink ring-1 ring-inset ring-accent/20"
                         : "text-text-secondary hover:bg-bg-tertiary/40 hover:text-text",
