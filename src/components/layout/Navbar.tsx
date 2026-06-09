@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { useScrollSection } from "@/hooks/useScrollSection";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { IconButton } from "@/components/ds/IconButton";
 import { usePerformance } from "@/hooks/usePerformanceTier";
 
 export interface NavItemProp {
@@ -151,14 +152,17 @@ export function Navbar({ items, brand, logoUrl }: NavbarProps) {
               ))}
             </div>
             <ThemeToggle />
-            <motion.button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              whileTap={{ scale: 0.9 }}
-              className="rounded-full p-2 text-text-secondary hover:text-text md:hidden"
-              aria-label="Toggle menu"
-            >
-              {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
-            </motion.button>
+            <span className="md:hidden">
+              <IconButton
+                label="Toggle menu"
+                variant="ghost"
+                size="sm"
+                magnetic={false}
+                onClick={() => setIsMobileOpen(!isMobileOpen)}
+              >
+                {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
+              </IconButton>
+            </span>
           </nav>
 
           <AnimatePresence>

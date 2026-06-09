@@ -3,8 +3,11 @@
 import { type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { ChevronUp, ChevronDown, Pencil, Trash2 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { AdminButton } from "@/components/ui/admin-input";
+import { IconButton } from "@/components/ds/IconButton";
+import { Tooltip } from "@/components/ds/Tooltip";
 import { SkeletonList } from "@/components/shared/skeleton";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
 import { useState } from "react";
@@ -94,24 +97,42 @@ export function ResourceList<T extends { id: string; orderIndex?: number }>({
               <div className="flex-1 min-w-0">{renderRow(row)}</div>
               {reorderUrl && (
                 <>
-                  <AdminButton variant="ghost" onClick={() => move(i, -1)} disabled={i === 0}>
-                    ↑
-                  </AdminButton>
-                  <AdminButton
-                    variant="ghost"
-                    onClick={() => move(i, 1)}
-                    disabled={i === data!.length - 1}
-                  >
-                    ↓
-                  </AdminButton>
+                  <Tooltip label="Move up">
+                    <IconButton
+                      label="Move up"
+                      size="sm"
+                      variant="ghost"
+                      magnetic={false}
+                      onClick={() => move(i, -1)}
+                      disabled={i === 0}
+                    >
+                      <ChevronUp size={16} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip label="Move down">
+                    <IconButton
+                      label="Move down"
+                      size="sm"
+                      variant="ghost"
+                      magnetic={false}
+                      onClick={() => move(i, 1)}
+                      disabled={i === data!.length - 1}
+                    >
+                      <ChevronDown size={16} />
+                    </IconButton>
+                  </Tooltip>
                 </>
               )}
-              <AdminButton variant="secondary" onClick={() => onEdit(row)}>
-                Edit
-              </AdminButton>
-              <AdminButton variant="danger" onClick={() => setToDelete(row)}>
-                ×
-              </AdminButton>
+              <Tooltip label="Edit">
+                <IconButton label="Edit" size="sm" variant="soft" magnetic={false} onClick={() => onEdit(row)}>
+                  <Pencil size={15} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip label="Delete">
+                <IconButton label="Delete" size="sm" variant="ghost" magnetic={false} onClick={() => setToDelete(row)}>
+                  <Trash2 size={15} className="text-red-500" />
+                </IconButton>
+              </Tooltip>
             </div>
           ))}
         </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { motion } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
+import { IconButton } from "@/components/ds/IconButton";
 
 // External store for theme state
 const listeners = new Set<() => void>();
@@ -45,14 +45,13 @@ export function ThemeToggle() {
   const toggle = () => setTheme(!isDark);
 
   return (
-    <motion.button
+    <IconButton
+      label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      variant="ghost"
+      size="sm"
       onClick={toggle}
-      whileTap={{ scale: 0.9, rotate: 15 }}
-      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      className="glass-pill rounded-full p-2 text-text-secondary transition-colors hover:text-text"
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? <Sun size={16} /> : <Moon size={16} />}
-    </motion.button>
+    </IconButton>
   );
 }
