@@ -54,7 +54,7 @@ export function SkillsSection({ categories, skills }: SkillsSectionProps) {
         </motion.h2>
         <motion.div
           variants={fadeInUp}
-          className="mb-4 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-emerald"
+          className="mb-4 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-hover"
         />
         <motion.p variants={fadeInUp} className="mb-8 text-sm text-text-secondary">
           <span className="inline-flex items-center gap-1.5">
@@ -75,7 +75,7 @@ export function SkillsSection({ categories, skills }: SkillsSectionProps) {
                 className={cn(
                   "rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200",
                   activeCategory === catId
-                    ? "glass-pill text-accent shadow-[0_0_12px_-3px_var(--accent-blue)]"
+                    ? "glass-pill text-accent shadow-[0_0_12px_-3px_var(--accent)]"
                     : "border border-border text-text-secondary hover:border-accent/30 hover:text-text",
                 )}
               >

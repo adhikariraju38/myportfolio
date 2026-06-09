@@ -17,9 +17,11 @@ export default async function OGImage() {
   const title = (s?.ogTitle as string | undefined) || (s?.brandFull as string | undefined) || "Portfolio";
   const subtitle = (s?.ogSubtitle as string | undefined) || "";
   const chips = (s?.ogChips as string[] | undefined) ?? [];
-  const bg = (s?.ogBgGradient as string | undefined) || "linear-gradient(135deg, #0A0A0F, #111118)";
-  const color = (s?.ogTextColor as string | undefined) || "#F0F0F5";
-  const accent = (s?.ogAccentColor as string | undefined) || "#3B82F6";
+  const bg = (s?.ogBgGradient as string | undefined) || "linear-gradient(135deg, #08090C, #0D0F13)";
+  const color = (s?.ogTextColor as string | undefined) || "#F2F3F5";
+  const accent = (s?.ogAccentColor as string | undefined) || "#8C7CFF";
+  const muted = "#8B919E";
+  const hairline = "#20242D";
 
   return new ImageResponse(
     (
@@ -61,7 +63,7 @@ export default async function OGImage() {
           </div>
           <div style={{ fontSize: 64, fontWeight: 700, color, letterSpacing: -1 }}>{title}</div>
           {subtitle && (
-            <div style={{ fontSize: 28, color: "#A0A0B8", fontFamily: "monospace" }}>{subtitle}</div>
+            <div style={{ fontSize: 28, color: muted, fontFamily: "monospace" }}>{subtitle}</div>
           )}
           {chips.length > 0 && (
             <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
@@ -71,8 +73,8 @@ export default async function OGImage() {
                   style={{
                     padding: "6px 16px",
                     borderRadius: 999,
-                    border: `1px solid #1E1E2A`,
-                    color: "#A0A0B8",
+                    border: `1px solid ${hairline}`,
+                    color: muted,
                     fontSize: 14,
                   }}
                 >

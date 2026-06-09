@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/admin-input";
 import { SkeletonList } from "@/components/shared/skeleton";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
+import { Checkbox } from "@/components/ds/Checkbox";
 
 interface NavItem {
   id: string;
@@ -193,8 +194,7 @@ function NavForm({
           </AdminSelect>
         </div>
         <div className="flex items-center gap-2 pt-5 md:col-span-4">
-          <AdminSwitch checked={opensInNewTab} onCheckedChange={setOpensInNewTab} />
-          <span className="text-xs text-text-secondary">Open in new tab</span>
+          <Checkbox checked={opensInNewTab} onChange={setOpensInNewTab} label="Open in new tab" />
         </div>
       </div>
       <div className="mt-4 flex justify-end gap-2">

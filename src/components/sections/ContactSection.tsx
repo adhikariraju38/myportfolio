@@ -15,6 +15,8 @@ import {
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { usePerformance } from "@/hooks/usePerformanceTier";
 import { apiClient, ApiClientError } from "@/lib/api-client";
+import { Input } from "@/components/ds/Input";
+import { Textarea } from "@/components/ds/Textarea";
 import { getIcon } from "@/lib/icons";
 import type { PublicSocialLink } from "@/types/public";
 
@@ -28,6 +30,8 @@ interface ContactSectionProps {
   contact: ContactInfo;
   socials: PublicSocialLink[];
   enable3dCanvas?: boolean;
+  /** Admin-controlled 3D mesh density, percent of baseline (0–200). */
+  meshDensity?: number;
 }
 
 function MagneticIcon({
@@ -76,7 +80,7 @@ function MagneticIcon({
       onMouseLeave={handleMouseLeave}
       whileTap={{ scale: 0.95 }}
       style={magnetic ? { x: springX, y: springY } : undefined}
-      className="flex h-10 w-10 items-center justify-center rounded-full glass-pill text-text-secondary transition-all hover:-translate-y-0.5 hover:text-text hover:shadow-[0_0_12px_-3px_var(--accent-blue)]"
+      className="flex h-10 w-10 items-center justify-center rounded-full glass-pill text-text-secondary transition-all hover:-translate-y-0.5 hover:text-text hover:shadow-[0_0_12px_-3px_var(--accent)]"
       aria-label={label}
     >
       {children}
@@ -84,7 +88,12 @@ function MagneticIcon({
   );
 }
 
-export function ContactSection({ contact, socials, enable3dCanvas = true }: ContactSectionProps) {
+export function ContactSection({
+  contact,
+  socials,
+  enable3dCanvas = true,
+  meshDensity = 100,
+}: ContactSectionProps) {
   const mounted = useHasMounted();
   const perf = usePerformance();
   const enable3d = perf.enable3D && enable3dCanvas;
@@ -134,7 +143,7 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
           <DynamicContactCanvas
             frameloop={isVisible ? "always" : "demand"}
             dpr={perf.dpr}
-            particleMultiplier={perf.particleMultiplier}
+            particleMultiplier={perf.particleMultiplier * (meshDensity / 100)}
           />
         </div>
       ) : (
@@ -163,7 +172,7 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
         </motion.h2>
         <motion.div
           variants={fadeInUp}
-          className="mb-4 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-emerald"
+          className="mb-4 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-hover"
         />
         <motion.p variants={fadeInUp} className="mb-12 max-w-lg text-sm text-text-secondary">
           Have a project in mind or want to discuss an opportunity? I&apos;d love to hear from you.
@@ -171,52 +180,23 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
 
         <div className="grid gap-12 md:grid-cols-2">
           <motion.form variants={fadeInUp} onSubmit={handleSubmit} className="space-y-5">
-            <div className="input-wrapper">
-              <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-text-secondary">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                className="w-full rounded-lg glass-subtle px-4 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-tertiary focus:shadow-[0_0_12px_-3px_var(--accent-blue)]"
-                placeholder="Your name"
-              />
-            </div>
-            <div className="input-wrapper">
-              <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-text-secondary">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                className="w-full rounded-lg glass-subtle px-4 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-tertiary focus:shadow-[0_0_12px_-3px_var(--accent-blue)]"
-                placeholder="your@email.com"
-              />
-            </div>
-            <div className="input-wrapper">
-              <label htmlFor="message" className="mb-1.5 block text-xs font-medium text-text-secondary">
-                Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                required
-                rows={5}
-                className="w-full resize-none rounded-lg glass-subtle px-4 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-tertiary focus:shadow-[0_0_12px_-3px_var(--accent-blue)]"
-                placeholder="Tell me about your project..."
-              />
-            </div>
+            <Input id="name" name="name" type="text" label="Name" required placeholder="Your name" />
+            <Input id="email" name="email" type="email" label="Email" required placeholder="your@email.com" />
+            <Textarea
+              id="message"
+              name="message"
+              label="Message"
+              required
+              rows={5}
+              placeholder="Tell me about your project..."
+            />
             <motion.button
               type="submit"
               disabled={submitting}
               whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.97, y: 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-              className="flex items-center gap-2 rounded-full bg-accent/90 backdrop-blur-sm px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-accent/20 transition-all hover:bg-accent hover:shadow-[0_0_24px_-4px_var(--accent-blue)] disabled:opacity-60"
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 520, damping: 30 }}
+              className="flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-on-accent shadow-(--glow-accent-sm) transition-[box-shadow,background-color] hover:bg-accent-hover hover:shadow-(--glow-accent) disabled:opacity-60"
             >
               <Send size={16} />
               {submitting ? "Sending…" : "Send Message"}

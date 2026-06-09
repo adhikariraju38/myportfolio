@@ -5,6 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Suspense } from "react";
 import { ThreeErrorBoundary } from "./ErrorBoundary";
+import { useAccentColor } from "@/hooks/use-accent-color";
 
 function generateGrid(count: number) {
   const base = new Float32Array(count * 3);
@@ -30,7 +31,7 @@ function generateGrid(count: number) {
   return { basePositions: base, connections: conns };
 }
 
-function ConnectionGrid({ count = 50 }: { count?: number }) {
+function ConnectionGrid({ count = 50, color = "#8c7cff" }: { count?: number; color?: string }) {
   const pointsRef = useRef<THREE.Points>(null);
   const linesRef = useRef<THREE.LineSegments>(null);
   const mouse = useRef({ x: 0, y: 0 });
@@ -110,14 +111,14 @@ function ConnectionGrid({ count = 50 }: { count?: number }) {
       <points ref={pointsRef} geometry={pointsGeom}>
         <pointsMaterial
           size={0.04}
-          color="#3b82f6"
+          color={color}
           transparent
           opacity={0.6}
           sizeAttenuation
         />
       </points>
       <lineSegments ref={linesRef} geometry={linesGeom}>
-        <lineBasicMaterial color="#3b82f6" transparent opacity={0.1} />
+        <lineBasicMaterial color={color} transparent opacity={0.1} />
       </lineSegments>
     </>
   );
@@ -141,6 +142,7 @@ export function ContactCanvas({
   particleMultiplier?: number;
 }) {
   const count = Math.round(40 * particleMultiplier);
+  const accentColor = useAccentColor();
 
   return (
     <ThreeErrorBoundary fallback={<ContactFallback />}>
@@ -157,7 +159,7 @@ export function ContactCanvas({
           frameloop={frameloop}
           gl={{ antialias: false, alpha: true }}
         >
-          <ConnectionGrid count={count} />
+          <ConnectionGrid count={count} color={accentColor} />
         </Canvas>
       </Suspense>
     </ThreeErrorBoundary>

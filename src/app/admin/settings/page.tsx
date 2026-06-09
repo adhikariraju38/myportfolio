@@ -9,14 +9,31 @@ import {
   AdminButton,
   AdminInput,
   AdminLabel,
-  AdminSelect,
   AdminSwitch,
   AdminTextarea,
 } from "@/components/ui/admin-input";
 import { ImageUpload, type ImageRef } from "@/components/admin/image-upload";
 import { SkeletonForm } from "@/components/shared/skeleton";
+import { Tabs } from "@/components/ds/Tabs";
+import { Slider } from "@/components/ds/Slider";
 
 type Settings = Record<string, unknown>;
+
+const ACCENTS = [
+  { key: "iris", label: "Iris Violet", swatch: "#8C7CFF" },
+  { key: "lime", label: "Electric Lime", swatch: "#C9F94A" },
+  { key: "cyan", label: "Electric Cyan", swatch: "#2FE2E2" },
+  { key: "coral", label: "Warm Coral", swatch: "#FF6A4D" },
+  { key: "cobalt", label: "Cobalt Blue", swatch: "#4C7DFF" },
+  { key: "magenta", label: "Hot Magenta", swatch: "#FF4D8D" },
+] as const;
+
+const FONT_SETS = [
+  { key: "engineered", label: "Engineered", spec: "Bricolage · Geist · Geist Mono" },
+  { key: "geometric", label: "Geometric", spec: "Sora · Jakarta · JetBrains" },
+  { key: "grotesk", label: "Neo-Grotesk", spec: "Space Grotesk · Hanken · Space Mono" },
+  { key: "expressive", label: "Expressive", spec: "Syne · Geist · Geist Mono" },
+] as const;
 
 const TABS = [
   "Branding",
@@ -59,6 +76,22 @@ export default function SettingsPage() {
     if (data) setDraft(data);
   }, [data]);
 
+  // Live-preview accent + typeface on the admin shell (which reads the same
+  // tokens). On unmount, restore whatever the server rendered.
+  const accent = (draft.themeAccent as string) ?? "iris";
+  const font = (draft.themeFont as string) ?? "engineered";
+  useEffect(() => {
+    const root = document.documentElement;
+    const prevAccent = root.getAttribute("data-accent");
+    const prevFont = root.getAttribute("data-font");
+    root.setAttribute("data-accent", accent);
+    root.setAttribute("data-font", font);
+    return () => {
+      if (prevAccent) root.setAttribute("data-accent", prevAccent);
+      if (prevFont) root.setAttribute("data-font", prevFont);
+    };
+  }, [accent, font]);
+
   const mutate = useMutation({
     mutationFn: (patch: Settings) => apiClient.patch<Settings>("/api/admin/settings", patch),
     onSuccess: () => {
@@ -88,21 +121,12 @@ export default function SettingsPage() {
         </AdminButton>
       </div>
 
-      <div className="flex flex-wrap gap-1 border-b border-border">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={
-              "rounded-t-md px-3 py-1.5 text-xs " +
-              (t === tab
-                ? "border border-b-0 border-border bg-bg-secondary text-text"
-                : "text-text-secondary hover:text-text")
-            }
-          >
-            {t}
-          </button>
-        ))}
+      <div className="overflow-x-auto">
+        <Tabs
+          tabs={TABS as unknown as string[]}
+          value={tab}
+          onChange={(id) => setTab(id as Tab)}
+        />
       </div>
 
       <div className="rounded-xl border border-border bg-bg-secondary p-5">
@@ -279,6 +303,76 @@ export default function SettingsPage() {
 
         {tab === "Theme" && (
           <div className="space-y-5">
+            {/* ── Appearance: switchable accent + typeface (DB-driven) ── */}
+            <div className="rounded-lg border border-border bg-bg p-4">
+              <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
+                Appearance
+              </p>
+              <p className="mb-3 text-xs text-text-secondary">
+                Accent retints the entire site; the typeface set reflows all
+                display/body/mono text. Saved to the database and applied to the
+                public site.
+              </p>
+
+              <AdminLabel>Accent</AdminLabel>
+              <div className="mb-4 flex flex-wrap gap-2">
+                {ACCENTS.map((a) => {
+                  const active = accent === a.key;
+                  return (
+                    <button
+                      key={a.key}
+                      type="button"
+                      onClick={() => set("themeAccent", a.key)}
+                      className={
+                        "flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors " +
+                        (active
+                          ? "border-accent bg-accent/10 text-text"
+                          : "border-border text-text-secondary hover:border-border-strong hover:text-text")
+                      }
+                      aria-pressed={active}
+                    >
+                      <span
+                        className="h-4 w-4 rounded-full"
+                        style={{ background: a.swatch }}
+                      />
+                      {a.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <AdminLabel>Typeface</AdminLabel>
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                {FONT_SETS.map((f) => {
+                  const active = font === f.key;
+                  return (
+                    <button
+                      key={f.key}
+                      type="button"
+                      onClick={() => set("themeFont", f.key)}
+                      className={
+                        "rounded-lg border p-3 text-left transition-colors " +
+                        (active
+                          ? "border-accent bg-accent/10"
+                          : "border-border hover:border-border-strong")
+                      }
+                      aria-pressed={active}
+                    >
+                      <span className="block font-display text-lg font-bold text-text">
+                        Ag
+                      </span>
+                      <span className="mt-1 block text-[11px] font-medium text-text">
+                        {f.label}
+                      </span>
+                      <span className="block text-[10px] text-text-tertiary">
+                        {f.spec}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {(["themeDark", "themeLight"] as const).map((tk) => {
               const tokens = tk === "themeDark" ? themeDark : themeLight;
               return (
@@ -319,38 +413,6 @@ export default function SettingsPage() {
                 </div>
               );
             })}
-            <div className="grid gap-3 md:grid-cols-3">
-              <Field label="Sans font">
-                <AdminSelect
-                  value={(draft.fontSans as string) ?? "Inter"}
-                  onChange={(e) => set("fontSans", e.target.value)}
-                >
-                  {["Inter", "Space Grotesk", "JetBrains Mono"].map((f) => (
-                    <option key={f}>{f}</option>
-                  ))}
-                </AdminSelect>
-              </Field>
-              <Field label="Display font">
-                <AdminSelect
-                  value={(draft.fontDisplay as string) ?? "Space Grotesk"}
-                  onChange={(e) => set("fontDisplay", e.target.value)}
-                >
-                  {["Inter", "Space Grotesk", "JetBrains Mono"].map((f) => (
-                    <option key={f}>{f}</option>
-                  ))}
-                </AdminSelect>
-              </Field>
-              <Field label="Mono font">
-                <AdminSelect
-                  value={(draft.fontMono as string) ?? "JetBrains Mono"}
-                  onChange={(e) => set("fontMono", e.target.value)}
-                >
-                  {["Inter", "Space Grotesk", "JetBrains Mono"].map((f) => (
-                    <option key={f}>{f}</option>
-                  ))}
-                </AdminSelect>
-              </Field>
-            </div>
           </div>
         )}
 
@@ -435,6 +497,35 @@ export default function SettingsPage() {
                 />
               </div>
             ))}
+
+            <div className="md:col-span-2 rounded-md border border-border bg-bg p-4">
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
+                3D scene density
+              </p>
+              <div className="grid gap-5 md:grid-cols-2">
+                <Slider
+                  label="Hero particles"
+                  min={0}
+                  max={200}
+                  step={5}
+                  showValue
+                  format={(v) => `${Math.round(v)}%`}
+                  value={(draft.heroParticleDensity as number) ?? 100}
+                  onChange={(v) => set("heroParticleDensity", v)}
+                />
+                <Slider
+                  label="Contact mesh"
+                  min={0}
+                  max={200}
+                  step={5}
+                  showValue
+                  format={(v) => `${Math.round(v)}%`}
+                  value={(draft.contactMeshDensity as number) ?? 100}
+                  onChange={(v) => set("contactMeshDensity", v)}
+                />
+              </div>
+            </div>
+
             <div className="md:col-span-2">
               <Field label="Footer copyright template ({year} {name})">
                 <AdminInput

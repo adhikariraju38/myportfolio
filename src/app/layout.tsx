@@ -96,8 +96,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export async function generateViewport(): Promise<Viewport> {
   const s = await getSiteSettings().catch(() => null);
-  const dark = (s?.themeDark as { themeColor?: string } | undefined)?.themeColor ?? "#0a0a0f";
-  const light = (s?.themeLight as { themeColor?: string } | undefined)?.themeColor ?? "#f8f8fa";
+  const dark = (s?.themeDark as { themeColor?: string } | undefined)?.themeColor ?? "#08090c";
+  const light = (s?.themeLight as { themeColor?: string } | undefined)?.themeColor ?? "#f6f7f3";
   return {
     themeColor: [
       { media: "(prefers-color-scheme: dark)", color: dark },
@@ -115,6 +115,8 @@ export default async function RootLayout({
     s?.themeLight as Record<string, unknown> | undefined,
   );
   const darkDefault = (s?.darkModeDefault as boolean | undefined) ?? true;
+  const themeAccent = (s?.themeAccent as string | undefined) ?? "iris";
+  const themeFont = (s?.themeFont as string | undefined) ?? "engineered";
   const enableSmoothScroll = (s?.enableSmoothScroll as boolean | undefined) ?? true;
   const enableScrollProgress = (s?.enableScrollProgress as boolean | undefined) ?? true;
   const enableCustomCursor = (s?.enableCustomCursor as boolean | undefined) ?? true;
@@ -146,7 +148,8 @@ export default async function RootLayout({
     <html
       lang="en"
       className={fontVariables}
-      data-font="engineered"
+      data-accent={themeAccent}
+      data-font={themeFont}
       suppressHydrationWarning
     >
       <head>

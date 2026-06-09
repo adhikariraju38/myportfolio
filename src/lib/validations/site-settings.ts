@@ -57,6 +57,9 @@ export const siteSettingsUpdateSchema = z
     fontDisplay: z.string().max(40),
     fontMono: z.string().max(40),
 
+    themeAccent: z.enum(["iris", "lime", "cyan", "coral", "cobalt", "magenta"]),
+    themeFont: z.enum(["engineered", "geometric", "grotesk", "expressive"]),
+
     ogTitle: z.string().max(120),
     ogSubtitle: z.string().max(140),
     ogChips: z.array(z.string()).max(8),
@@ -76,6 +79,9 @@ export const siteSettingsUpdateSchema = z
     enableCustomCursor: z.boolean(),
     enableScrollProgress: z.boolean(),
     darkModeDefault: z.boolean(),
+
+    heroParticleDensity: z.number().min(0).max(200),
+    contactMeshDensity: z.number().min(0).max(200),
 
     footerCopyrightTemplate: z.string().max(140),
 

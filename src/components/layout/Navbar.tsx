@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { useScrollSection } from "@/hooks/useScrollSection";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { IconButton } from "@/components/ds/IconButton";
 import { usePerformance } from "@/hooks/usePerformanceTier";
 
 export interface NavItemProp {
@@ -63,14 +64,14 @@ function MagneticLink({
       className={cn(
         "relative rounded-full px-4 py-1.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
         isActive
-          ? "text-text"
+          ? "text-accent-ink"
           : "text-text-secondary hover:text-text link-underline",
       )}
     >
       {isActive && (
         <motion.span
           layoutId="nav-indicator"
-          className="absolute inset-0 rounded-full glass-pill"
+          className="absolute inset-0 rounded-full bg-accent-soft ring-1 ring-inset ring-accent/30"
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
@@ -151,14 +152,17 @@ export function Navbar({ items, brand, logoUrl }: NavbarProps) {
               ))}
             </div>
             <ThemeToggle />
-            <motion.button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              whileTap={{ scale: 0.9 }}
-              className="rounded-full p-2 text-text-secondary hover:text-text md:hidden"
-              aria-label="Toggle menu"
-            >
-              {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
-            </motion.button>
+            <span className="md:hidden">
+              <IconButton
+                label="Toggle menu"
+                variant="ghost"
+                size="sm"
+                magnetic={false}
+                onClick={() => setIsMobileOpen(!isMobileOpen)}
+              >
+                {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
+              </IconButton>
+            </span>
           </nav>
 
           <AnimatePresence>
@@ -180,7 +184,7 @@ export function Navbar({ items, brand, logoUrl }: NavbarProps) {
                       className={cn(
                         "rounded-xl px-4 py-2.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                         activeSection === link.href.slice(1)
-                          ? "glass-pill text-text"
+                          ? "bg-accent-soft text-accent-ink ring-1 ring-inset ring-accent/30"
                           : "text-text-secondary hover:text-text",
                       )}
                     >

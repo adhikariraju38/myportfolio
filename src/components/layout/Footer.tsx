@@ -28,7 +28,7 @@ export function Footer({ links, copyright }: FooterProps) {
                 href={link.href}
                 target={link.opensInNewTab ? "_blank" : undefined}
                 rel={link.opensInNewTab ? "noopener noreferrer" : undefined}
-                className="text-text-tertiary transition-colors hover:text-text"
+                className="text-text-tertiary transition-colors hover:text-accent"
                 aria-label={link.label}
               >
                 {Icon ? <Icon size={18} /> : <span className="text-xs">{link.label}</span>}

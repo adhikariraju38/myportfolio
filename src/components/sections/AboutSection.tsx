@@ -70,7 +70,7 @@ export function AboutSection({ about }: AboutSectionProps) {
           </motion.h2>
           <motion.div
             variants={fadeInUp}
-            className="mb-6 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-emerald"
+            className="mb-6 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-hover"
           />
           <motion.p
             variants={fadeInUp}
