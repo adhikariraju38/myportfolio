@@ -115,6 +115,8 @@ export default async function RootLayout({
     s?.themeLight as Record<string, unknown> | undefined,
   );
   const darkDefault = (s?.darkModeDefault as boolean | undefined) ?? true;
+  const themeAccent = (s?.themeAccent as string | undefined) ?? "iris";
+  const themeFont = (s?.themeFont as string | undefined) ?? "engineered";
   const enableSmoothScroll = (s?.enableSmoothScroll as boolean | undefined) ?? true;
   const enableScrollProgress = (s?.enableScrollProgress as boolean | undefined) ?? true;
   const enableCustomCursor = (s?.enableCustomCursor as boolean | undefined) ?? true;
@@ -146,7 +148,8 @@ export default async function RootLayout({
     <html
       lang="en"
       className={fontVariables}
-      data-font="engineered"
+      data-accent={themeAccent}
+      data-font={themeFont}
       suppressHydrationWarning
     >
       <head>
