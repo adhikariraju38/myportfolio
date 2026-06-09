@@ -1,52 +1,306 @@
 @import "tailwindcss";
 
+/* ══════════════════════════════════════════════════════════════
+   RKY Portfolio — "Engineered Motion" design tokens
+   ──────────────────────────────────────────────────────────────
+   A refined cool-neutral canvas where a single accent (default
+   Iris Violet, fully swappable via [data-accent]) is reserved for
+   things that respond to you. Dark-first; light mode is a mirror.
+
+   Backward-compat: the legacy DB-overridable layer (--background,
+   --foreground, --accent-blue, --border …) is preserved and still
+   injected from site_settings.theme_* by lib/theme.ts. The design
+   semantic tokens derive from that layer, so admin colour overrides
+   keep working while the new palette is the default.
+   ══════════════════════════════════════════════════════════════ */
+
 :root {
-  --background: #0A0A0F;
-  --background-secondary: #111118;
-  --background-tertiary: #1A1A24;
-  --foreground: #F0F0F5;
-  --foreground-secondary: #A0A0B8;
-  --foreground-tertiary: #606078;
-  --accent-blue: #3B82F6;
-  --accent-amber: #F59E0B;
-  --accent-emerald: #10B981;
-  --border: #1E1E2A;
+  /* ── Brand ramp · electric lime (alt accent) ──────────────── */
+  --lime-300: #c9f94a;
+
+  /* ── Cool neutral ramp (slightly blue-black) ──────────────── */
+  --ink-0: #08090c;
+  --ink-1: #0d0f13;
+  --ink-2: #14161c;
+  --ink-3: #1b1e26;
+  --ink-4: #24272f;
+  --ink-5: #313540;
+  --ink-6: #444a57;
+  --ink-7: #5e6470;
+  --ink-8: #8b919e;
+  --ink-9: #b9bec8;
+  --ink-10: #e6e8ec;
+  --ink-11: #f2f3f5;
+
+  /* ── Supporting accents (used sparingly) ──────────────────── */
+  --cyan: #56d4ff;
+  --green: #3fd68c;
+  --amber: #ffb020;
+  --red: #ff5d5d;
+
+  /* ── Legacy DB-overridable layer (defaults = design palette) ─
+     site_settings.themeDark/themeLight inject over these. */
+  --background: #08090c;
+  --background-secondary: #0d0f13;
+  --background-tertiary: #14161c;
+  --foreground: #f2f3f5;
+  --foreground-secondary: #8b919e;
+  --foreground-tertiary: #5e6470;
+  --accent-blue: #8c7cff; /* iris default; DB-overridable */
+  --accent-amber: #ffb020;
+  --accent-emerald: #3fd68c;
+  --border: #20242d;
+
+  /* ── Design semantic surfaces (derive from legacy layer) ──── */
+  --canvas: var(--background);
+  --surface-1: var(--background-secondary);
+  --surface-2: var(--background-tertiary);
+  --surface-3: #1b1e26;
+  --surface-hover: #24272f;
+
+  --border-strong: #2c313c;
+  --border-faint: #15181f;
+
+  --text: var(--foreground);
+  --text-secondary: var(--foreground-secondary);
+  --text-tertiary: var(--foreground-tertiary);
+
+  /* ── Accent · default = Iris Violet ───────────────────────
+     Swap the whole family live with [data-accent="…"] on <html>.
+     soft / glow / focus / selection all derive from --accent, so a
+     single token flip retints the entire system. When no
+     [data-accent] is set, --accent falls back to the DB-overridable
+     --accent-blue. */
+  --accent: var(--accent-blue);
+  --accent-hover: #9f90ff;
+  --accent-press: #7a68f5;
+  --accent-ink: #b3a8ff; /* accent as text/icon on dark */
+  --text-on-accent: #0b0820; /* ink on an accent fill */
+  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
+  --accent-glow: color-mix(in oklab, var(--accent) 46%, transparent);
+  --focus-ring: color-mix(in oklab, var(--accent) 58%, transparent);
+  --selection: color-mix(in oklab, var(--accent) 28%, transparent);
+
+  /* glass (overlays / nav only) */
+  --glass-bg: rgba(255, 255, 255, 0.045);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.08);
+
+  /* ── Type scale (1.250 major-third, fluid clamps on display) ── */
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.25rem;
+  --text-3xl: 3rem;
+  --text-4xl: clamp(2.75rem, 6vw, 4.5rem);
+  --text-5xl: clamp(3.25rem, 9vw, 6.5rem);
+
+  /* ── Weights / line-height / tracking ─────────────────────── */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extra: 800;
+  --lh-tight: 1.04;
+  --lh-snug: 1.2;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.7;
+  --tracking-tighter: -0.04em;
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.04em;
+  --tracking-mono: 0.12em;
+
+  /* ── Resolved typeface families (set per [data-font]) ──────
+     Default = "Engineered" set. The next/font CSS variables
+     (--font-bricolage, --font-geist, …) are provided by layout.tsx. */
+  --ff-display: var(--font-bricolage), var(--font-geist), system-ui, sans-serif;
+  --ff-sans: var(--font-geist), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ff-mono: var(--font-geist-mono), "SF Mono", ui-monospace, monospace;
+
+  /* ── Radius ───────────────────────────────────────────────── */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-2xl: 32px;
+  --r-pill: 999px;
+
+  /* ── Layout ───────────────────────────────────────────────── */
+  --container: 1200px;
+  --container-prose: 720px;
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --section-y: clamp(4rem, 10vw, 8rem);
+  --tap-min: 44px;
+
+  /* ── Motion · durations ───────────────────────────────────── */
+  --dur-instant: 90ms;
+  --dur-fast: 150ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+  --dur-slower: 680ms;
+
+  /* ── Motion · easings ─────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce: cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  --ease-anticipate: cubic-bezier(0.68, -0.35, 0.27, 1.35);
+
+  /* ── Composite motion tokens (duration + easing) ──────────── */
+  --motion-press: transform var(--dur-fast) var(--ease-spring);
+  --motion-hover: transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-snappy),
+    background-color var(--dur-fast) var(--ease-snappy),
+    color var(--dur-fast) var(--ease-snappy);
+  --motion-card: transform var(--dur-slow) var(--ease-out),
+    box-shadow var(--dur-slow) var(--ease-out);
+
+  /* ── Interaction deltas — keep consistent everywhere ──────── */
+  --press-scale: 0.96;
+  --press-scale-lg: 0.985;
+  --hover-lift: -2px;
+  --hover-lift-card: -6px;
+  --tilt-max: 8deg;
+  --magnet-max: 6px;
+
+  /* ── Cast shadows · DARK ──────────────────────────────────── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 18px 48px -16px rgba(0, 0, 0, 0.65);
+  --shadow-xl: 0 32px 80px -24px rgba(0, 0, 0, 0.7);
+
+  --edge-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  --edge-light-strong: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+
+  --glow-accent: 0 0 0 1px var(--accent-glow), 0 6px 24px -6px var(--accent-glow);
+  --glow-accent-sm: 0 4px 16px -6px var(--accent-glow);
+
+  --elev-card: var(--edge-light), var(--shadow-md);
+  --elev-raised: var(--edge-light-strong), var(--shadow-lg);
+  --elev-pop: var(--edge-light-strong), var(--shadow-xl);
 }
 
+/* ── Semantic · LIGHT ───────────────────────────────────────── */
 .light {
-  --background: #FAFAFA;
-  --background-secondary: #FFFFFF;
-  --background-tertiary: #F0F0F0;
-  --foreground: #111111;
-  --foreground-secondary: #555555;
-  --foreground-tertiary: #888888;
-  --accent-blue: #2563EB;
-  --accent-amber: #D97706;
+  --background: #f6f7f3; /* warm off-white, faint green cast */
+  --background-secondary: #ffffff;
+  --background-tertiary: #f1f3ec;
+  --foreground: #0e1014;
+  --foreground-secondary: #51565f;
+  --foreground-tertiary: #898e97;
+  --accent-blue: #8c7cff;
+  --accent-amber: #d97706;
   --accent-emerald: #059669;
-  --border: #E5E5E5;
+  --border: #e2e5db;
+
+  --surface-3: #f1f3ec;
+  --surface-hover: #eaede2;
+  --border-strong: #d2d6c9;
+  --border-faint: #edefe7;
+
+  --accent-ink: #5b4bd6; /* iris, darkened for light bg */
+  --accent-soft: color-mix(in oklab, var(--accent) 20%, transparent);
+  --selection: color-mix(in oklab, var(--accent) 40%, transparent);
+
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-highlight: rgba(255, 255, 255, 0.9);
+
+  --shadow-xs: 0 1px 2px rgba(16, 24, 16, 0.06);
+  --shadow-sm: 0 2px 8px -2px rgba(16, 24, 16, 0.1);
+  --shadow-md: 0 10px 28px -10px rgba(16, 24, 16, 0.14);
+  --shadow-lg: 0 20px 50px -18px rgba(16, 24, 16, 0.18);
+  --shadow-xl: 0 32px 80px -24px rgba(16, 24, 16, 0.22);
+  --edge-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  --edge-light-strong: inset 0 1px 0 0 rgba(255, 255, 255, 1);
 }
 
+/* ══════════════════════════════════════════════════════════════
+   SWITCHABLE ACCENT THEMES — [data-accent] on <html> retints all.
+   Each overrides the base accent tokens; soft/glow/focus/selection
+   derive automatically. .light overrides darken the ink for legibility.
+   ══════════════════════════════════════════════════════════════ */
+[data-accent="iris"] { --accent: #8c7cff; --accent-hover: #9f90ff; --accent-press: #7a68f5; --accent-ink: #b3a8ff; --text-on-accent: #0b0820; }
+[data-accent="lime"] { --accent: #c9f94a; --accent-hover: #d7fb6e; --accent-press: #b6e82e; --accent-ink: #c9f94a; --text-on-accent: #0a0c05; }
+[data-accent="cyan"] { --accent: #2fe2e2; --accent-hover: #5beded; --accent-press: #1fc7c7; --accent-ink: #5fe9f0; --text-on-accent: #04181a; }
+[data-accent="coral"] { --accent: #ff6a4d; --accent-hover: #ff8166; --accent-press: #f2553a; --accent-ink: #ff8e76; --text-on-accent: #1f0905; }
+[data-accent="cobalt"] { --accent: #4c7dff; --accent-hover: #6e96ff; --accent-press: #3d6bf0; --accent-ink: #86a6ff; --text-on-accent: #050b1f; }
+[data-accent="magenta"] { --accent: #ff4d8d; --accent-hover: #ff6fa3; --accent-press: #f23b7c; --accent-ink: #ff82ae; --text-on-accent: #200512; }
+
+.light[data-accent="iris"] { --accent-ink: #5b4bd6; }
+.light[data-accent="lime"] { --accent-ink: #567500; }
+.light[data-accent="cyan"] { --accent-ink: #0e8c99; }
+.light[data-accent="coral"] { --accent-ink: #d9442a; }
+.light[data-accent="cobalt"] { --accent-ink: #2d5be0; }
+.light[data-accent="magenta"] { --accent-ink: #d61e63; }
+
+/* ══════════════════════════════════════════════════════════════
+   SWITCHABLE TYPEFACE SETS — [data-font] on <html> swaps families.
+   Families come from next/font (layout.tsx) as CSS variables.
+   ══════════════════════════════════════════════════════════════ */
+[data-font="engineered"] {
+  --ff-display: var(--font-bricolage), var(--font-geist), system-ui, sans-serif;
+  --ff-sans: var(--font-geist), system-ui, sans-serif;
+  --ff-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+[data-font="geometric"] {
+  --ff-display: var(--font-sora), system-ui, sans-serif;
+  --ff-sans: var(--font-jakarta), system-ui, sans-serif;
+  --ff-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+[data-font="grotesk"] {
+  --ff-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --ff-sans: var(--font-hanken), system-ui, sans-serif;
+  --ff-mono: var(--font-space-mono), ui-monospace, monospace;
+}
+[data-font="expressive"] {
+  --ff-display: var(--font-syne), var(--font-geist), system-ui, sans-serif;
+  --ff-sans: var(--font-geist), system-ui, sans-serif;
+  --ff-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+/* ── Tailwind theme bridge (utilities → design tokens) ───────── */
 @theme inline {
-  --color-bg: var(--background);
-  --color-bg-secondary: var(--background-secondary);
-  --color-bg-tertiary: var(--background-tertiary);
-  --color-text: var(--foreground);
-  --color-text-secondary: var(--foreground-secondary);
-  --color-text-tertiary: var(--foreground-tertiary);
-  --color-accent: var(--accent-blue);
+  --color-bg: var(--canvas);
+  --color-bg-secondary: var(--surface-1);
+  --color-bg-tertiary: var(--surface-2);
+  --color-canvas: var(--canvas);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--text-on-accent);
   --color-accent-amber: var(--accent-amber);
   --color-accent-emerald: var(--accent-emerald);
   --color-border: var(--border);
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-space-grotesk);
-  --font-mono: var(--font-jetbrains-mono);
+  --color-border-strong: var(--border-strong);
+  --font-sans: var(--ff-sans);
+  --font-display: var(--ff-display);
+  --font-mono: var(--ff-mono);
+  --radius-pill: var(--r-pill);
 }
 
 html {
   position: relative;
+  -webkit-text-size-adjust: 100%;
 }
 
-html.lenis, html.lenis body {
+html.lenis,
+html.lenis body {
   height: auto;
 }
 
@@ -55,13 +309,28 @@ html.lenis, html.lenis body {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans, system-ui, sans-serif);
+  background: var(--canvas);
+  color: var(--text);
+  font-family: var(--ff-sans);
+  font-size: var(--text-base);
+  line-height: var(--lh-normal);
+  font-feature-settings: "ss01", "cv01", "cv03";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  :root {
+    --press-scale: 1;
+    --press-scale-lg: 1;
+    --hover-lift: 0px;
+    --hover-lift-card: 0px;
+    --tilt-max: 0deg;
+    --magnet-max: 0px;
+  }
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -76,28 +345,64 @@ body {
   transition-duration: 0s !important;
 }
 
+/* ── Type primitives ─────────────────────────────────────────── */
+.ds-display {
+  font-family: var(--ff-display);
+  font-weight: var(--fw-extra);
+  letter-spacing: var(--tracking-tighter);
+  line-height: var(--lh-tight);
+}
+.ds-eyebrow {
+  font-family: var(--ff-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--accent-ink);
+}
+.ds-mono {
+  font-family: var(--ff-mono);
+}
+
+/* ── Engineered surface (the default card look) ──────────────── */
+.surface {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-card);
+}
+
 /* Custom scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 9px;
+  height: 9px;
 }
-
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
+  background: var(--border-strong);
+  border-radius: var(--r-pill);
+  border: 2px solid var(--canvas);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-6);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground-tertiary);
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
 }
 
 /* Selection */
 ::selection {
-  background: var(--accent-blue);
-  color: white;
+  background: var(--selection);
+  color: var(--text);
 }
 
 /* Mobile starfield for hero */
@@ -109,84 +414,90 @@ body {
 
 .mobile-stars {
   background-image:
-    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.7) 50%, transparent 100%),
-    radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.5) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 40% 8%, rgba(255,255,255,0.8) 50%, transparent 100%),
-    radial-gradient(1px 1px at 55% 42%, rgba(255,255,255,0.4) 50%, transparent 100%),
-    radial-gradient(1px 1px at 70% 20%, rgba(255,255,255,0.6) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 85% 55%, rgba(255,255,255,0.7) 50%, transparent 100%),
-    radial-gradient(1px 1px at 15% 65%, rgba(255,255,255,0.5) 50%, transparent 100%),
-    radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.4) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 50% 70%, rgba(255,255,255,0.6) 50%, transparent 100%),
-    radial-gradient(1px 1px at 65% 88%, rgba(255,255,255,0.5) 50%, transparent 100%),
-    radial-gradient(1px 1px at 80% 75%, rgba(255,255,255,0.4) 50%, transparent 100%),
-    radial-gradient(1px 1px at 92% 30%, rgba(255,255,255,0.6) 50%, transparent 100%),
-    radial-gradient(1px 1px at 5% 45%, rgba(255,255,255,0.3) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 48% 25%, rgba(255,255,255,0.7) 50%, transparent 100%),
-    radial-gradient(1px 1px at 75% 50%, rgba(255,255,255,0.5) 50%, transparent 100%),
-    radial-gradient(1px 1px at 20% 90%, rgba(255,255,255,0.4) 50%, transparent 100%);
+    radial-gradient(1px 1px at 10% 15%, rgba(255, 255, 255, 0.7) 50%, transparent 100%),
+    radial-gradient(1px 1px at 25% 35%, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 8%, rgba(255, 255, 255, 0.8) 50%, transparent 100%),
+    radial-gradient(1px 1px at 55% 42%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
+    radial-gradient(1px 1px at 70% 20%, rgba(255, 255, 255, 0.6) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 55%, rgba(255, 255, 255, 0.7) 50%, transparent 100%),
+    radial-gradient(1px 1px at 15% 65%, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
+    radial-gradient(1px 1px at 30% 80%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 70%, rgba(255, 255, 255, 0.6) 50%, transparent 100%),
+    radial-gradient(1px 1px at 65% 88%, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
+    radial-gradient(1px 1px at 80% 75%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
+    radial-gradient(1px 1px at 92% 30%, rgba(255, 255, 255, 0.6) 50%, transparent 100%),
+    radial-gradient(1px 1px at 5% 45%, rgba(255, 255, 255, 0.3) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 48% 25%, rgba(255, 255, 255, 0.7) 50%, transparent 100%),
+    radial-gradient(1px 1px at 75% 50%, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
+    radial-gradient(1px 1px at 20% 90%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
   animation: twinkle 4s ease-in-out infinite alternate;
 }
 
 .light .mobile-stars {
   background-image:
-    radial-gradient(1px 1px at 10% 15%, rgba(0,0,0,0.15) 50%, transparent 100%),
-    radial-gradient(1px 1px at 25% 35%, rgba(0,0,0,0.1) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 40% 8%, rgba(0,0,0,0.18) 50%, transparent 100%),
-    radial-gradient(1px 1px at 55% 42%, rgba(0,0,0,0.08) 50%, transparent 100%),
-    radial-gradient(1px 1px at 70% 20%, rgba(0,0,0,0.12) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 85% 55%, rgba(0,0,0,0.15) 50%, transparent 100%),
-    radial-gradient(1px 1px at 15% 65%, rgba(0,0,0,0.1) 50%, transparent 100%),
-    radial-gradient(1px 1px at 30% 80%, rgba(0,0,0,0.08) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 50% 70%, rgba(0,0,0,0.12) 50%, transparent 100%),
-    radial-gradient(1px 1px at 65% 88%, rgba(0,0,0,0.1) 50%, transparent 100%),
-    radial-gradient(1px 1px at 80% 75%, rgba(0,0,0,0.08) 50%, transparent 100%),
-    radial-gradient(1px 1px at 92% 30%, rgba(0,0,0,0.12) 50%, transparent 100%),
-    radial-gradient(1px 1px at 5% 45%, rgba(0,0,0,0.06) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 48% 25%, rgba(0,0,0,0.15) 50%, transparent 100%),
-    radial-gradient(1px 1px at 75% 50%, rgba(0,0,0,0.1) 50%, transparent 100%),
-    radial-gradient(1px 1px at 20% 90%, rgba(0,0,0,0.08) 50%, transparent 100%);
+    radial-gradient(1px 1px at 10% 15%, rgba(0, 0, 0, 0.15) 50%, transparent 100%),
+    radial-gradient(1px 1px at 25% 35%, rgba(0, 0, 0, 0.1) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 8%, rgba(0, 0, 0, 0.18) 50%, transparent 100%),
+    radial-gradient(1px 1px at 55% 42%, rgba(0, 0, 0, 0.08) 50%, transparent 100%),
+    radial-gradient(1px 1px at 70% 20%, rgba(0, 0, 0, 0.12) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 55%, rgba(0, 0, 0, 0.15) 50%, transparent 100%),
+    radial-gradient(1px 1px at 15% 65%, rgba(0, 0, 0, 0.1) 50%, transparent 100%),
+    radial-gradient(1px 1px at 30% 80%, rgba(0, 0, 0, 0.08) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 70%, rgba(0, 0, 0, 0.12) 50%, transparent 100%),
+    radial-gradient(1px 1px at 65% 88%, rgba(0, 0, 0, 0.1) 50%, transparent 100%),
+    radial-gradient(1px 1px at 80% 75%, rgba(0, 0, 0, 0.08) 50%, transparent 100%),
+    radial-gradient(1px 1px at 92% 30%, rgba(0, 0, 0, 0.12) 50%, transparent 100%),
+    radial-gradient(1px 1px at 5% 45%, rgba(0, 0, 0, 0.06) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 48% 25%, rgba(0, 0, 0, 0.15) 50%, transparent 100%),
+    radial-gradient(1px 1px at 75% 50%, rgba(0, 0, 0, 0.1) 50%, transparent 100%),
+    radial-gradient(1px 1px at 20% 90%, rgba(0, 0, 0, 0.08) 50%, transparent 100%);
 }
 
 @keyframes twinkle {
-  0% { opacity: 0.6; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-/* Link underline animation */
+/* Link underline animation (wipes in from left) */
 .link-underline {
   position: relative;
 }
 
 .link-underline::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
-  width: 0;
+  width: 100%;
   height: 1.5px;
-  background: var(--accent-blue);
-  transition: width 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-base) var(--ease-out);
 }
 
 .link-underline:hover::after {
-  width: 100%;
+  transform: scaleX(1);
 }
 
-/* Form input animated underline */
+/* Form input animated underline (wipes out from center) */
 .input-wrapper {
   position: relative;
 }
 
 .input-wrapper::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
   width: 0;
   height: 2px;
-  background: var(--accent-blue);
-  transition: width 0.3s ease, left 0.3s ease;
+  background: var(--accent);
+  transition: width var(--dur-base) var(--ease-out), left var(--dur-base) var(--ease-out);
   border-radius: 1px;
 }
 
@@ -218,7 +529,6 @@ body {
   }
 }
 
-/* will-change on class for GPU promotion, auto-cleared via animationend in HeroSection */
 .hero-fade-in {
   opacity: 0;
   animation: hero-fade-in 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
@@ -231,47 +541,44 @@ body {
   will-change: opacity, transform;
 }
 
-/* ─── Liquid Glass (iOS-style) ─── */
+/* ─── Liquid Glass (iOS-style) — overlays / nav / dialogs only ─── */
 .glass {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
   backdrop-filter: blur(24px) saturate(1.8);
   -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 0 var(--glass-highlight),
     inset 0 -1px 0 0 rgba(255, 255, 255, 0.02),
-    0 8px 32px -8px rgba(0, 0, 0, 0.4);
+    var(--shadow-lg);
 }
 
 .glass-subtle {
   background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(16px) saturate(1.5);
   -webkit-backdrop-filter: blur(16px) saturate(1.5);
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
-    0 4px 16px -4px rgba(0, 0, 0, 0.3);
+    var(--shadow-sm);
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px) saturate(1.6);
-  -webkit-backdrop-filter: blur(12px) saturate(1.6);
-  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(1.6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  border: 1px solid var(--glass-border);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
-    0 2px 8px -2px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 0 var(--glass-highlight),
+    var(--shadow-sm);
+  border-radius: var(--r-pill);
 }
 
+/* Engineered card surface (was heavy glass; now hairline + edge-light) */
 .glass-card {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(20px) saturate(1.6);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  background: var(--surface-2);
   border: 1px solid var(--border);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.01),
-    0 8px 40px -12px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--elev-card);
 }
 
 /* Specular highlight shimmer on glass surfaces */
@@ -280,7 +587,7 @@ body {
 }
 
 .glass-highlight::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -295,34 +602,8 @@ body {
 }
 
 /* Light mode glass overrides */
-.light .glass {
-  background: rgba(255, 255, 255, 0.55);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.3),
-    0 8px 32px -8px rgba(0, 0, 0, 0.08);
-}
-
 .light .glass-subtle {
   background: rgba(255, 255, 255, 0.4);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
-    0 4px 16px -4px rgba(0, 0, 0, 0.06);
-}
-
-.light .glass-pill {
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
-    0 2px 8px -2px rgba(0, 0, 0, 0.06);
-}
-
-.light .glass-card {
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.4),
-    0 8px 40px -12px rgba(0, 0, 0, 0.06);
 }
 
 .light .glass-highlight::before {
@@ -334,12 +615,10 @@ body {
   );
 }
 
-/* Phase 4: Reduce backdrop-filter during active scroll for performance.
-   Transition only lives inside .is-scrolling so idle glass has zero transition overhead. */
+/* Phase 4: Reduce backdrop-filter during active scroll for performance. */
 .is-scrolling .glass,
 .is-scrolling .glass-subtle,
-.is-scrolling .glass-pill,
-.is-scrolling .glass-card {
+.is-scrolling .glass-pill {
   backdrop-filter: blur(4px) saturate(1.2);
   -webkit-backdrop-filter: blur(4px) saturate(1.2);
   transition: backdrop-filter 0.2s ease, -webkit-backdrop-filter 0.2s ease;
@@ -348,18 +627,91 @@ body {
 /* Low-tier: kill all backdrop-filter blur for maximum performance */
 [data-perf-tier="low"] .glass,
 [data-perf-tier="low"] .glass-subtle,
-[data-perf-tier="low"] .glass-pill,
-[data-perf-tier="low"] .glass-card {
+[data-perf-tier="low"] .glass-pill {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  background: var(--background-secondary);
+  background: var(--surface-1);
 }
 
-/* Validation shake */
+/* ── Motion keyframes ────────────────────────────────────────── */
+@keyframes ds-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+@keyframes ds-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes ds-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes ds-ripple {
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.ds-rise {
+  animation: ds-rise var(--dur-slow) var(--ease-out) both;
+}
+.ds-pop {
+  animation: ds-pop var(--dur-base) var(--ease-bounce) both;
+}
+
+/* Ripple ink (injected by useRipple on press) */
+.ds-ripple-ink {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.28;
+  transform: scale(0);
+  pointer-events: none;
+  animation: ds-ripple 600ms var(--ease-out) forwards;
+}
+
+/* Legacy validation shake (kept for back-compat) */
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
 }
 
 .shake {
