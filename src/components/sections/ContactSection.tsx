@@ -30,6 +30,8 @@ interface ContactSectionProps {
   contact: ContactInfo;
   socials: PublicSocialLink[];
   enable3dCanvas?: boolean;
+  /** Admin-controlled 3D mesh density, percent of baseline (0–200). */
+  meshDensity?: number;
 }
 
 function MagneticIcon({
@@ -86,7 +88,12 @@ function MagneticIcon({
   );
 }
 
-export function ContactSection({ contact, socials, enable3dCanvas = true }: ContactSectionProps) {
+export function ContactSection({
+  contact,
+  socials,
+  enable3dCanvas = true,
+  meshDensity = 100,
+}: ContactSectionProps) {
   const mounted = useHasMounted();
   const perf = usePerformance();
   const enable3d = perf.enable3D && enable3dCanvas;
@@ -136,7 +143,7 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
           <DynamicContactCanvas
             frameloop={isVisible ? "always" : "demand"}
             dpr={perf.dpr}
-            particleMultiplier={perf.particleMultiplier}
+            particleMultiplier={perf.particleMultiplier * (meshDensity / 100)}
           />
         </div>
       ) : (

@@ -118,6 +118,10 @@ const siteSettingSchema = new Schema(
     enableScrollProgress: { type: Boolean, default: true },
     darkModeDefault: { type: Boolean, default: true },
 
+    // 3D scene density (percent of baseline particle/node count, 0–200)
+    heroParticleDensity: { type: Number, default: 100, min: 0, max: 200 },
+    contactMeshDensity: { type: Number, default: 100, min: 0, max: 200 },
+
     // Footer
     footerCopyrightTemplate: {
       type: String,

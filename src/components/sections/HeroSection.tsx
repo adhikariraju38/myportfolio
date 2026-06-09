@@ -10,9 +10,11 @@ import type { PublicHero } from "@/types/public";
 
 interface HeroSectionProps {
   hero: PublicHero;
+  /** Admin-controlled 3D particle density, percent of baseline (0–200). */
+  particleDensity?: number;
 }
 
-export function HeroSection({ hero }: HeroSectionProps) {
+export function HeroSection({ hero, particleDensity = 100 }: HeroSectionProps) {
   const perf = usePerformance();
   const [show3D, setShow3D] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -76,7 +78,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
             <DynamicHeroCanvas
               frameloop={isVisible ? "always" : "demand"}
               dpr={perf.dpr}
-              particleMultiplier={perf.particleMultiplier}
+              particleMultiplier={perf.particleMultiplier * (particleDensity / 100)}
             />
           )}
         </motion.div>

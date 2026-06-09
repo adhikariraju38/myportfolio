@@ -105,6 +105,9 @@ async function main() {
     enableScrollProgress: true,
     darkModeDefault: true,
 
+    heroParticleDensity: 100,
+    contactMeshDensity: 100,
+
     footerCopyrightTemplate: "© {year} {name}",
 
     jsonLd: {

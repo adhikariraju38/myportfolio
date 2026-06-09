@@ -15,6 +15,7 @@ import {
 import { ImageUpload, type ImageRef } from "@/components/admin/image-upload";
 import { SkeletonForm } from "@/components/shared/skeleton";
 import { Tabs } from "@/components/ds/Tabs";
+import { Slider } from "@/components/ds/Slider";
 
 type Settings = Record<string, unknown>;
 
@@ -496,6 +497,35 @@ export default function SettingsPage() {
                 />
               </div>
             ))}
+
+            <div className="md:col-span-2 rounded-md border border-border bg-bg p-4">
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
+                3D scene density
+              </p>
+              <div className="grid gap-5 md:grid-cols-2">
+                <Slider
+                  label="Hero particles"
+                  min={0}
+                  max={200}
+                  step={5}
+                  showValue
+                  format={(v) => `${Math.round(v)}%`}
+                  value={(draft.heroParticleDensity as number) ?? 100}
+                  onChange={(v) => set("heroParticleDensity", v)}
+                />
+                <Slider
+                  label="Contact mesh"
+                  min={0}
+                  max={200}
+                  step={5}
+                  showValue
+                  format={(v) => `${Math.round(v)}%`}
+                  value={(draft.contactMeshDensity as number) ?? 100}
+                  onChange={(v) => set("contactMeshDensity", v)}
+                />
+              </div>
+            </div>
+
             <div className="md:col-span-2">
               <Field label="Footer copyright template ({year} {name})">
                 <AdminInput

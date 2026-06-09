@@ -69,6 +69,8 @@ export default async function Home() {
 
   const enable3dHero = (settings?.enable3dHero as boolean | undefined) ?? true;
   const enable3dContact = (settings?.enable3dContact as boolean | undefined) ?? true;
+  const heroParticleDensity = (settings?.heroParticleDensity as number | undefined) ?? 100;
+  const contactMeshDensity = (settings?.contactMeshDensity as number | undefined) ?? 100;
 
   const heroData = hero as unknown as PublicHero | null;
   const aboutData = about as unknown as PublicAbout | null;
@@ -91,7 +93,7 @@ export default async function Home() {
 
   const SECTION_MAP: Record<string, ReactNode> = {
     hero: heroData
-      ? <HeroSection key="hero" hero={{ ...heroData, enable3dCanvas: heroData.enable3dCanvas !== false && enable3dHero }} />
+      ? <HeroSection key="hero" hero={{ ...heroData, enable3dCanvas: heroData.enable3dCanvas !== false && enable3dHero }} particleDensity={heroParticleDensity} />
       : null,
     about: aboutData ? <AboutSection key="about" about={aboutData} /> : null,
     experience: <ExperienceSection key="experience" experiences={exps} />,
@@ -107,6 +109,7 @@ export default async function Home() {
         contact={contact}
         socials={socials}
         enable3dCanvas={enable3dContact}
+        meshDensity={contactMeshDensity}
       />
     ),
   };

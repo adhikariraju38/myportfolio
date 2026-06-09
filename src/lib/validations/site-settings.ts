@@ -80,6 +80,9 @@ export const siteSettingsUpdateSchema = z
     enableScrollProgress: z.boolean(),
     darkModeDefault: z.boolean(),
 
+    heroParticleDensity: z.number().min(0).max(200),
+    contactMeshDensity: z.number().min(0).max(200),
+
     footerCopyrightTemplate: z.string().max(140),
 
     jsonLd: jsonLdSchema,
