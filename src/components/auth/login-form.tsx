@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { apiClient, ApiClientError } from "@/lib/api-client";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
+import { Button } from "@/components/ds/Button";
 
 interface LoginFormProps {
   redirectTo?: string;
@@ -69,13 +70,9 @@ export function LoginForm({ redirectTo = "/admin" }: LoginFormProps) {
         )}
       </div>
       {serverError && <p className="text-xs text-red-500">{serverError}</p>}
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-on-accent shadow-(--glow-accent-sm) transition-opacity disabled:opacity-60"
-      >
+      <Button type="submit" loading={isSubmitting} fullWidth>
         {isSubmitting ? "Signing in…" : "Sign in"}
-      </button>
+      </Button>
     </form>
   );
 }

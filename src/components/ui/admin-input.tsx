@@ -1,6 +1,7 @@
 import type { InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ds/Switch";
+import { Button } from "@/components/ds/Button";
 
 export function AdminInput({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
   return (
@@ -53,19 +54,32 @@ export function AdminLabel({
 export function AdminButton({
   className,
   variant = "primary",
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  children,
+  onClick,
+  disabled,
+  type = "button",
+}: {
+  className?: string;
   variant?: "primary" | "secondary" | "danger" | "ghost";
+  children?: React.ReactNode;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }) {
-  const base =
-    "inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60";
-  const variants = {
-    primary: "bg-accent text-on-accent hover:bg-accent-hover",
-    secondary: "border border-border bg-bg-secondary text-text hover:bg-bg-tertiary",
-    danger: "bg-red-500 text-white hover:bg-red-600",
-    ghost: "text-text-secondary hover:text-text",
-  };
-  return <button {...props} className={cn(base, variants[variant], className)} />;
+  // Routed through the canonical DS Button so admin buttons share the exact
+  // hover/press/magnetic/ripple motion used on the public site (compact size).
+  return (
+    <Button
+      variant={variant}
+      size="sm"
+      type={type}
+      disabled={disabled}
+      onClick={onClick as ((e: React.MouseEvent) => void) | undefined}
+      className={className}
+    >
+      {children}
+    </Button>
+  );
 }
 
 export function AdminSwitch({

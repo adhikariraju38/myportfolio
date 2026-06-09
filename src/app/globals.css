@@ -681,6 +681,11 @@ body {
     opacity: 0;
   }
 }
+@keyframes ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .ds-rise {
   animation: ds-rise var(--dur-slow) var(--ease-out) both;

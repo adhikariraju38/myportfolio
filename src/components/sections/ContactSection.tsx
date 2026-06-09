@@ -17,6 +17,7 @@ import { usePerformance } from "@/hooks/usePerformanceTier";
 import { apiClient, ApiClientError } from "@/lib/api-client";
 import { Input } from "@/components/ds/Input";
 import { Textarea } from "@/components/ds/Textarea";
+import { Button as DSButton } from "@/components/ds/Button";
 import { getIcon } from "@/lib/icons";
 import type { PublicSocialLink } from "@/types/public";
 
@@ -190,17 +191,9 @@ export function ContactSection({
               rows={5}
               placeholder="Tell me about your project..."
             />
-            <motion.button
-              type="submit"
-              disabled={submitting}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: "spring", stiffness: 520, damping: 30 }}
-              className="flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-on-accent shadow-(--glow-accent-sm) transition-[box-shadow,background-color] hover:bg-accent-hover hover:shadow-(--glow-accent) disabled:opacity-60"
-            >
-              <Send size={16} />
+            <DSButton type="submit" loading={submitting} iconLeft={<Send size={16} />}>
               {submitting ? "Sending…" : "Send Message"}
-            </motion.button>
+            </DSButton>
           </motion.form>
 
           <motion.div variants={fadeInUp} className="space-y-6">
