@@ -6,6 +6,7 @@ import { Float, Stars } from "@react-three/drei";
 import * as THREE from "three";
 import { Suspense } from "react";
 import { ThreeErrorBoundary } from "./ErrorBoundary";
+import { useAccentColor } from "@/hooks/use-accent-color";
 
 // Shared entrance progress context — ramps 0→1 over ~1s
 const EntranceContext = createContext<React.RefObject<number>>({ current: 0 });
@@ -107,7 +108,7 @@ function generateParticleSpeeds(count: number) {
   return Array.from({ length: count }, () => 0.2 + Math.random() * 0.8);
 }
 
-function Particles({ count = 60 }: { count?: number }) {
+function Particles({ count = 60, color = "#22d3ee" }: { count?: number; color?: string }) {
   const ref = useRef<THREE.Points>(null);
   const matRef = useRef<THREE.PointsMaterial>(null);
   const entrance = useContext(EntranceContext);
@@ -145,7 +146,7 @@ function Particles({ count = 60 }: { count?: number }) {
       <pointsMaterial
         ref={matRef}
         size={0.03}
-        color="#22d3ee"
+        color={color}
         transparent
         opacity={0}
         sizeAttenuation
@@ -219,22 +220,31 @@ function MouseParallax() {
   return null;
 }
 
-function Scene({ particleCount, showStars }: { particleCount: number; showStars: boolean }) {
+function Scene({
+  particleCount,
+  showStars,
+  accentColor,
+}: {
+  particleCount: number;
+  showStars: boolean;
+  accentColor: string;
+}) {
   return (
     <EntranceController>
       <ambientLight intensity={0.15} />
-      <pointLight position={[0, 0, 0]} intensity={0.4} color="#6366f1" />
+      <pointLight position={[0, 0, 0]} intensity={0.4} color={accentColor} />
       <directionalLight position={[3, 3, 3]} intensity={0.6} />
 
       <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
         <group>
-          <HexRing radius={0.8} color="#f59e0b" speed={0.15} yOffset={0} enterStart={0.0} enterEnd={0.4} />
-          <HexRing radius={1.4} color="#3b82f6" speed={-0.1} yOffset={0} enterStart={0.15} enterEnd={0.55} />
+          {/* Two accent rings (follow the live --accent) + a neutral ring for depth */}
+          <HexRing radius={0.8} color={accentColor} speed={0.15} yOffset={0} enterStart={0.0} enterEnd={0.4} />
+          <HexRing radius={1.4} color={accentColor} speed={-0.1} yOffset={0} enterStart={0.15} enterEnd={0.55} />
           <HexRing radius={2.0} color="#6b7280" speed={0.05} yOffset={0} enterStart={0.3} enterEnd={0.7} />
         </group>
       </Float>
 
-      {particleCount > 0 && <Particles count={particleCount} />}
+      {particleCount > 0 && <Particles count={particleCount} color={accentColor} />}
       {showStars && <FadingStars />}
       <MouseParallax />
     </EntranceController>
@@ -261,6 +271,7 @@ export function HeroCanvas({
 }) {
   const particleCount = Math.round(50 * particleMultiplier);
   const showStars = particleMultiplier > 0;
+  const accentColor = useAccentColor();
 
   return (
     <ThreeErrorBoundary fallback={<HeroFallback />}>
@@ -272,7 +283,7 @@ export function HeroCanvas({
           frameloop={frameloop}
           gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
         >
-          <Scene particleCount={particleCount} showStars={showStars} />
+          <Scene particleCount={particleCount} showStars={showStars} accentColor={accentColor} />
         </Canvas>
       </Suspense>
     </ThreeErrorBoundary>

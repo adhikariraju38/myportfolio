@@ -76,7 +76,7 @@ export function AdminSidebar() {
                     className={cn(
                       "rounded-md px-2 py-1.5 text-xs transition-colors",
                       active
-                        ? "bg-bg-tertiary text-text"
+                        ? "bg-accent-soft text-accent-ink ring-1 ring-inset ring-accent/20"
                         : "text-text-secondary hover:bg-bg-tertiary/40 hover:text-text",
                     )}
                   >
