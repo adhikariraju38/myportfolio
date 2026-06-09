@@ -1,5 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Geist,
+  Geist_Mono,
+  Sora,
+  Plus_Jakarta_Sans,
+  JetBrains_Mono,
+  Space_Grotesk,
+  Hanken_Grotesk,
+  Space_Mono,
+  Syne,
+} from "next/font/google";
 import { NavbarShell } from "@/components/layout/NavbarShell";
 import { FooterShell } from "@/components/layout/FooterShell";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
@@ -12,17 +23,34 @@ import { getSiteSettings } from "@/lib/queries/site";
 import { buildThemeOverride } from "@/lib/theme";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-space-grotesk",
-});
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-jetbrains-mono",
-});
+// ── "Engineered Motion" typeface sets (switchable via [data-font]) ──
+// Engineered (default): Bricolage Grotesque · Geist · Geist Mono
+const bricolage = Bricolage_Grotesque({ subsets: ["latin"], display: "swap", variable: "--font-bricolage" });
+const geist = Geist({ subsets: ["latin"], display: "swap", variable: "--font-geist" });
+const geistMono = Geist_Mono({ subsets: ["latin"], display: "swap", variable: "--font-geist-mono" });
+// Geometric: Sora · Plus Jakarta Sans · JetBrains Mono
+const sora = Sora({ subsets: ["latin"], display: "swap", variable: "--font-sora" });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], display: "swap", variable: "--font-jakarta" });
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], display: "swap", variable: "--font-jetbrains" });
+// Neo-Grotesk: Space Grotesk · Hanken Grotesk · Space Mono
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], display: "swap", variable: "--font-space-grotesk" });
+const hanken = Hanken_Grotesk({ subsets: ["latin"], display: "swap", variable: "--font-hanken" });
+const spaceMono = Space_Mono({ subsets: ["latin"], weight: ["400", "700"], display: "swap", variable: "--font-space-mono" });
+// Expressive: Syne · Geist · Geist Mono
+const syne = Syne({ subsets: ["latin"], display: "swap", variable: "--font-syne" });
+
+const fontVariables = [
+  bricolage.variable,
+  geist.variable,
+  geistMono.variable,
+  sora.variable,
+  jakarta.variable,
+  jetbrainsMono.variable,
+  spaceGrotesk.variable,
+  hanken.variable,
+  spaceMono.variable,
+  syne.variable,
+].join(" ");
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSiteSettings().catch(() => null);
@@ -117,7 +145,8 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      className={fontVariables}
+      data-font="engineered"
       suppressHydrationWarning
     >
       <head>
