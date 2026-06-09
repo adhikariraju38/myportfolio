@@ -15,6 +15,8 @@ import {
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { usePerformance } from "@/hooks/usePerformanceTier";
 import { apiClient, ApiClientError } from "@/lib/api-client";
+import { Input } from "@/components/ds/Input";
+import { Textarea } from "@/components/ds/Textarea";
 import { getIcon } from "@/lib/icons";
 import type { PublicSocialLink } from "@/types/public";
 
@@ -171,45 +173,16 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
 
         <div className="grid gap-12 md:grid-cols-2">
           <motion.form variants={fadeInUp} onSubmit={handleSubmit} className="space-y-5">
-            <div className="input-wrapper">
-              <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-text-secondary">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                className="w-full rounded-lg bg-[var(--surface-3)] border border-border px-4 py-2.5 text-sm text-text outline-none transition-[border-color,box-shadow] placeholder:text-text-tertiary focus:border-accent focus:shadow-(--glow-accent-sm)"
-                placeholder="Your name"
-              />
-            </div>
-            <div className="input-wrapper">
-              <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-text-secondary">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                className="w-full rounded-lg bg-[var(--surface-3)] border border-border px-4 py-2.5 text-sm text-text outline-none transition-[border-color,box-shadow] placeholder:text-text-tertiary focus:border-accent focus:shadow-(--glow-accent-sm)"
-                placeholder="your@email.com"
-              />
-            </div>
-            <div className="input-wrapper">
-              <label htmlFor="message" className="mb-1.5 block text-xs font-medium text-text-secondary">
-                Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                required
-                rows={5}
-                className="w-full resize-none rounded-lg bg-[var(--surface-3)] border border-border px-4 py-2.5 text-sm text-text outline-none transition-[border-color,box-shadow] placeholder:text-text-tertiary focus:border-accent focus:shadow-(--glow-accent-sm)"
-                placeholder="Tell me about your project..."
-              />
-            </div>
+            <Input id="name" name="name" type="text" label="Name" required placeholder="Your name" />
+            <Input id="email" name="email" type="email" label="Email" required placeholder="your@email.com" />
+            <Textarea
+              id="message"
+              name="message"
+              label="Message"
+              required
+              rows={5}
+              placeholder="Tell me about your project..."
+            />
             <motion.button
               type="submit"
               disabled={submitting}

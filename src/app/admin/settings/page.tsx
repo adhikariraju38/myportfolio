@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/admin-input";
 import { ImageUpload, type ImageRef } from "@/components/admin/image-upload";
 import { SkeletonForm } from "@/components/shared/skeleton";
+import { Tabs } from "@/components/ds/Tabs";
 
 type Settings = Record<string, unknown>;
 
@@ -119,21 +120,12 @@ export default function SettingsPage() {
         </AdminButton>
       </div>
 
-      <div className="flex flex-wrap gap-1 border-b border-border">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={
-              "rounded-t-md px-3 py-1.5 text-xs " +
-              (t === tab
-                ? "border border-b-0 border-border bg-bg-secondary text-text"
-                : "text-text-secondary hover:text-text")
-            }
-          >
-            {t}
-          </button>
-        ))}
+      <div className="overflow-x-auto">
+        <Tabs
+          tabs={TABS as unknown as string[]}
+          value={tab}
+          onChange={(id) => setTab(id as Tab)}
+        />
       </div>
 
       <div className="rounded-xl border border-border bg-bg-secondary p-5">
