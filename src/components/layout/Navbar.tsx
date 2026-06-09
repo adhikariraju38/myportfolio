@@ -132,6 +132,7 @@ export function Navbar({ items, brand, logoUrl }: NavbarProps) {
                 className="flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-text"
               >
                 {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- logo is an admin-uploaded GridFS URL streamed via /api/media; next/image domain config doesn't apply
                   <img src={logoUrl} alt={brand} className="h-5 w-auto" />
                 ) : (
                   <span>{brand}</span>

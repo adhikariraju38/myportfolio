@@ -209,12 +209,11 @@ function MouseParallax() {
     target.current.x = pointer.x * 0.3;
     target.current.y = pointer.y * 0.2;
 
-    /* eslint-disable react-hooks/immutability -- Three.js camera mutation is the standard R3F pattern */
+    // Three.js camera mutation is the standard R3F pattern.
     camera.position.x += (target.current.x - camera.position.x) * 0.02;
     camera.position.y +=
       (target.current.y + 1.5 - camera.position.y) * 0.02;
     camera.lookAt(0, 0, 0);
-    /* eslint-enable react-hooks/immutability */
   });
 
   return null;

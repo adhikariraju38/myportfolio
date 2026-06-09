@@ -8,7 +8,6 @@ import { queryKeys } from "@/lib/query-keys";
 import {
   AdminButton,
   AdminInput,
-  AdminLabel,
   AdminSwitch,
 } from "@/components/ui/admin-input";
 import { SkeletonList } from "@/components/shared/skeleton";

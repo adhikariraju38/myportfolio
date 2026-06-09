@@ -199,13 +199,13 @@ export function useSpringValue(
   const [value, setValue] = useState(target);
   const s = useRef({ p: target, v: 0, raf: 0 });
   useEffect(() => {
+    const st = s.current;
     if (REDUCED) {
       setValue(target);
       return;
     }
-    cancelAnimationFrame(s.current.raf);
+    cancelAnimationFrame(st.raf);
     const tick = () => {
-      const st = s.current;
       [st.p, st.v] = springStep(st.p, st.v, target, stiffness, damping, mass);
       if (Math.abs(st.p - target) < 0.001 && Math.abs(st.v) < 0.001) {
         st.p = target;
@@ -216,8 +216,8 @@ export function useSpringValue(
       setValue(st.p);
       st.raf = requestAnimationFrame(tick);
     };
-    s.current.raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(s.current.raf);
+    st.raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(st.raf);
   }, [target, stiffness, damping, mass]);
   return value;
 }

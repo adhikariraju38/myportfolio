@@ -13,7 +13,7 @@ export function useSessionQuery() {
   });
 }
 
-interface ResourceConfig<TList, TDetail, TFilters = unknown> {
+interface ResourceConfig<TFilters = unknown> {
   listUrl: string | ((filters?: TFilters) => string);
   detailUrl: (id: string) => string;
   listKey: (filters?: TFilters) => readonly unknown[];
@@ -21,7 +21,7 @@ interface ResourceConfig<TList, TDetail, TFilters = unknown> {
 }
 
 export function createResourceHooks<TList, TDetail, TFilters = unknown>(
-  config: ResourceConfig<TList, TDetail, TFilters>,
+  config: ResourceConfig<TFilters>,
 ) {
   function useList(filters?: TFilters, options?: Partial<UseQueryOptions<TList>>) {
     const url = typeof config.listUrl === "function" ? config.listUrl(filters) : config.listUrl;

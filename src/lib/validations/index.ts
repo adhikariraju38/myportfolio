@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ctaSchema, mediaRefSchema, objectIdString, socialLinkSchema } from "./shared";
+import { ctaSchema, mediaRefSchema, objectIdString } from "./shared";
 
 // Hero
 export const heroUpdateSchema = z
