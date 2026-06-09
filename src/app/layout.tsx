@@ -11,11 +11,6 @@ import {
   Space_Mono,
   Syne,
 } from "next/font/google";
-import { NavbarShell } from "@/components/layout/NavbarShell";
-import { FooterShell } from "@/components/layout/FooterShell";
-import { ScrollProgress } from "@/components/layout/ScrollProgress";
-import { SmoothScroll } from "@/components/layout/SmoothScroll";
-import { CustomCursor } from "@/components/ui/CustomCursor";
 import { PerformanceProvider } from "@/hooks/usePerformanceTier";
 import { QueryProvider } from "@/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -117,9 +112,6 @@ export default async function RootLayout({
   const darkDefault = (s?.darkModeDefault as boolean | undefined) ?? true;
   const themeAccent = (s?.themeAccent as string | undefined) ?? "iris";
   const themeFont = (s?.themeFont as string | undefined) ?? "engineered";
-  const enableSmoothScroll = (s?.enableSmoothScroll as boolean | undefined) ?? true;
-  const enableScrollProgress = (s?.enableScrollProgress as boolean | undefined) ?? true;
-  const enableCustomCursor = (s?.enableCustomCursor as boolean | undefined) ?? true;
   const jsonLd = s?.jsonLd
     ? {
         "@context": "https://schema.org",
@@ -169,18 +161,7 @@ export default async function RootLayout({
       <body className="bg-bg text-text antialiased">
         <QueryProvider>
           <PerformanceProvider>
-            <a
-              href="#about"
-              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-200 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
-            >
-              Skip to content
-            </a>
-            {enableSmoothScroll && <SmoothScroll />}
-            {enableScrollProgress && <ScrollProgress />}
-            <NavbarShell />
-            <main>{children}</main>
-            <FooterShell />
-            {enableCustomCursor && <CustomCursor />}
+            {children}
             <Toaster />
           </PerformanceProvider>
         </QueryProvider>
