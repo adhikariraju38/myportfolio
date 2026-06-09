@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useScrollSection } from "@/hooks/useScrollSection";
@@ -62,10 +62,8 @@ function MagneticLink({
       style={magnetic ? { x: springX, y: springY } : undefined}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative rounded-full px-4 py-1.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-        isActive
-          ? "text-accent-ink"
-          : "text-text-secondary hover:text-text link-underline",
+        "relative whitespace-nowrap rounded-full px-4 py-1.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+        isActive ? "text-accent-ink" : "text-text-secondary hover:text-text link-underline",
       )}
     >
       {isActive && (
@@ -88,17 +86,8 @@ interface NavbarProps {
 
 export function Navbar({ items, brand, logoUrl }: NavbarProps) {
   const perf = usePerformance();
-  const [isVisible, setIsVisible] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const activeSection = useScrollSection();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsVisible(window.scrollY > window.innerHeight * 0.5);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("#")) {
@@ -114,90 +103,100 @@ export function Navbar({ items, brand, logoUrl }: NavbarProps) {
 
   if (items.length === 0) return null;
 
+  const initial = (brand?.trim().charAt(0) || "R").toUpperCase();
+
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.header
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed top-4 left-1/2 z-50 -translate-x-1/2"
+    <motion.header
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.2 }}
+      className="fixed top-4 left-1/2 z-50 -translate-x-1/2"
+    >
+      <nav className="glass glass-highlight flex items-center gap-1.5 rounded-full p-1.5">
+        {/* Brand mark — accent square + display wordmark (design system look) */}
+        <a
+          href="#"
+          onClick={(e) => handleNavClick(e, "#")}
+          className="flex items-center gap-2 rounded-full py-1 pl-1.5 pr-2.5"
+          aria-label={brand || "Home"}
         >
-          <nav className="glass glass-highlight flex items-center gap-1 rounded-full px-2 py-2">
-            {(logoUrl || brand) && (
-              <a
-                href="#"
-                onClick={(e) => handleNavClick(e, "#")}
-                className="flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-text"
-              >
-                {logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- logo is an admin-uploaded GridFS URL streamed via /api/media; next/image domain config doesn't apply
-                  <img src={logoUrl} alt={brand} className="h-5 w-auto" />
-                ) : (
-                  <span>{brand}</span>
-                )}
-              </a>
-            )}
-            <div className="hidden items-center gap-1 md:flex">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- logo is an admin-uploaded GridFS URL streamed via /api/media; next/image domain config doesn't apply
+            <img src={logoUrl} alt={brand} className="h-5.5 w-auto" />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="grid size-5.5 place-items-center rounded-[7px] bg-accent font-display text-[13px] font-extrabold text-on-accent"
+            >
+              {initial}
+            </span>
+          )}
+          {brand && (
+            <span className="font-display text-[15px] font-bold tracking-tight text-text">
+              {brand}
+            </span>
+          )}
+        </a>
+
+        <div className="hidden items-center gap-1 md:flex">
+          {items.map((link) => (
+            <MagneticLink
+              key={link.href}
+              href={link.href}
+              isActive={activeSection === link.href.slice(1)}
+              magnetic={perf.enableMagnetic}
+              onClick={(e) => handleNavClick(e, link.href)}
+            >
+              {link.label}
+            </MagneticLink>
+          ))}
+        </div>
+
+        <ThemeToggle />
+
+        <span className="md:hidden">
+          <IconButton
+            label="Toggle menu"
+            variant="ghost"
+            size="sm"
+            magnetic={false}
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+          >
+            {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
+          </IconButton>
+        </span>
+      </nav>
+
+      <AnimatePresence>
+        {isMobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="glass glass-highlight mt-1 overflow-hidden rounded-2xl md:hidden"
+          >
+            <div className="flex flex-col p-2">
               {items.map((link) => (
-                <MagneticLink
+                <a
                   key={link.href}
                   href={link.href}
-                  isActive={activeSection === link.href.slice(1)}
-                  magnetic={perf.enableMagnetic}
                   onClick={(e) => handleNavClick(e, link.href)}
+                  aria-current={activeSection === link.href.slice(1) ? "page" : undefined}
+                  className={cn(
+                    "rounded-xl px-4 py-2.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                    activeSection === link.href.slice(1)
+                      ? "bg-accent-soft text-accent-ink ring-1 ring-inset ring-accent/30"
+                      : "text-text-secondary hover:text-text",
+                  )}
                 >
                   {link.label}
-                </MagneticLink>
+                </a>
               ))}
             </div>
-            <ThemeToggle />
-            <span className="md:hidden">
-              <IconButton
-                label="Toggle menu"
-                variant="ghost"
-                size="sm"
-                magnetic={false}
-                onClick={() => setIsMobileOpen(!isMobileOpen)}
-              >
-                {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
-              </IconButton>
-            </span>
-          </nav>
-
-          <AnimatePresence>
-            {isMobileOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className="glass glass-highlight mt-1 overflow-hidden rounded-2xl md:hidden"
-              >
-                <div className="flex flex-col p-2">
-                  {items.map((link) => (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      onClick={(e) => handleNavClick(e, link.href)}
-                      aria-current={activeSection === link.href.slice(1) ? "page" : undefined}
-                      className={cn(
-                        "rounded-xl px-4 py-2.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-                        activeSection === link.href.slice(1)
-                          ? "bg-accent-soft text-accent-ink ring-1 ring-inset ring-accent/30"
-                          : "text-text-secondary hover:text-text",
-                      )}
-                    >
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.header>
-      )}
-    </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 }
