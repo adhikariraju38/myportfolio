@@ -80,6 +80,18 @@ const siteSettingSchema = new Schema(
     fontDisplay: { type: String, default: "Space Grotesk" },
     fontMono: { type: String, default: "JetBrains Mono" },
 
+    // "Engineered Motion" — switchable accent + typeface set ([data-*])
+    themeAccent: {
+      type: String,
+      enum: ["iris", "lime", "cyan", "coral", "cobalt", "magenta"],
+      default: "iris",
+    },
+    themeFont: {
+      type: String,
+      enum: ["engineered", "geometric", "grotesk", "expressive"],
+      default: "engineered",
+    },
+
     // OG image (dynamic)
     ogTitle: { type: String, default: "" },
     ogSubtitle: { type: String, default: "" },
