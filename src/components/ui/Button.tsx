@@ -42,7 +42,7 @@ export function Button({
         className={cn(
           "group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-6 py-3 text-sm font-medium transition-[box-shadow,border-color,background-color,color] duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
           variant === "primary" &&
-            "bg-accent text-(--text-on-accent) shadow-(--glow-accent-sm) hover:shadow-(--glow-accent)",
+            "bg-accent text-on-accent shadow-(--glow-accent-sm) hover:shadow-(--glow-accent)",
           variant === "secondary" &&
             "border border-border text-text-secondary hover:border-accent/50 hover:text-text hover:shadow-(--glow-accent-sm)",
           className,

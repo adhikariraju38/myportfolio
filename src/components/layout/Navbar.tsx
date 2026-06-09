@@ -63,14 +63,14 @@ function MagneticLink({
       className={cn(
         "relative rounded-full px-4 py-1.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
         isActive
-          ? "text-text"
+          ? "text-accent-ink"
           : "text-text-secondary hover:text-text link-underline",
       )}
     >
       {isActive && (
         <motion.span
           layoutId="nav-indicator"
-          className="absolute inset-0 rounded-full glass-pill"
+          className="absolute inset-0 rounded-full bg-accent-soft ring-1 ring-inset ring-accent/30"
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
@@ -180,7 +180,7 @@ export function Navbar({ items, brand, logoUrl }: NavbarProps) {
                       className={cn(
                         "rounded-xl px-4 py-2.5 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                         activeSection === link.href.slice(1)
-                          ? "glass-pill text-text"
+                          ? "bg-accent-soft text-accent-ink ring-1 ring-inset ring-accent/30"
                           : "text-text-secondary hover:text-text",
                       )}
                     >

@@ -59,7 +59,7 @@ export function AdminButton({
   const base =
     "inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60";
   const variants = {
-    primary: "bg-accent text-white hover:bg-accent/90",
+    primary: "bg-accent text-on-accent hover:bg-accent-hover",
     secondary: "border border-border bg-bg-secondary text-text hover:bg-bg-tertiary",
     danger: "bg-red-500 text-white hover:bg-red-600",
     ghost: "text-text-secondary hover:text-text",

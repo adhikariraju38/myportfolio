@@ -72,7 +72,7 @@ export function LoginForm({ redirectTo = "/admin" }: LoginFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-accent/20 transition-opacity disabled:opacity-60"
+        className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-on-accent shadow-(--glow-accent-sm) transition-opacity disabled:opacity-60"
       >
         {isSubmitting ? "Signing in…" : "Sign in"}
       </button>

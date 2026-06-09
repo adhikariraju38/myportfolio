@@ -76,7 +76,7 @@ function MagneticIcon({
       onMouseLeave={handleMouseLeave}
       whileTap={{ scale: 0.95 }}
       style={magnetic ? { x: springX, y: springY } : undefined}
-      className="flex h-10 w-10 items-center justify-center rounded-full glass-pill text-text-secondary transition-all hover:-translate-y-0.5 hover:text-text hover:shadow-[0_0_12px_-3px_var(--accent-blue)]"
+      className="flex h-10 w-10 items-center justify-center rounded-full glass-pill text-text-secondary transition-all hover:-translate-y-0.5 hover:text-text hover:shadow-[0_0_12px_-3px_var(--accent)]"
       aria-label={label}
     >
       {children}
@@ -163,7 +163,7 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
         </motion.h2>
         <motion.div
           variants={fadeInUp}
-          className="mb-4 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-emerald"
+          className="mb-4 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-hover"
         />
         <motion.p variants={fadeInUp} className="mb-12 max-w-lg text-sm text-text-secondary">
           Have a project in mind or want to discuss an opportunity? I&apos;d love to hear from you.
@@ -180,7 +180,7 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
                 id="name"
                 name="name"
                 required
-                className="w-full rounded-lg glass-subtle px-4 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-tertiary focus:shadow-[0_0_12px_-3px_var(--accent-blue)]"
+                className="w-full rounded-lg bg-[var(--surface-3)] border border-border px-4 py-2.5 text-sm text-text outline-none transition-[border-color,box-shadow] placeholder:text-text-tertiary focus:border-accent focus:shadow-(--glow-accent-sm)"
                 placeholder="Your name"
               />
             </div>
@@ -193,7 +193,7 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
                 id="email"
                 name="email"
                 required
-                className="w-full rounded-lg glass-subtle px-4 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-tertiary focus:shadow-[0_0_12px_-3px_var(--accent-blue)]"
+                className="w-full rounded-lg bg-[var(--surface-3)] border border-border px-4 py-2.5 text-sm text-text outline-none transition-[border-color,box-shadow] placeholder:text-text-tertiary focus:border-accent focus:shadow-(--glow-accent-sm)"
                 placeholder="your@email.com"
               />
             </div>
@@ -206,7 +206,7 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
                 name="message"
                 required
                 rows={5}
-                className="w-full resize-none rounded-lg glass-subtle px-4 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-tertiary focus:shadow-[0_0_12px_-3px_var(--accent-blue)]"
+                className="w-full resize-none rounded-lg bg-[var(--surface-3)] border border-border px-4 py-2.5 text-sm text-text outline-none transition-[border-color,box-shadow] placeholder:text-text-tertiary focus:border-accent focus:shadow-(--glow-accent-sm)"
                 placeholder="Tell me about your project..."
               />
             </div>
@@ -214,9 +214,9 @@ export function ContactSection({ contact, socials, enable3dCanvas = true }: Cont
               type="submit"
               disabled={submitting}
               whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.97, y: 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-              className="flex items-center gap-2 rounded-full bg-accent/90 backdrop-blur-sm px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-accent/20 transition-all hover:bg-accent hover:shadow-[0_0_24px_-4px_var(--accent-blue)] disabled:opacity-60"
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 520, damping: 30 }}
+              className="flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-on-accent shadow-(--glow-accent-sm) transition-[box-shadow,background-color] hover:bg-accent-hover hover:shadow-(--glow-accent) disabled:opacity-60"
             >
               <Send size={16} />
               {submitting ? "Sending…" : "Send Message"}

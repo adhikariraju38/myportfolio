@@ -53,7 +53,7 @@ export function AwardsSection({ awards, certifications }: AwardsSectionProps) {
         </motion.h2>
         <motion.div
           variants={fadeInUp}
-          className="mb-12 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-emerald"
+          className="mb-12 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-hover"
         />
 
         {awards.length > 0 && (

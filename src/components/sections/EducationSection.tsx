@@ -44,7 +44,7 @@ export function EducationSection({ education, community }: EducationSectionProps
         </motion.h2>
         <motion.div
           variants={fadeInUp}
-          className="mb-12 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-emerald"
+          className="mb-12 h-1 w-16 rounded-full bg-linear-to-r from-accent to-accent-hover"
         />
 
         <div className="grid gap-6 md:grid-cols-2">
