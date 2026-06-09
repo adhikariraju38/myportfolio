@@ -1,252 +1,126 @@
 "use client";
 
-import { useRef, useState, useMemo, useEffect, createContext, useContext } from "react";
+import { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, Stars } from "@react-three/drei";
 import * as THREE from "three";
-import { Suspense } from "react";
 import { ThreeErrorBoundary } from "./ErrorBoundary";
 import { useAccentColor } from "@/hooks/use-accent-color";
 
-// Shared entrance progress context — ramps 0→1 over ~1s
-const EntranceContext = createContext<React.RefObject<number>>({ current: 0 });
+const REDUCED =
+  typeof window !== "undefined" &&
+  window.matchMedia &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function EntranceController({ children }: { children: React.ReactNode }) {
-  const progress = useRef(0);
-
-  useFrame((_, delta) => {
-    if (progress.current < 1) {
-      progress.current = Math.min(progress.current + delta / 1.0, 1);
-    }
-  });
-
-  return (
-    <EntranceContext value={progress}>
-      {children}
-    </EntranceContext>
-  );
+// Shared scroll position (window.scrollY, kept in sync by Lenis) — drives the
+// scroll-fade of the hero object exactly like the design kit.
+function useScrollRef() {
+  const scroll = useRef(0);
+  useEffect(() => {
+    const onScroll = () => {
+      scroll.current = window.scrollY;
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return scroll;
 }
 
-function getChildProgress(globalProgress: number, start: number, end: number): number {
-  if (globalProgress <= start) return 0;
-  if (globalProgress >= end) return 1;
-  const t = (globalProgress - start) / (end - start);
-  return t * t * (3 - 2 * t);
-}
+// ── The hero object: wireframe icosahedron + faint core + vertex nodes ──
+// Rotates toward the pointer, drifts over time, and fades/shrinks on scroll.
+function HeroObject({ accentColor }: { accentColor: string }) {
+  const group = useRef<THREE.Group>(null);
+  const wireMat = useRef<THREE.MeshBasicMaterial>(null);
+  const nodeMat = useRef<THREE.PointsMaterial>(null);
+  const scroll = useScrollRef();
+  const r = useRef({ rx: 0, ry: 0 });
 
-function HexRing({
-  radius,
-  color,
-  speed,
-  yOffset,
-  enterStart,
-  enterEnd,
-}: {
-  radius: number;
-  color: string;
-  speed: number;
-  yOffset: number;
-  enterStart: number;
-  enterEnd: number;
-}) {
-  const ref = useRef<THREE.Group>(null);
-  const matRef = useRef<THREE.LineBasicMaterial>(null);
-  const entrance = useContext(EntranceContext);
-
-  const geometry = useMemo(() => {
-    const shape = new THREE.Shape();
-    const sides = 6;
-    for (let i = 0; i <= sides; i++) {
-      const angle = (i / sides) * Math.PI * 2 - Math.PI / 6;
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius;
-      if (i === 0) shape.moveTo(x, y);
-      else shape.lineTo(x, y);
-    }
-    const points = shape.getPoints(6);
-    return new THREE.BufferGeometry().setFromPoints(points);
-  }, [radius]);
+  const geom = useMemo(() => new THREE.IcosahedronGeometry(1.4, 1), []);
+  const coreGeom = useMemo(() => new THREE.IcosahedronGeometry(1.36, 1), []);
 
   useFrame((state) => {
-    if (!ref.current || !matRef.current) return;
-    const progress = entrance.current ?? 0;
-    const p = getChildProgress(progress, enterStart, enterEnd);
+    const g = group.current;
+    if (!g) return;
+    const p = state.pointer;
+    const targetRy = (REDUCED ? 0 : p.x * 0.5) * 0.8;
+    const targetRx = (REDUCED ? 0 : -p.y * 0.5) * 0.5;
+    r.current.ry += (targetRy - r.current.ry) * 0.05;
+    r.current.rx += (targetRx - r.current.rx) * 0.05;
 
-    const scale = 0.5 + p * 0.5;
-    ref.current.scale.setScalar(scale);
-    matRef.current.opacity = p * 0.6;
+    const t = REDUCED ? 0 : state.clock.elapsedTime;
+    g.rotation.y = t * 0.18 + r.current.ry;
+    g.rotation.x = t * 0.11 + r.current.rx;
 
-    ref.current.rotation.z = state.clock.elapsedTime * speed;
-    ref.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.1;
-    ref.current.position.y =
-      yOffset + Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
+    const fade = Math.min(scroll.current / 650, 1);
+    g.scale.setScalar(1 - fade * 0.25);
+    if (wireMat.current) wireMat.current.opacity = 0.8 * (1 - fade * 0.9);
+    if (nodeMat.current) nodeMat.current.opacity = 0.9 * (1 - fade * 0.9);
   });
 
   return (
-    <group ref={ref}>
-      <lineLoop geometry={geometry}>
-        <lineBasicMaterial ref={matRef} color={color} transparent opacity={0} />
-      </lineLoop>
+    <group ref={group}>
+      <mesh geometry={geom}>
+        <meshBasicMaterial ref={wireMat} color={accentColor} wireframe transparent opacity={0.8} />
+      </mesh>
+      <mesh geometry={coreGeom}>
+        <meshBasicMaterial color={accentColor} transparent opacity={0.05} />
+      </mesh>
+      <points geometry={geom}>
+        <pointsMaterial ref={nodeMat} color={accentColor} size={0.07} transparent opacity={0.9} sizeAttenuation />
+      </points>
     </group>
   );
 }
 
-// Generate random positions outside component to satisfy purity rules
-function generateParticlePositions(count: number) {
-  const arr = new Float32Array(count * 3);
+// ── Floating particle "dust" shell around the object ──
+function generateDust(count: number) {
+  const pos = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const r = 0.5 + Math.random() * 2.5;
-    arr[i * 3] = Math.cos(angle) * r;
-    arr[i * 3 + 1] = (Math.random() - 0.5) * 2;
-    arr[i * 3 + 2] = Math.sin(angle) * r + (Math.random() - 0.5) * 1;
+    const r = 2.6 + ((i * 13) % 100) / 100 * 2.4;
+    const th = ((i * 7.13) % (Math.PI * 2));
+    const ph = Math.acos(2 * (((i * 3.7) % 100) / 100) - 1);
+    pos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+    pos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th);
+    pos[i * 3 + 2] = r * Math.cos(ph);
   }
-  return arr;
+  return pos;
 }
 
-function generateParticleSpeeds(count: number) {
-  return Array.from({ length: count }, () => 0.2 + Math.random() * 0.8);
-}
-
-function Particles({ count = 60, color = "#22d3ee" }: { count?: number; color?: string }) {
+function Dust({ count }: { count: number }) {
   const ref = useRef<THREE.Points>(null);
   const matRef = useRef<THREE.PointsMaterial>(null);
-  const entrance = useContext(EntranceContext);
-
-  const [positions] = useState(() => generateParticlePositions(count));
-  const [speeds] = useState(() => generateParticleSpeeds(count));
-
-  useFrame((state) => {
-    if (!ref.current || !matRef.current) return;
-    const progress = entrance.current ?? 0;
-    const p = getChildProgress(progress, 0.4, 0.85);
-    matRef.current.opacity = p * 0.8;
-
-    const posAttr = ref.current.geometry.attributes
-      .position as THREE.BufferAttribute;
-    for (let i = 0; i < count; i++) {
-      const angle =
-        state.clock.elapsedTime * (speeds[i] ?? 0) * 0.3 +
-        (i / count) * Math.PI * 2;
-      const r = 0.5 + ((i * 7) % 25) * 0.08;
-      posAttr.setX(i, Math.cos(angle) * r);
-      posAttr.setZ(i, Math.sin(angle) * r);
-    }
-    posAttr.needsUpdate = true;
-  });
-
+  const scroll = useScrollRef();
+  const [positions] = useState(() => generateDust(count));
   const geom = useMemo(() => {
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     return g;
   }, [positions]);
 
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = REDUCED ? 0 : state.clock.elapsedTime;
+    ref.current.rotation.y = -t * 0.06;
+    ref.current.rotation.x = t * 0.03;
+    if (matRef.current) {
+      const fade = Math.min(scroll.current / 650, 1);
+      matRef.current.opacity = 0.6 * (1 - fade);
+    }
+  });
+
   return (
     <points ref={ref} geometry={geom}>
-      <pointsMaterial
-        ref={matRef}
-        size={0.03}
-        color={color}
-        transparent
-        opacity={0}
-        sizeAttenuation
-      />
+      <pointsMaterial ref={matRef} color="#8B919E" size={0.022} transparent opacity={0.6} sizeAttenuation />
     </points>
   );
 }
 
-function FadingStars() {
-  const groupRef = useRef<THREE.Group>(null);
-  const cachedMaterial = useRef<THREE.PointsMaterial | null>(null);
-  const entrance = useContext(EntranceContext);
-
-  useEffect(() => {
-    if (!groupRef.current) return;
-    groupRef.current.traverse((child) => {
-      if (child instanceof THREE.Points && child.material instanceof THREE.PointsMaterial) {
-        cachedMaterial.current = child.material;
-      }
-    });
-  }, []);
-
-  useFrame(() => {
-    if (!cachedMaterial.current) {
-      if (groupRef.current) {
-        groupRef.current.traverse((child) => {
-          if (child instanceof THREE.Points && child.material instanceof THREE.PointsMaterial) {
-            cachedMaterial.current = child.material;
-          }
-        });
-      }
-      return;
-    }
-    const progress = entrance.current ?? 0;
-    const p = getChildProgress(progress, 0.2, 0.6);
-    cachedMaterial.current.opacity = p;
-  });
-
+function Scene({ dustCount, accentColor }: { dustCount: number; accentColor: string }) {
   return (
-    <group ref={groupRef}>
-      <Stars
-        radius={10}
-        depth={30}
-        count={400}
-        factor={2}
-        saturation={0.2}
-        fade
-        speed={0.5}
-      />
-    </group>
-  );
-}
-
-function MouseParallax() {
-  const { camera } = useThree();
-  const target = useRef({ x: 0, y: 0 });
-
-  useFrame((state) => {
-    const pointer = state.pointer;
-    target.current.x = pointer.x * 0.3;
-    target.current.y = pointer.y * 0.2;
-
-    // Three.js camera mutation is the standard R3F pattern.
-    camera.position.x += (target.current.x - camera.position.x) * 0.02;
-    camera.position.y +=
-      (target.current.y + 1.5 - camera.position.y) * 0.02;
-    camera.lookAt(0, 0, 0);
-  });
-
-  return null;
-}
-
-function Scene({
-  particleCount,
-  showStars,
-  accentColor,
-}: {
-  particleCount: number;
-  showStars: boolean;
-  accentColor: string;
-}) {
-  return (
-    <EntranceController>
-      <ambientLight intensity={0.15} />
-      <pointLight position={[0, 0, 0]} intensity={0.4} color={accentColor} />
-      <directionalLight position={[3, 3, 3]} intensity={0.6} />
-
-      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
-        <group>
-          {/* Two accent rings (follow the live --accent) + a neutral ring for depth */}
-          <HexRing radius={0.8} color={accentColor} speed={0.15} yOffset={0} enterStart={0.0} enterEnd={0.4} />
-          <HexRing radius={1.4} color={accentColor} speed={-0.1} yOffset={0} enterStart={0.15} enterEnd={0.55} />
-          <HexRing radius={2.0} color="#6b7280" speed={0.05} yOffset={0} enterStart={0.3} enterEnd={0.7} />
-        </group>
-      </Float>
-
-      {particleCount > 0 && <Particles count={particleCount} color={accentColor} />}
-      {showStars && <FadingStars />}
-      <MouseParallax />
-    </EntranceController>
+    <>
+      <HeroObject accentColor={accentColor} />
+      {dustCount > 0 && <Dust count={dustCount} />}
+    </>
   );
 }
 
@@ -268,23 +142,37 @@ export function HeroCanvas({
   dpr?: [number, number];
   particleMultiplier?: number;
 }) {
-  const particleCount = Math.round(50 * particleMultiplier);
-  const showStars = particleMultiplier > 0;
+  const dustCount = Math.round(380 * particleMultiplier);
   const accentColor = useAccentColor();
 
   return (
     <ThreeErrorBoundary fallback={<HeroFallback />}>
       <Suspense fallback={<HeroFallback />}>
         <Canvas
-          camera={{ position: [0, 1.5, 5], fov: 50 }}
+          camera={{ position: [0, 0, 4.4], fov: 50 }}
           style={{ position: "absolute", inset: 0 }}
           dpr={dpr}
           frameloop={frameloop}
-          gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
+          gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         >
-          <Scene particleCount={particleCount} showStars={showStars} accentColor={accentColor} />
+          <Scene dustCount={dustCount} accentColor={accentColor} />
+          <PointerCamera />
         </Canvas>
       </Suspense>
     </ThreeErrorBoundary>
   );
+}
+
+// Subtle camera parallax toward the pointer (kept from the original scene feel).
+function PointerCamera() {
+  const { camera } = useThree();
+  useFrame((state) => {
+    if (REDUCED) return;
+    const tx = state.pointer.x * 0.25;
+    const ty = state.pointer.y * 0.18;
+    camera.position.x += (tx - camera.position.x) * 0.03;
+    camera.position.y += (ty - camera.position.y) * 0.03;
+    camera.lookAt(0, 0, 0);
+  });
+  return null;
 }
