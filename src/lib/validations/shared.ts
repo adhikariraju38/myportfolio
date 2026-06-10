@@ -4,9 +4,16 @@ export const objectIdString = z
   .string()
   .regex(/^[a-fA-F0-9]{24}$/, "Invalid id");
 
+// Media URLs are stored as relative paths (`/api/media/<id>`), so a full
+// `z.string().url()` check would reject them. Accept either an absolute URL
+// or a root-relative path.
+const mediaUrlString = z
+  .string()
+  .refine((v) => v === "" || v.startsWith("/") || /^https?:\/\//.test(v), "Invalid url");
+
 export const mediaRefSchema = z
   .object({
-    url: z.string().url().or(z.literal("")).optional(),
+    url: mediaUrlString.optional(),
     mediaId: objectIdString.optional(),
   })
   .partial()
