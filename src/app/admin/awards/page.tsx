@@ -13,6 +13,7 @@ import {
   AdminSelect,
   AdminSwitch,
 } from "@/components/ui/admin-input";
+import { fieldErrors, awardCreateSchema } from "@/lib/validations";
 
 interface Award {
   id: string;
@@ -83,6 +84,19 @@ function Form({
   const [event, setEvent] = useState(initial?.event ?? "");
   const [rank, setRank] = useState(initial?.rank ?? "finalist");
   const [isVisible, setIsVisible] = useState(initial?.isVisible ?? true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const submit = () => {
+    const body = { title, event, rank, isVisible };
+    const errs = fieldErrors(awardCreateSchema, body);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit(body);
+  };
+
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-5">
       <h2 className="mb-4 font-display text-lg font-semibold text-text">
@@ -91,7 +105,7 @@ function Form({
       <div className="grid gap-3 md:grid-cols-2">
         <div className="md:col-span-2">
           <AdminLabel>Title</AdminLabel>
-          <AdminInput value={title} onChange={(e) => setTitle(e.target.value)} />
+          <AdminInput value={title} error={errors.title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Event</AdminLabel>
@@ -110,7 +124,7 @@ function Form({
       </div>
       <div className="mt-4 flex justify-end gap-2">
         <AdminButton variant="secondary" onClick={onCancel}>Cancel</AdminButton>
-        <AdminButton onClick={() => onSubmit({ title, event, rank, isVisible })}>
+        <AdminButton onClick={submit}>
           {initial ? "Save" : "Add"}
         </AdminButton>
       </div>

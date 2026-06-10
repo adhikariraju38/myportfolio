@@ -11,6 +11,7 @@ import {
   AdminSwitch,
 } from "@/components/ui/admin-input";
 import { SkeletonList } from "@/components/shared/skeleton";
+import { fieldErrors, skillCreateSchema, skillCategoryCreateSchema } from "@/lib/validations";
 
 interface Category {
   id: string;
@@ -48,6 +49,8 @@ export default function SkillsPage() {
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [newCatName, setNewCatName] = useState("");
   const [newSkillName, setNewSkillName] = useState("");
+  const [catErrors, setCatErrors] = useState<Record<string, string>>({});
+  const [skillErrors, setSkillErrors] = useState<Record<string, string>>({});
 
   const refreshCats = () => qc.invalidateQueries({ queryKey: queryKeys.skillCategories.list() });
   const refreshSkills = () => qc.invalidateQueries({ queryKey: queryKeys.skills.list() });
@@ -153,16 +156,23 @@ export default function SkillsPage() {
             <AdminInput
               placeholder="New category"
               value={newCatName}
+              error={catErrors.name || catErrors.slug}
               onChange={(e) => setNewCatName(e.target.value)}
             />
             <AdminButton
               onClick={() => {
-                if (!newCatName.trim()) return;
-                createCat.mutate({
+                const body = {
                   name: newCatName.trim(),
                   slug: slugify(newCatName),
                   orderIndex: (cats?.length ?? 0),
-                });
+                };
+                const errs = fieldErrors(skillCategoryCreateSchema, body);
+                if (Object.keys(errs).length) {
+                  setCatErrors(errs);
+                  return;
+                }
+                setCatErrors({});
+                createCat.mutate(body);
               }}
             >
               +
@@ -199,17 +209,24 @@ export default function SkillsPage() {
               <AdminInput
                 placeholder="New skill"
                 value={newSkillName}
+                error={skillErrors.name}
                 onChange={(e) => setNewSkillName(e.target.value)}
               />
               <AdminButton
                 onClick={() => {
-                  if (!newSkillName.trim()) return;
-                  createSkill.mutate({
+                  const body = {
                     name: newSkillName.trim(),
                     categoryId: activeCat,
                     production: false,
                     orderIndex: filtered.length,
-                  });
+                  };
+                  const errs = fieldErrors(skillCreateSchema, body);
+                  if (Object.keys(errs).length) {
+                    setSkillErrors(errs);
+                    return;
+                  }
+                  setSkillErrors({});
+                  createSkill.mutate(body);
                 }}
               >
                 +

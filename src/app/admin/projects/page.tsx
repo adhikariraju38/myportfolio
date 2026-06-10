@@ -14,6 +14,7 @@ import {
   AdminTextarea,
 } from "@/components/ui/admin-input";
 import { ImageUpload, type ImageRef } from "@/components/admin/image-upload";
+import { fieldErrors, projectCreateSchema } from "@/lib/validations";
 
 interface Project {
   id: string;
@@ -114,6 +115,29 @@ function ProjectForm({
   const [github, setGithub] = useState(initial?.github ?? "");
   const [coverImage, setCoverImage] = useState<ImageRef | null>(initial?.coverImage ?? null);
   const [isPublished, setIsPublished] = useState(initial?.isPublished ?? true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const submit = () => {
+    const body = {
+      title,
+      slug,
+      subtitle,
+      description,
+      tech,
+      metric,
+      link,
+      github,
+      coverImage: coverImage ?? {},
+      isPublished,
+    };
+    const errs = fieldErrors(projectCreateSchema, body);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit(body);
+  };
 
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-5">
@@ -125,6 +149,7 @@ function ProjectForm({
           <AdminLabel>Title</AdminLabel>
           <AdminInput
             value={title}
+            error={errors.title}
             onChange={(e) => {
               setTitle(e.target.value);
               if (!initial && !slug) setSlug(slugify(e.target.value));
@@ -133,7 +158,7 @@ function ProjectForm({
         </div>
         <div>
           <AdminLabel>Slug</AdminLabel>
-          <AdminInput value={slug} onChange={(e) => setSlug(slugify(e.target.value))} />
+          <AdminInput value={slug} error={errors.slug} onChange={(e) => setSlug(slugify(e.target.value))} />
         </div>
         <div className="md:col-span-2">
           <AdminLabel>Subtitle</AdminLabel>
@@ -153,11 +178,11 @@ function ProjectForm({
         </div>
         <div>
           <AdminLabel>Link</AdminLabel>
-          <AdminInput value={link} onChange={(e) => setLink(e.target.value)} />
+          <AdminInput value={link} error={errors.link} onChange={(e) => setLink(e.target.value)} />
         </div>
         <div>
           <AdminLabel>GitHub</AdminLabel>
-          <AdminInput value={github} onChange={(e) => setGithub(e.target.value)} />
+          <AdminInput value={github} error={errors.github} onChange={(e) => setGithub(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Tech (one per line)</AdminLabel>
@@ -188,24 +213,7 @@ function ProjectForm({
         <AdminButton variant="secondary" onClick={onCancel}>
           Cancel
         </AdminButton>
-        <AdminButton
-          onClick={() =>
-            onSubmit({
-              title,
-              slug,
-              subtitle,
-              description,
-              tech,
-              metric,
-              link,
-              github,
-              coverImage: coverImage ?? {},
-              isPublished,
-            })
-          }
-        >
-          {initial ? "Save" : "Add"}
-        </AdminButton>
+        <AdminButton onClick={submit}>{initial ? "Save" : "Add"}</AdminButton>
       </div>
     </div>
   );

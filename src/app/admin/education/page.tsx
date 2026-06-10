@@ -29,25 +29,42 @@ export default function EducationPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   if (isLoading) return <SkeletonForm />;
-  const set = (k: string, v: unknown) => setDraft((d) => ({ ...d, [k]: v }));
+  const set = (k: string, v: unknown) => {
+    setDraft((d) => ({ ...d, [k]: v }));
+    setErrors((e) => (e[k] ? { ...e, [k]: undefined as unknown as string } : e));
+  };
+
+  const handleSave = () => {
+    const next: Record<string, string> = {};
+    if (!String(draft.school ?? "").trim()) next.school = "School is required";
+    if (!String(draft.degree ?? "").trim()) next.degree = "Degree is required";
+    if (Object.keys(next).length) {
+      setErrors(next);
+      return;
+    }
+    setErrors({});
+    save.mutate(draft);
+  };
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-text">Education</h1>
-        <AdminButton onClick={() => save.mutate(draft)} disabled={save.isPending}>
+        <AdminButton onClick={handleSave} disabled={save.isPending}>
           {save.isPending ? "Saving…" : "Save"}
         </AdminButton>
       </div>
       <div className="grid gap-3 rounded-xl border border-border bg-bg-secondary p-5 md:grid-cols-2">
         <div className="md:col-span-2">
           <AdminLabel>School</AdminLabel>
-          <AdminInput value={(draft.school as string) ?? ""} onChange={(e) => set("school", e.target.value)} />
+          <AdminInput value={(draft.school as string) ?? ""} error={errors.school} onChange={(e) => set("school", e.target.value)} />
         </div>
         <div>
           <AdminLabel>Degree</AdminLabel>
-          <AdminInput value={(draft.degree as string) ?? ""} onChange={(e) => set("degree", e.target.value)} />
+          <AdminInput value={(draft.degree as string) ?? ""} error={errors.degree} onChange={(e) => set("degree", e.target.value)} />
         </div>
         <div>
           <AdminLabel>Grade</AdminLabel>

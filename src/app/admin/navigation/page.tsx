@@ -14,6 +14,7 @@ import {
 import { SkeletonList } from "@/components/shared/skeleton";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
 import { Checkbox } from "@/components/ds/Checkbox";
+import { fieldErrors, navMenuItemCreateSchema } from "@/lib/validations";
 
 interface NavItem {
   id: string;
@@ -169,6 +170,18 @@ function NavForm({
   const [href, setHref] = useState(initial?.href ?? "");
   const [icon, setIcon] = useState(initial?.icon ?? "");
   const [opensInNewTab, setOpensInNewTab] = useState(initial?.opensInNewTab ?? false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const submit = () => {
+    const body = { label, href, icon, opensInNewTab };
+    const errs = fieldErrors(navMenuItemCreateSchema, { ...body, location });
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit(body);
+  };
 
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-4">
@@ -178,11 +191,11 @@ function NavForm({
       <div className="grid gap-3 md:grid-cols-4">
         <div>
           <AdminLabel>Label</AdminLabel>
-          <AdminInput value={label} onChange={(e) => setLabel(e.target.value)} />
+          <AdminInput value={label} error={errors.label} onChange={(e) => setLabel(e.target.value)} />
         </div>
         <div className="md:col-span-2">
           <AdminLabel>Href</AdminLabel>
-          <AdminInput value={href} onChange={(e) => setHref(e.target.value)} />
+          <AdminInput value={href} error={errors.href} onChange={(e) => setHref(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Icon (key)</AdminLabel>
@@ -201,7 +214,7 @@ function NavForm({
         <AdminButton variant="secondary" onClick={onCancel}>
           Cancel
         </AdminButton>
-        <AdminButton onClick={() => onSubmit({ label, href, icon, opensInNewTab })}>
+        <AdminButton onClick={submit}>
           {initial ? "Save" : "Add"}
         </AdminButton>
       </div>

@@ -15,6 +15,7 @@ import {
   AdminTextarea,
 } from "@/components/ui/admin-input";
 import { ArrayInput } from "@/components/admin/array-input";
+import { fieldErrors, experienceCreateSchema } from "@/lib/validations";
 
 interface Experience {
   id: string;
@@ -112,6 +113,27 @@ function ExperienceForm({
   const [bullets, setBullets] = useState<string[]>(initial?.bullets ?? []);
   const [tech, setTech] = useState<string[]>(initial?.tech ?? []);
   const [isVisible, setIsVisible] = useState(initial?.isVisible ?? true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const submit = () => {
+    const body = {
+      company,
+      role,
+      location,
+      period,
+      type,
+      bullets: bullets.filter((s) => s.trim().length > 0),
+      tech,
+      isVisible,
+    };
+    const errs = fieldErrors(experienceCreateSchema, body);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit(body);
+  };
 
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-5">
@@ -121,11 +143,11 @@ function ExperienceForm({
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <AdminLabel>Company</AdminLabel>
-          <AdminInput value={company} onChange={(e) => setCompany(e.target.value)} />
+          <AdminInput value={company} error={errors.company} onChange={(e) => setCompany(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Role</AdminLabel>
-          <AdminInput value={role} onChange={(e) => setRole(e.target.value)} />
+          <AdminInput value={role} error={errors.role} onChange={(e) => setRole(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Location</AdminLabel>
@@ -171,20 +193,7 @@ function ExperienceForm({
         <AdminButton variant="secondary" onClick={onCancel}>
           Cancel
         </AdminButton>
-        <AdminButton
-          onClick={() =>
-            onSubmit({
-              company,
-              role,
-              location,
-              period,
-              type,
-              bullets: bullets.filter((s) => s.trim().length > 0),
-              tech,
-              isVisible,
-            })
-          }
-        >
+        <AdminButton onClick={submit}>
           {initial ? "Save" : "Add"}
         </AdminButton>
       </div>

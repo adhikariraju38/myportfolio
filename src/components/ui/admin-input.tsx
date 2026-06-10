@@ -3,27 +3,49 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ds/Switch";
 import { Button } from "@/components/ds/Button";
 
-export function AdminInput({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+export function AdminInput({
+  className,
+  error,
+  ...props
+}: InputHTMLAttributes<HTMLInputElement> & { error?: string }) {
   return (
-    <input
-      {...props}
-      className={cn(
-        "w-full rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent disabled:opacity-60",
-        className,
-      )}
-    />
+    <>
+      <input
+        {...props}
+        aria-invalid={error ? true : undefined}
+        className={cn(
+          "w-full rounded-md border bg-bg-secondary px-3 py-2 text-sm text-text outline-none transition-[border-color,box-shadow] disabled:opacity-60",
+          error
+            ? "animate-[ds-shake_0.4s_var(--ease-out)] border-red-500"
+            : "border-border focus:border-accent focus:shadow-(--glow-accent-sm)",
+          className,
+        )}
+      />
+      {error && <p className="mt-1 font-mono text-[11px] text-red-500">{error}</p>}
+    </>
   );
 }
 
-export function AdminTextarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function AdminTextarea({
+  className,
+  error,
+  ...props
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & { error?: string }) {
   return (
-    <textarea
-      {...props}
-      className={cn(
-        "w-full rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent disabled:opacity-60",
-        className,
-      )}
-    />
+    <>
+      <textarea
+        {...props}
+        aria-invalid={error ? true : undefined}
+        className={cn(
+          "w-full rounded-md border bg-bg-secondary px-3 py-2 text-sm text-text outline-none transition-[border-color,box-shadow] disabled:opacity-60",
+          error
+            ? "animate-[ds-shake_0.4s_var(--ease-out)] border-red-500"
+            : "border-border focus:border-accent focus:shadow-(--glow-accent-sm)",
+          className,
+        )}
+      />
+      {error && <p className="mt-1 font-mono text-[11px] text-red-500">{error}</p>}
+    </>
   );
 }
 

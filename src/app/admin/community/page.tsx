@@ -7,6 +7,7 @@ import { apiClient } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { ResourceList } from "@/components/admin/resource-list";
 import { AdminButton, AdminInput, AdminLabel, AdminSwitch, AdminTextarea } from "@/components/ui/admin-input";
+import { fieldErrors, communityCreateSchema } from "@/lib/validations";
 
 interface Community {
   id: string;
@@ -77,6 +78,19 @@ function Form({
   const [year, setYear] = useState(initial?.year ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [isVisible, setIsVisible] = useState(initial?.isVisible ?? true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const submit = () => {
+    const body = { role, org, year, description, isVisible };
+    const errs = fieldErrors(communityCreateSchema, body);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit(body);
+  };
+
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-5">
       <h2 className="mb-4 font-display text-lg font-semibold text-text">
@@ -85,11 +99,11 @@ function Form({
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <AdminLabel>Role</AdminLabel>
-          <AdminInput value={role} onChange={(e) => setRole(e.target.value)} />
+          <AdminInput value={role} error={errors.role} onChange={(e) => setRole(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Organization</AdminLabel>
-          <AdminInput value={org} onChange={(e) => setOrg(e.target.value)} />
+          <AdminInput value={org} error={errors.org} onChange={(e) => setOrg(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Year</AdminLabel>
@@ -106,7 +120,7 @@ function Form({
       </div>
       <div className="mt-4 flex justify-end gap-2">
         <AdminButton variant="secondary" onClick={onCancel}>Cancel</AdminButton>
-        <AdminButton onClick={() => onSubmit({ role, org, year, description, isVisible })}>
+        <AdminButton onClick={submit}>
           {initial ? "Save" : "Add"}
         </AdminButton>
       </div>

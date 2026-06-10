@@ -36,15 +36,32 @@ export default function HeroPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   if (isLoading) return <SkeletonForm />;
-  const set = (k: string, v: unknown) => setDraft((d) => ({ ...d, [k]: v }));
+  const set = (k: string, v: unknown) => {
+    setDraft((d) => ({ ...d, [k]: v }));
+    setErrors((e) => (e[k] ? { ...e, [k]: undefined as unknown as string } : e));
+  };
   const cta = (k: "primaryCta" | "secondaryCta") => (draft[k] as Record<string, string>) ?? {};
+
+  const handleSave = () => {
+    const next: Record<string, string> = {};
+    if (!String(draft.name ?? "").trim()) next.name = "Name is required";
+    if (!String(draft.title ?? "").trim()) next.title = "Title is required";
+    if (Object.keys(next).length) {
+      setErrors(next);
+      return;
+    }
+    setErrors({});
+    save.mutate(draft);
+  };
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-text">Hero</h1>
-        <AdminButton onClick={() => save.mutate(draft)} disabled={save.isPending}>
+        <AdminButton onClick={handleSave} disabled={save.isPending}>
           {save.isPending ? "Saving…" : "Save"}
         </AdminButton>
       </div>
@@ -61,6 +78,7 @@ export default function HeroPage() {
           <AdminLabel>Name</AdminLabel>
           <AdminInput
             value={(draft.name as string) ?? ""}
+            error={errors.name}
             onChange={(e) => set("name", e.target.value)}
           />
         </div>
@@ -68,6 +86,7 @@ export default function HeroPage() {
           <AdminLabel>Title (role)</AdminLabel>
           <AdminInput
             value={(draft.title as string) ?? ""}
+            error={errors.title}
             onChange={(e) => set("title", e.target.value)}
           />
         </div>

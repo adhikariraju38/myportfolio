@@ -15,6 +15,7 @@ import {
 import { SkeletonList } from "@/components/shared/skeleton";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
 import { useSessionQuery } from "@/hooks/use-admin-data";
+import { fieldErrors, userCreateSchema } from "@/lib/validations";
 
 interface User {
   id: string;
@@ -145,22 +146,36 @@ function NewUserForm({
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<User["role"]>("admin");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const submit = () => {
+    const body = { email, name, password, role, isActive: true };
+    const errs = fieldErrors(userCreateSchema, body);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit(body);
+  };
+
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-4">
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <AdminLabel>Email</AdminLabel>
-          <AdminInput value={email} onChange={(e) => setEmail(e.target.value)} />
+          <AdminInput value={email} error={errors.email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Name</AdminLabel>
-          <AdminInput value={name} onChange={(e) => setName(e.target.value)} />
+          <AdminInput value={name} error={errors.name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Password (min 8)</AdminLabel>
           <AdminInput
             type="password"
             value={password}
+            error={errors.password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
@@ -176,10 +191,7 @@ function NewUserForm({
         <AdminButton variant="secondary" onClick={onCancel}>
           Cancel
         </AdminButton>
-        <AdminButton
-          onClick={() => onSubmit({ email, name, password, role, isActive: true })}
-          disabled={!email || !name || password.length < 8}
-        >
+        <AdminButton onClick={submit}>
           Add
         </AdminButton>
       </div>

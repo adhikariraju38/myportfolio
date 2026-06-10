@@ -43,14 +43,28 @@ export default function AboutPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   if (isLoading) return <SkeletonForm />;
-  const set = (k: string, v: unknown) => setDraft((d) => ({ ...d, [k]: v }));
+  const set = (k: string, v: unknown) => {
+    setDraft((d) => ({ ...d, [k]: v }));
+    setErrors((e) => (e[k] ? { ...e, [k]: undefined as unknown as string } : e));
+  };
+
+  const handleSave = () => {
+    if (!String(draft.summary ?? "").trim()) {
+      setErrors({ summary: "Summary is required" });
+      return;
+    }
+    setErrors({});
+    save.mutate(draft);
+  };
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-text">About</h1>
-        <AdminButton onClick={() => save.mutate(draft)} disabled={save.isPending}>
+        <AdminButton onClick={handleSave} disabled={save.isPending}>
           {save.isPending ? "Saving…" : "Save"}
         </AdminButton>
       </div>
@@ -68,6 +82,7 @@ export default function AboutPage() {
           <AdminTextarea
             rows={6}
             value={(draft.summary as string) ?? ""}
+            error={errors.summary}
             onChange={(e) => set("summary", e.target.value)}
           />
         </div>

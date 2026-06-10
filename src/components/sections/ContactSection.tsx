@@ -15,6 +15,7 @@ import {
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { usePerformance } from "@/hooks/usePerformanceTier";
 import { apiClient, ApiClientError } from "@/lib/api-client";
+import { inquirySubmitSchema } from "@/lib/validations";
 import { Input } from "@/components/ds/Input";
 import { Textarea } from "@/components/ds/Textarea";
 import { Button as DSButton } from "@/components/ds/Button";
@@ -49,7 +50,14 @@ export function ContactSection({
   const enable3d = perf.enable3D && enable3dCanvas;
   const [isVisible, setIsVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [values, setValues] = useState({ name: "", email: "", message: "" });
+  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
   const sectionRef = useRef<HTMLDivElement>(null);
+
+  const setField = (key: "name" | "email" | "message", v: string) => {
+    setValues((prev) => ({ ...prev, [key]: v }));
+    setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
+  };
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -64,18 +72,32 @@ export function ContactSection({
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+
     const body = {
-      name: String(formData.get("name") ?? "").trim(),
-      email: String(formData.get("email") ?? "").trim(),
-      message: String(formData.get("message") ?? "").trim(),
+      name: values.name.trim(),
+      email: values.email.trim(),
+      message: values.message.trim(),
     };
+
+    // Client-side validation (same schema the API uses) — show inline,
+    // design-style field errors (the fields shake) before any network call.
+    const parsed = inquirySubmitSchema.safeParse(body);
+    if (!parsed.success) {
+      const next: { name?: string; email?: string; message?: string } = {};
+      for (const issue of parsed.error.issues) {
+        const field = issue.path[0] as "name" | "email" | "message";
+        if (field && !next[field]) next[field] = issue.message;
+      }
+      setErrors(next);
+      return;
+    }
+    setErrors({});
+
     setSubmitting(true);
     try {
-      await apiClient.post("/api/public/inquiries", body);
+      await apiClient.post("/api/public/inquiries", parsed.data);
       toast.success("Thanks — I'll get back to you soon.");
-      form.reset();
+      setValues({ name: "", email: "", message: "" });
     } catch (err) {
       const msg = err instanceof ApiClientError ? err.message : "Submit failed";
       toast.error(msg);
@@ -129,9 +151,29 @@ export function ContactSection({
         </motion.p>
 
         <div className="grid gap-12 md:grid-cols-2">
-          <motion.form variants={fadeInUp} onSubmit={handleSubmit} className="space-y-5">
-            <Input id="name" name="name" type="text" label="Name" required placeholder="Your name" />
-            <Input id="email" name="email" type="email" label="Email" required placeholder="your@email.com" />
+          <motion.form variants={fadeInUp} onSubmit={handleSubmit} noValidate className="space-y-5">
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              label="Name"
+              required
+              placeholder="Your name"
+              value={values.name}
+              onChange={(e) => setField("name", e.target.value)}
+              error={errors.name}
+            />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              label="Email"
+              required
+              placeholder="your@email.com"
+              value={values.email}
+              onChange={(e) => setField("email", e.target.value)}
+              error={errors.email}
+            />
             <Textarea
               id="message"
               name="message"
@@ -139,6 +181,10 @@ export function ContactSection({
               required
               rows={5}
               placeholder="Tell me about your project..."
+              maxLength={4000}
+              value={values.message}
+              onChange={(e) => setField("message", e.target.value)}
+              error={errors.message}
             />
             <DSButton type="submit" loading={submitting} iconLeft={<Send size={16} />}>
               {submitting ? "Sending…" : "Send Message"}

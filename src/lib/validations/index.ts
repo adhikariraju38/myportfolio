@@ -206,9 +206,12 @@ export const inquiryUpdateSchema = z.object({
 
 // Inquiry public submit
 export const inquirySubmitSchema = z.object({
-  name: z.string().min(1).max(120),
-  email: z.string().email(),
-  message: z.string().min(5).max(4000),
+  name: z.string().min(1, "Name is required").max(120, "Name is too long"),
+  email: z.string().min(1, "Email is required").email("Enter a valid email address"),
+  message: z
+    .string()
+    .min(5, "Message must be at least 5 characters")
+    .max(4000, "Message is too long"),
 });
 
 // Users
@@ -234,3 +237,22 @@ export const uploadSchema = z.object({
   contentType: z.string().min(1).max(120),
   size: z.number().int().positive(),
 });
+
+/**
+ * Run a Zod schema and return first-error-per-field for inline form display.
+ * Returns {} when valid. Use in admin forms to show design-style field errors
+ * before calling the mutation.
+ */
+export function fieldErrors<T extends z.ZodTypeAny>(
+  schema: T,
+  data: unknown,
+): Record<string, string> {
+  const res = schema.safeParse(data);
+  if (res.success) return {};
+  const out: Record<string, string> = {};
+  for (const issue of res.error.issues) {
+    const key = String(issue.path[0] ?? "");
+    if (key && !out[key]) out[key] = issue.message;
+  }
+  return out;
+}

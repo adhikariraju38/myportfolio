@@ -71,6 +71,7 @@ export default function SettingsPage() {
   });
   const [draft, setDraft] = useState<Settings>({});
   const [tab, setTab] = useState<Tab>("Branding");
+  const [titleError, setTitleError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (data) setDraft(data);
@@ -101,9 +102,22 @@ export default function SettingsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const set = (k: string, v: unknown) => setDraft((d) => ({ ...d, [k]: v }));
+  const set = (k: string, v: unknown) => {
+    setDraft((d) => ({ ...d, [k]: v }));
+    if (k === "siteTitle") setTitleError(undefined);
+  };
   const setNested = (k: string, child: string, v: unknown) =>
     setDraft((d) => ({ ...d, [k]: { ...((d[k] as Record<string, unknown>) ?? {}), [child]: v } }));
+
+  const handleSave = () => {
+    if (!String(draft.siteTitle ?? "").trim()) {
+      setTitleError("Site title is required");
+      setTab("Branding");
+      return;
+    }
+    setTitleError(undefined);
+    mutate.mutate(draft);
+  };
 
   if (isLoading) return <SkeletonForm />;
 
@@ -116,7 +130,7 @@ export default function SettingsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-text">Site settings</h1>
-        <AdminButton onClick={() => mutate.mutate(draft)} disabled={mutate.isPending}>
+        <AdminButton onClick={handleSave} disabled={mutate.isPending}>
           {mutate.isPending ? "Saving…" : "Save"}
         </AdminButton>
       </div>
@@ -135,6 +149,7 @@ export default function SettingsPage() {
             <Field label="Site title">
               <AdminInput
                 value={(draft.siteTitle as string) ?? ""}
+                error={titleError}
                 onChange={(e) => set("siteTitle", e.target.value)}
               />
             </Field>

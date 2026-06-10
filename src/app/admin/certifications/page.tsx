@@ -7,6 +7,7 @@ import { apiClient } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { ResourceList } from "@/components/admin/resource-list";
 import { AdminButton, AdminInput, AdminLabel, AdminSwitch } from "@/components/ui/admin-input";
+import { fieldErrors, certificationCreateSchema } from "@/lib/validations";
 
 interface Cert {
   id: string;
@@ -75,6 +76,19 @@ function Form({
   const [issuer, setIssuer] = useState(initial?.issuer ?? "");
   const [link, setLink] = useState(initial?.link ?? "");
   const [isVisible, setIsVisible] = useState(initial?.isVisible ?? true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const submit = () => {
+    const body = { title, issuer, link, isVisible };
+    const errs = fieldErrors(certificationCreateSchema, body);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit(body);
+  };
+
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-5">
       <h2 className="mb-4 font-display text-lg font-semibold text-text">
@@ -83,7 +97,7 @@ function Form({
       <div className="grid gap-3 md:grid-cols-2">
         <div className="md:col-span-2">
           <AdminLabel>Title</AdminLabel>
-          <AdminInput value={title} onChange={(e) => setTitle(e.target.value)} />
+          <AdminInput value={title} error={errors.title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Issuer</AdminLabel>
@@ -91,7 +105,7 @@ function Form({
         </div>
         <div>
           <AdminLabel>Link</AdminLabel>
-          <AdminInput value={link} onChange={(e) => setLink(e.target.value)} />
+          <AdminInput value={link} error={errors.link} onChange={(e) => setLink(e.target.value)} />
         </div>
         <div className="flex items-center gap-2">
           <AdminSwitch checked={isVisible} onCheckedChange={setIsVisible} />
@@ -100,7 +114,7 @@ function Form({
       </div>
       <div className="mt-4 flex justify-end gap-2">
         <AdminButton variant="secondary" onClick={onCancel}>Cancel</AdminButton>
-        <AdminButton onClick={() => onSubmit({ title, issuer, link, isVisible })}>
+        <AdminButton onClick={submit}>
           {initial ? "Save" : "Add"}
         </AdminButton>
       </div>

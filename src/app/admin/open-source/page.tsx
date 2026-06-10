@@ -14,6 +14,7 @@ import {
   AdminSwitch,
   AdminTextarea,
 } from "@/components/ui/admin-input";
+import { fieldErrors, openSourceCreateSchema } from "@/lib/validations";
 
 interface ContribItem {
   refId: string;
@@ -93,6 +94,18 @@ function Form({
   const [repoUrl, setRepoUrl] = useState(initial?.repoUrl ?? "");
   const [isVisible, setIsVisible] = useState(initial?.isVisible ?? true);
   const [contribs, setContribs] = useState<ContribItem[]>(initial?.contributions ?? []);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const submit = () => {
+    const body = { project, organization, description, repoUrl, isVisible, contributions: contribs };
+    const errs = fieldErrors(openSourceCreateSchema, body);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit(body);
+  };
 
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-5">
@@ -102,7 +115,7 @@ function Form({
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <AdminLabel>Project</AdminLabel>
-          <AdminInput value={project} onChange={(e) => setProject(e.target.value)} />
+          <AdminInput value={project} error={errors.project} onChange={(e) => setProject(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Organization</AdminLabel>
@@ -114,7 +127,7 @@ function Form({
         </div>
         <div className="md:col-span-2">
           <AdminLabel>Repo URL</AdminLabel>
-          <AdminInput value={repoUrl} onChange={(e) => setRepoUrl(e.target.value)} />
+          <AdminInput value={repoUrl} error={errors.repoUrl} onChange={(e) => setRepoUrl(e.target.value)} />
         </div>
         <div className="flex items-center gap-2">
           <AdminSwitch checked={isVisible} onCheckedChange={setIsVisible} />
@@ -208,11 +221,7 @@ function Form({
 
       <div className="mt-5 flex justify-end gap-2">
         <AdminButton variant="secondary" onClick={onCancel}>Cancel</AdminButton>
-        <AdminButton
-          onClick={() =>
-            onSubmit({ project, organization, description, repoUrl, isVisible, contributions: contribs })
-          }
-        >
+        <AdminButton onClick={submit}>
           {initial ? "Save" : "Add"}
         </AdminButton>
       </div>

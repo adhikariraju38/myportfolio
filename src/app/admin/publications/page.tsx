@@ -13,6 +13,7 @@ import {
   AdminSwitch,
   AdminTextarea,
 } from "@/components/ui/admin-input";
+import { fieldErrors, publicationCreateSchema } from "@/lib/validations";
 
 interface Publication {
   id: string;
@@ -90,6 +91,19 @@ function Form({
   const [doi, setDoi] = useState(initial?.doi ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [isVisible, setIsVisible] = useState(initial?.isVisible ?? true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const submit = () => {
+    const body = { title, authors, venue, year, doi, description, isVisible };
+    const errs = fieldErrors(publicationCreateSchema, body);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit(body);
+  };
+
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-5">
       <h2 className="mb-4 font-display text-lg font-semibold text-text">
@@ -98,19 +112,19 @@ function Form({
       <div className="grid gap-3 md:grid-cols-2">
         <div className="md:col-span-2">
           <AdminLabel>Title</AdminLabel>
-          <AdminInput value={title} onChange={(e) => setTitle(e.target.value)} />
+          <AdminInput value={title} error={errors.title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div className="md:col-span-2">
           <AdminLabel>Authors</AdminLabel>
-          <AdminTextarea rows={2} value={authors} onChange={(e) => setAuthors(e.target.value)} />
+          <AdminTextarea rows={2} value={authors} error={errors.authors} onChange={(e) => setAuthors(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Venue</AdminLabel>
-          <AdminInput value={venue} onChange={(e) => setVenue(e.target.value)} />
+          <AdminInput value={venue} error={errors.venue} onChange={(e) => setVenue(e.target.value)} />
         </div>
         <div>
           <AdminLabel>Year</AdminLabel>
-          <AdminInput value={year} onChange={(e) => setYear(e.target.value)} />
+          <AdminInput value={year} error={errors.year} onChange={(e) => setYear(e.target.value)} />
         </div>
         <div className="md:col-span-2">
           <AdminLabel>DOI</AdminLabel>
@@ -127,7 +141,7 @@ function Form({
       </div>
       <div className="mt-4 flex justify-end gap-2">
         <AdminButton variant="secondary" onClick={onCancel}>Cancel</AdminButton>
-        <AdminButton onClick={() => onSubmit({ title, authors, venue, year, doi, description, isVisible })}>
+        <AdminButton onClick={submit}>
           {initial ? "Save" : "Add"}
         </AdminButton>
       </div>
