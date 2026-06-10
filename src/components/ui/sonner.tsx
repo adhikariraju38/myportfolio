@@ -8,25 +8,25 @@ export function Toaster() {
       position="bottom-center"
       offset={32}
       toastOptions={{
-        // A single dark "engineered" pill — high-contrast in BOTH light and
-        // dark mode. The semantic icon (green check / red error / amber
-        // warning) carries the meaning; the surface stays neutral dark.
+        // Inverted "engineered" pill — light in dark mode, dark in light mode
+        // (via the theme-flipping --toast-* vars) so it always stands out.
+        // The semantic icon (green check / red error / amber warning) carries
+        // the meaning; the surface stays neutral.
         style: {
-          background: "#14161C",
-          color: "#F2F3F5",
-          border: "1px solid rgba(255, 255, 255, 0.12)",
+          background: "var(--toast-bg)",
+          color: "var(--toast-text)",
+          border: "1px solid var(--toast-border)",
           borderRadius: "14px",
           padding: "13px 16px",
           fontFamily: "var(--ff-sans)",
           fontSize: "14px",
           fontWeight: 500,
-          boxShadow:
-            "0 18px 48px -16px rgba(0,0,0,0.55), inset 0 1px 0 0 rgba(255,255,255,0.06)",
+          boxShadow: "0 18px 48px -16px rgba(0,0,0,0.45)",
         },
         classNames: {
-          description: "text-[#8B919E]",
+          description: "text-(--toast-text-muted)",
           actionButton: "bg-accent text-on-accent",
-          closeButton: "border-white/15 bg-[#14161C] text-[#8B919E]",
+          closeButton: "border-(--toast-border) bg-(--toast-bg) text-(--toast-text-muted)",
         },
       }}
     />
