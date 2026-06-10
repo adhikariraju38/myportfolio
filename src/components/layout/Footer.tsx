@@ -1,6 +1,8 @@
 "use client";
 
 import { getIcon } from "@/lib/icons";
+import { IconButton } from "@/components/ds/IconButton";
+import { Tooltip } from "@/components/ds/Tooltip";
 
 export interface FooterLink {
   label: string;
@@ -18,20 +20,32 @@ export function Footer({ links, copyright }: FooterProps) {
   return (
     <footer className="border-t border-border py-8">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 md:flex-row md:justify-between">
-        <p className="text-sm text-text-secondary">{copyright}</p>
-        <div className="flex items-center gap-4">
+        <p className="font-mono text-xs text-text-tertiary">{copyright}</p>
+        <div className="flex items-center gap-2">
           {links.map((link) => {
             const Icon = getIcon(link.icon);
+            const target = link.opensInNewTab ? "_blank" : undefined;
+            const rel = link.opensInNewTab ? "noopener noreferrer" : undefined;
+            // Icon links → DS soft IconButton (matches the contact socials);
+            // text-only links stay as a simple accent-hover link.
+            if (Icon) {
+              return (
+                <Tooltip key={link.href} label={link.label}>
+                  <IconButton label={link.label} variant="soft" size="sm" href={link.href} target={target} rel={rel}>
+                    <Icon size={16} />
+                  </IconButton>
+                </Tooltip>
+              );
+            }
             return (
               <a
                 key={link.href}
                 href={link.href}
-                target={link.opensInNewTab ? "_blank" : undefined}
-                rel={link.opensInNewTab ? "noopener noreferrer" : undefined}
-                className="text-text-tertiary transition-colors hover:text-accent"
-                aria-label={link.label}
+                target={target}
+                rel={rel}
+                className="link-underline px-1 text-sm text-text-secondary transition-colors hover:text-accent"
               >
-                {Icon ? <Icon size={18} /> : <span className="text-xs">{link.label}</span>}
+                {link.label}
               </a>
             );
           })}

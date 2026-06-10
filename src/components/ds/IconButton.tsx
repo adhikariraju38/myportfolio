@@ -43,6 +43,10 @@ interface IconButtonProps {
   disabled?: boolean;
   magnetic?: boolean;
   className?: string;
+  /** Renders an anchor instead of a button (for links, e.g. socials). */
+  href?: string;
+  target?: string;
+  rel?: string;
 }
 
 /**
@@ -58,6 +62,9 @@ export function IconButton({
   disabled = false,
   magnetic = true,
   className,
+  href,
+  target,
+  rel,
 }: IconButtonProps) {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -68,46 +75,67 @@ export function IconButton({
   const vs = variantStyle(variant, hovered && !disabled);
   const scale = pressed ? 0.9 : hovered && !disabled ? 1.06 : 1;
 
-  const btn = (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      onClick={disabled ? undefined : onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setHovered(false);
-        setPressed(false);
-      }}
-      onPointerDown={(e) => {
-        if (!disabled) {
-          setPressed(true);
-          ripple(e);
-        }
-      }}
-      onPointerUp={() => setPressed(false)}
-      disabled={disabled}
-      className={className}
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: dim,
-        height: dim,
-        borderRadius: "var(--r-pill)",
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.5 : 1,
-        transform: `scale(${scale})`,
-        transition:
-          "transform var(--dur-fast) var(--ease-spring), background-color var(--dur-fast) var(--ease-snappy), color var(--dur-fast) var(--ease-snappy), box-shadow var(--dur-base) var(--ease-out)",
-        ...vs,
-      }}
-    >
-      {children}
-    </button>
-  );
+  const sharedStyle: React.CSSProperties = {
+    position: "relative",
+    overflow: "hidden",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: dim,
+    height: dim,
+    borderRadius: "var(--r-pill)",
+    cursor: disabled ? "not-allowed" : "pointer",
+    opacity: disabled ? 0.5 : 1,
+    transform: `scale(${scale})`,
+    transition:
+      "transform var(--dur-fast) var(--ease-spring), background-color var(--dur-fast) var(--ease-snappy), color var(--dur-fast) var(--ease-snappy), box-shadow var(--dur-base) var(--ease-out)",
+    ...vs,
+  };
+
+  const sharedHandlers = {
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => {
+      setHovered(false);
+      setPressed(false);
+    },
+    onPointerDown: (e: React.PointerEvent) => {
+      if (!disabled) {
+        setPressed(true);
+        ripple(e as unknown as React.MouseEvent);
+      }
+    },
+    onPointerUp: () => setPressed(false),
+  };
+
+  const btn =
+    href && !disabled ? (
+      <a
+        href={href}
+        target={target}
+        rel={rel}
+        aria-label={label}
+        title={label}
+        onClick={onClick}
+        {...sharedHandlers}
+        className={className}
+        style={sharedStyle}
+      >
+        {children}
+      </a>
+    ) : (
+      <button
+        type="button"
+        aria-label={label}
+        title={label}
+        onClick={disabled ? undefined : onClick}
+        {...sharedHandlers}
+        disabled={disabled}
+        className={className}
+        style={sharedStyle}
+      >
+        {children}
+      </button>
+    );
 
   if (magnetic && !disabled) {
     return (

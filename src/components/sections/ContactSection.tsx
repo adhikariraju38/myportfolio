@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback, type FormEvent } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useRef, useState, useEffect, type FormEvent } from "react";
+import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { toast } from "sonner";
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
@@ -18,6 +18,8 @@ import { apiClient, ApiClientError } from "@/lib/api-client";
 import { Input } from "@/components/ds/Input";
 import { Textarea } from "@/components/ds/Textarea";
 import { Button as DSButton } from "@/components/ds/Button";
+import { IconButton } from "@/components/ds/IconButton";
+import { Tooltip } from "@/components/ds/Tooltip";
 import { getIcon } from "@/lib/icons";
 import type { PublicSocialLink } from "@/types/public";
 
@@ -35,59 +37,6 @@ interface ContactSectionProps {
   meshDensity?: number;
 }
 
-function MagneticIcon({
-  href,
-  label,
-  magnetic,
-  children,
-  opensInNewTab = true,
-}: {
-  href: string;
-  label: string;
-  magnetic: boolean;
-  children: React.ReactNode;
-  opensInNewTab?: boolean;
-}) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 150, damping: 15 });
-  const springY = useSpring(y, { stiffness: 150, damping: 15 });
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!magnetic || !ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const dx = e.clientX - (rect.left + rect.width / 2);
-      const dy = e.clientY - (rect.top + rect.height / 2);
-      x.set(Math.max(-3, Math.min(3, dx * 0.3)));
-      y.set(Math.max(-3, Math.min(3, dy * 0.3)));
-    },
-    [x, y, magnetic],
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    x.set(0);
-    y.set(0);
-  }, [x, y]);
-
-  return (
-    <motion.a
-      ref={ref}
-      href={href}
-      target={opensInNewTab ? "_blank" : undefined}
-      rel={opensInNewTab ? "noopener noreferrer" : undefined}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      whileTap={{ scale: 0.95 }}
-      style={magnetic ? { x: springX, y: springY } : undefined}
-      className="flex h-10 w-10 items-center justify-center rounded-full glass-pill text-text-secondary transition-all hover:-translate-y-0.5 hover:text-text hover:shadow-[0_0_12px_-3px_var(--accent)]"
-      aria-label={label}
-    >
-      {children}
-    </motion.a>
-  );
-}
 
 export function ContactSection({
   contact,
@@ -232,19 +181,25 @@ export function ContactSection({
 
             {socials.length > 0 && (
               <div className="border-t border-border pt-6">
-                <p className="mb-3 text-xs font-medium text-text-tertiary">Find me on</p>
+                <p className="mb-3 font-mono text-[11px] uppercase tracking-widest text-text-tertiary">
+                  Find me on
+                </p>
                 <div className="flex flex-wrap gap-3">
                   {socials.map((s) => {
                     const Icon = getIcon(s.icon ?? s.platform);
+                    const label = s.label ?? s.platform;
                     return (
-                      <MagneticIcon
-                        key={s.url}
-                        href={s.url}
-                        label={s.label ?? s.platform}
-                        magnetic={perf.enableMagnetic}
-                      >
-                        {Icon ? <Icon size={18} /> : <span className="text-xs font-medium">{s.platform[0]?.toUpperCase()}</span>}
-                      </MagneticIcon>
+                      <Tooltip key={s.url} label={label}>
+                        <IconButton
+                          label={label}
+                          variant="soft"
+                          href={s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {Icon ? <Icon size={18} /> : <span className="text-xs font-medium">{s.platform[0]?.toUpperCase()}</span>}
+                        </IconButton>
+                      </Tooltip>
                     );
                   })}
                 </div>
