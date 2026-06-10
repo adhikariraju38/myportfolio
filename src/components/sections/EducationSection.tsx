@@ -51,9 +51,18 @@ export function EducationSection({ education, community }: EducationSectionProps
           {education && (
             <motion.div variants={fadeInUp}>
               <Card spotlight={false}>
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
-                  <GraduationCap size={18} className="text-accent" />
-                </div>
+                {education.logoImage?.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={education.logoImage.url}
+                    alt={`${education.school} logo`}
+                    className="mb-4 h-10 w-10 rounded-full object-contain"
+                  />
+                ) : (
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
+                    <GraduationCap size={18} className="text-accent" />
+                  </div>
+                )}
                 <h3 className="font-display text-lg font-semibold text-text">{education.school}</h3>
                 <p className="text-sm text-text-secondary">{education.degree}</p>
                 <div className="mt-3 flex flex-wrap gap-3 text-xs text-text-tertiary">
