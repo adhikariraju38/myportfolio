@@ -113,6 +113,7 @@ export function Button({
     position: "relative",
     overflow: "hidden",
     display: "inline-flex",
+    flexWrap: "nowrap",
     alignItems: "center",
     justifyContent: "center",
     gap: sz.gap,
@@ -143,7 +144,7 @@ export function Button({
     <>
       {loading && <Spinner />}
       {!loading && iconLeft}
-      {children != null && <span style={{ whiteSpace: "nowrap" }}>{children}</span>}
+      {children != null && <span style={{ whiteSpace: "nowrap", flexShrink: 0 }}>{children}</span>}
       {!loading && iconRight}
     </>
   );

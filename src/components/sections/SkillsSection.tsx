@@ -11,7 +11,7 @@ import {
   wordRevealChild,
 } from "@/styles/animations";
 import { useHasMounted } from "@/hooks/useHasMounted";
-import { cn } from "@/lib/utils";
+import { Tabs } from "@/components/ds/Tabs";
 import type { PublicSkill, PublicSkillCategory } from "@/types/public";
 
 interface SkillsSectionProps {
@@ -63,26 +63,16 @@ export function SkillsSection({ categories, skills }: SkillsSectionProps) {
           </span>
         </motion.p>
 
-        <motion.div variants={fadeInUp} className="mb-8 flex flex-wrap gap-2">
-          {["All", ...categories.map((c) => c.id)].map((catId) => {
-            const label = catId === "All" ? "All" : catById.get(catId)?.name ?? catId;
-            return (
-              <motion.button
-                key={catId}
-                onClick={() => setActiveCategory(catId)}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                className={cn(
-                  "rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200",
-                  activeCategory === catId
-                    ? "glass-pill text-accent shadow-[0_0_12px_-3px_var(--accent)]"
-                    : "border border-border text-text-secondary hover:border-accent/30 hover:text-text",
-                )}
-              >
-                {label}
-              </motion.button>
-            );
-          })}
+        <motion.div variants={fadeInUp} className="mb-8 max-w-full overflow-x-auto pb-1">
+          <Tabs
+            tabs={[
+              { id: "All", label: "All" },
+              ...categories.map((c) => ({ id: c.id, label: c.name })),
+            ]}
+            value={activeCategory}
+            onChange={setActiveCategory}
+            variant="pill"
+          />
         </motion.div>
 
         <motion.div layout className="flex flex-wrap gap-2">

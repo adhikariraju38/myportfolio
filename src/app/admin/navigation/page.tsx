@@ -14,6 +14,7 @@ import {
 import { SkeletonList } from "@/components/shared/skeleton";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
 import { Checkbox } from "@/components/ds/Checkbox";
+import { Tabs } from "@/components/ds/Tabs";
 import { fieldErrors, navMenuItemCreateSchema } from "@/lib/validations";
 
 interface NavItem {
@@ -232,22 +233,15 @@ export default function NavigationPage() {
           Edit header and footer items. Public site picks them up after a few seconds.
         </p>
       </div>
-      <div className="flex gap-1 border-b border-border">
-        {(["header", "footer"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={
-              "rounded-t-md px-3 py-1.5 text-xs " +
-              (t === tab
-                ? "border border-b-0 border-border bg-bg-secondary text-text"
-                : "text-text-secondary hover:text-text")
-            }
-          >
-            {t === "header" ? "Header" : "Footer"}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        tabs={[
+          { id: "header", label: "Header" },
+          { id: "footer", label: "Footer" },
+        ]}
+        value={tab}
+        onChange={(id) => setTab(id as "header" | "footer")}
+        variant="pill"
+      />
       <NavList location={tab} />
     </div>
   );

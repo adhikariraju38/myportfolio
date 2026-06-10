@@ -140,9 +140,14 @@ export function HeroSection({ hero, particleDensity = 100 }: HeroSectionProps) {
           style={{ animationDelay: "500ms" }}
         >
           {primary.label && primary.href && (
-            <Button href={primary.href} onClick={(e) => handleCTAClick(e, primary.href!)}>
+            <Button
+              href={primary.href}
+              onClick={(e) => handleCTAClick(e, primary.href!)}
+              iconRight={
+                <ArrowRight size={16} className="shrink-0 transition-transform group-hover:translate-x-1" />
+              }
+            >
               {primary.label}
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </Button>
           )}
           {secondary.label && secondary.href && (

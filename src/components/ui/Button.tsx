@@ -8,6 +8,8 @@ interface ButtonProps {
   href?: string;
   className?: string;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  /** Trailing icon — rendered as a separate flex item so it never wraps. */
+  iconRight?: React.ReactNode;
 }
 
 // Public CTA wrapper over the single canonical DS Button, so its hover /
@@ -19,6 +21,7 @@ export function Button({
   className,
   href,
   onClick,
+  iconRight,
 }: ButtonProps) {
   return (
     <DSButton
@@ -27,6 +30,7 @@ export function Button({
       href={href}
       onClick={onClick as ((e: React.MouseEvent) => void) | undefined}
       className={className}
+      iconRight={iconRight}
     >
       {children}
     </DSButton>
