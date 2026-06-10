@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useSessionQuery } from "@/hooks/use-admin-data";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 function titleFromPath(path: string): string {
   if (path === "/admin" || path === "/admin/") return "Dashboard";
@@ -28,6 +29,7 @@ export function AdminTopbar() {
             {user.name} · <span className="opacity-70">{user.role.replace("_", " ")}</span>
           </span>
         )}
+        <ThemeToggle />
         <LogoutButton />
       </div>
     </header>
