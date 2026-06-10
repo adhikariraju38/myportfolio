@@ -107,7 +107,7 @@ export function Navbar({ items, brand, logoUrl }: NavbarProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="glass mt-1 overflow-hidden rounded-2xl md:hidden"
+            className="mt-1 overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-(--shadow-lg) backdrop-blur-xl md:hidden"
           >
             <div className="flex flex-col p-2">
               {items.map((link) => (
