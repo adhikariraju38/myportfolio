@@ -13,15 +13,9 @@ export function AdminInput({
       <input
         {...props}
         aria-invalid={error ? true : undefined}
-        className={cn(
-          "w-full rounded-md border bg-bg-secondary px-3 py-2 text-sm text-text outline-none transition-[border-color,box-shadow] disabled:opacity-60",
-          error
-            ? "animate-[ds-shake_0.4s_var(--ease-out)] border-red-500"
-            : "border-border focus:border-accent focus:shadow-(--glow-accent-sm)",
-          className,
-        )}
+        className={cn("ds-field px-3.5 py-2.5 text-sm", className)}
       />
-      {error && <p className="mt-1 font-mono text-[11px] text-red-500">{error}</p>}
+      {error && <p className="mt-1.5 font-mono text-[11px] text-red-500">{error}</p>}
     </>
   );
 }
@@ -36,39 +30,29 @@ export function AdminTextarea({
       <textarea
         {...props}
         aria-invalid={error ? true : undefined}
-        className={cn(
-          "w-full rounded-md border bg-bg-secondary px-3 py-2 text-sm text-text outline-none transition-[border-color,box-shadow] disabled:opacity-60",
-          error
-            ? "animate-[ds-shake_0.4s_var(--ease-out)] border-red-500"
-            : "border-border focus:border-accent focus:shadow-(--glow-accent-sm)",
-          className,
-        )}
+        className={cn("ds-field px-3.5 py-2.5 text-sm leading-relaxed", className)}
       />
-      {error && <p className="mt-1 font-mono text-[11px] text-red-500">{error}</p>}
+      {error && <p className="mt-1.5 font-mono text-[11px] text-red-500">{error}</p>}
     </>
   );
 }
 
 export function AdminSelect({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select
-      {...props}
-      className={cn(
-        "w-full rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent",
-        className,
-      )}
-    />
-  );
+  return <select {...props} className={cn("ds-field px-3.5 py-2.5 text-sm", className)} />;
 }
 
 export function AdminLabel({
   className,
   ...props
 }: React.LabelHTMLAttributes<HTMLLabelElement>) {
+  // Mono, uppercase, tracked — matches the design's (floated) field label.
   return (
     <label
       {...props}
-      className={cn("mb-1 block text-xs font-medium text-text-secondary", className)}
+      className={cn(
+        "mb-2 block font-mono text-[11px] uppercase tracking-wider text-text-tertiary",
+        className,
+      )}
     />
   );
 }

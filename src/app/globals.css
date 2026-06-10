@@ -387,6 +387,40 @@ body {
   box-shadow: var(--elev-card);
 }
 
+/* ── Engineered form field (shared by admin inputs + selects/textarea) ──
+   Matches the public contact form: raised surface-3 control, hairline,
+   top inner-light edge, accent focus, shake on error. */
+.ds-field {
+  width: 100%;
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  box-shadow: var(--edge-light);
+  color: var(--text);
+  font-family: var(--ff-sans);
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+.ds-field::placeholder {
+  color: var(--text-tertiary);
+}
+.ds-field:focus,
+.ds-field:focus-visible {
+  outline: none;
+  border-radius: var(--r-md); /* keep 12px — overrides the global :focus-visible 6px */
+  border-color: var(--accent);
+  box-shadow: var(--edge-light), var(--shadow-sm), var(--glow-accent-sm);
+}
+.ds-field:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.ds-field[aria-invalid="true"] {
+  border-color: var(--red);
+  animation: ds-shake 0.4s var(--ease-out);
+}
+
 /* Custom scrollbar */
 * {
   scrollbar-width: thin;

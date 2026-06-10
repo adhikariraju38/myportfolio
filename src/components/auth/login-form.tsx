@@ -39,7 +39,7 @@ export function LoginForm({ redirectTo = "/admin" }: LoginFormProps) {
   return (
     <form onSubmit={onSubmit} className="flex w-full max-w-sm flex-col gap-4">
       <div>
-        <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-text-secondary">
+        <label htmlFor="email" className="mb-2 block font-mono text-[11px] uppercase tracking-wider text-text-tertiary">
           Email
         </label>
         <input
@@ -47,14 +47,15 @@ export function LoginForm({ redirectTo = "/admin" }: LoginFormProps) {
           id="email"
           type="email"
           autoComplete="email"
-          className="w-full rounded-lg border border-border bg-bg-secondary px-4 py-2.5 text-sm text-text outline-none focus:border-accent"
+          aria-invalid={errors.email ? true : undefined}
+          className="ds-field px-4 py-2.5 text-sm"
         />
         {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
       </div>
       <div>
         <label
           htmlFor="password"
-          className="mb-1.5 block text-xs font-medium text-text-secondary"
+          className="mb-2 block font-mono text-[11px] uppercase tracking-wider text-text-tertiary"
         >
           Password
         </label>
@@ -63,7 +64,8 @@ export function LoginForm({ redirectTo = "/admin" }: LoginFormProps) {
           id="password"
           type="password"
           autoComplete="current-password"
-          className="w-full rounded-lg border border-border bg-bg-secondary px-4 py-2.5 text-sm text-text outline-none focus:border-accent"
+          aria-invalid={errors.password ? true : undefined}
+          className="ds-field px-4 py-2.5 text-sm"
         />
         {errors.password && (
           <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
