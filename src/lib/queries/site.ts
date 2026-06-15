@@ -33,8 +33,8 @@ export const getSiteSettings = unstable_cache(
       return null;
     }
   },
-  ["site-settings"],
-  { tags: [CACHE_TAGS.settings, CACHE_TAGS.all] },
+  ["site-settings", "pg"],
+  { tags: [CACHE_TAGS.settings, CACHE_TAGS.all], revalidate: 300 },
 );
 
 export const getHomeSections = unstable_cache(
@@ -50,8 +50,8 @@ export const getHomeSections = unstable_cache(
       return [];
     }
   },
-  ["home-sections"],
-  { tags: [CACHE_TAGS.sections, CACHE_TAGS.all] },
+  ["home-sections", "pg"],
+  { tags: [CACHE_TAGS.sections, CACHE_TAGS.all], revalidate: 300 },
 );
 
 export const getNavItems = unstable_cache(
@@ -68,6 +68,6 @@ export const getNavItems = unstable_cache(
       return [];
     }
   },
-  ["nav-items"],
-  { tags: [CACHE_TAGS.nav, CACHE_TAGS.all] },
+  ["nav-items", "pg"],
+  { tags: [CACHE_TAGS.nav, CACHE_TAGS.all], revalidate: 300 },
 );

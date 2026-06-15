@@ -46,8 +46,10 @@ async function safeMany<T>(fn: () => Promise<T[]>, scope: string): Promise<T[]> 
   }
 }
 
+// `pg` keypart busts the Mongo-era cache entries once on deploy; `revalidate`
+// lets content self-heal if the DB is changed outside the admin flow.
 const cached = <T>(fn: () => Promise<T>, key: string, tag: string): (() => Promise<T>) =>
-  unstable_cache(fn, [key], { tags: [tag, CACHE_TAGS.all] });
+  unstable_cache(fn, [key, "pg"], { tags: [tag, CACHE_TAGS.all], revalidate: 300 });
 
 export const getHero = cached(
   () =>

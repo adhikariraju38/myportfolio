@@ -158,7 +158,7 @@ export default async function RootLayout({
           />
         )}
       </head>
-      <body className="bg-bg text-text antialiased">
+      <body className="bg-bg text-text antialiased" suppressHydrationWarning>
         <QueryProvider>
           <PerformanceProvider>
             {children}
