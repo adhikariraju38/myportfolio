@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-export const objectIdString = z
-  .string()
-  .regex(/^[a-fA-F0-9]{24}$/, "Invalid id");
+// Postgres uuid primary keys (replaces the old 24-char hex ObjectId). Kept the
+// export name `objectIdString` so the many import sites stay unchanged.
+export const objectIdString = z.string().uuid("Invalid id");
 
 // Media URLs are stored as relative paths (`/api/media/<id>`), so a full
 // `z.string().url()` check would reject them. Accept either an absolute URL

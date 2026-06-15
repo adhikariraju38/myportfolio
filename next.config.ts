@@ -21,7 +21,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["mongoose", "bcrypt"],
+  serverExternalPackages: ["postgres", "bcrypt"],
   async headers() {
     return [
       {

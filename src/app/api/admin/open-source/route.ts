@@ -1,10 +1,10 @@
-import { OpenSourceContribution } from "@/lib/db/models";
+import { openSourceContributions } from "@/lib/db/schema";
 import { openSourceCreateSchema, openSourceUpdateSchema } from "@/lib/validations";
 import { crudCreate, crudList } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: OpenSourceContribution,
+  table: openSourceContributions,
   scope: "open-source",
   createSchema: openSourceCreateSchema,
   updateSchema: openSourceUpdateSchema,

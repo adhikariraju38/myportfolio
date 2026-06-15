@@ -1,39 +1,29 @@
 import "server-only";
 import type { NextRequest } from "next/server";
-import { mongoose } from "@/lib/db";
-import { getBucket } from "@/lib/db/gridfs";
+import { getMedia } from "@/lib/db/media";
 import { logServerError } from "@/lib/api-helpers";
+
+export const runtime = "nodejs";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
-  if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+  if (!UUID_RE.test(id)) {
     return new Response("Not found", { status: 404 });
   }
   try {
-    const bucket = await getBucket();
-    const objectId = new mongoose.Types.ObjectId(id);
-    const files = await bucket.find({ _id: objectId }).limit(1).toArray();
-    const file = files[0];
+    const file = await getMedia(id);
     if (!file) return new Response("Not found", { status: 404 });
 
-    const nodeStream = bucket.openDownloadStream(objectId);
-    const webStream = new ReadableStream({
-      start(controller) {
-        nodeStream.on("data", (chunk: Buffer) => controller.enqueue(chunk));
-        nodeStream.on("end", () => controller.close());
-        nodeStream.on("error", (err) => controller.error(err));
-      },
-      cancel() {
-        nodeStream.destroy();
-      },
-    });
-    return new Response(webStream, {
+    const body = new Uint8Array(file.data);
+    return new Response(body, {
       status: 200,
       headers: {
-        "Content-Type": file.contentType ?? "application/octet-stream",
-        "Content-Length": String(file.length),
+        "Content-Type": file.contentType || "application/octet-stream",
+        "Content-Length": String(file.size),
         "Cache-Control": "public, max-age=31536000, immutable",
-        ETag: `"${file._id.toString()}"`,
+        ETag: `"${id}"`,
       },
     });
   } catch (err) {

@@ -1,14 +1,7 @@
-import mongoose from "mongoose";
+import { db, client, siteSettings } from "./_db";
 
 async function main() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("MONGODB_URI is required");
-  await mongoose.connect(uri, { dbName: "myportfolio" });
-
-  const col = mongoose.connection.collection("sitesettings");
-  const now = new Date();
-
-  const defaultDoc = {
+  const values = {
     key: "default",
 
     siteTitle: "Raju Kumar Yadav | Full Stack Engineer",
@@ -17,8 +10,7 @@ async function main() {
       "Full Stack Engineer with 3.5+ years of experience building production-grade microservices platforms, React/Next.js frontends, and cloud infrastructure with AWS + Terraform.",
     brandShort: "RKY",
     brandFull: "Raju Kumar Yadav",
-    tagline:
-      "3.5+ years building microservices, React frontends, and cloud infrastructure.",
+    tagline: "3.5+ years building microservices, React frontends, and cloud infrastructure.",
     logoImage: {},
 
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
@@ -41,16 +33,10 @@ async function main() {
 
     socials: [
       { platform: "github", url: "https://github.com/adhikariraju38", label: "GitHub", icon: "github" },
-      {
-        platform: "linkedin",
-        url: "https://linkedin.com/in/adhikariraju38",
-        label: "LinkedIn",
-        icon: "linkedin",
-      },
+      { platform: "linkedin", url: "https://linkedin.com/in/adhikariraju38", label: "LinkedIn", icon: "linkedin" },
       { platform: "email", url: "mailto:itsmeerajuyadav@gmail.com", label: "Email", icon: "mail" },
     ],
 
-    // "Engineered Motion" palette — Iris Violet on cool near-black.
     themeDark: {
       background: "#08090C",
       backgroundSecondary: "#0D0F13",
@@ -81,9 +67,8 @@ async function main() {
     fontDisplay: "Bricolage Grotesque",
     fontMono: "Geist Mono",
 
-    // Switchable accent + typeface set (drives [data-accent] / [data-font]).
-    themeAccent: "iris",
-    themeFont: "engineered",
+    themeAccent: "iris" as const,
+    themeFont: "engineered" as const,
 
     ogTitle: "Raju Kumar Yadav",
     ogSubtitle: "Full Stack Engineer",
@@ -115,10 +100,7 @@ async function main() {
       jobTitle: "Full Stack Engineer",
       url: "https://rajukumaryadav.com",
       email: "itsmeerajuyadav@gmail.com",
-      sameAs: [
-        "https://linkedin.com/in/adhikariraju38",
-        "https://github.com/adhikariraju38",
-      ],
+      sameAs: ["https://linkedin.com/in/adhikariraju38", "https://github.com/adhikariraju38"],
       knowsAbout: [
         "React",
         "Next.js",
@@ -133,17 +115,18 @@ async function main() {
       addressLocality: "Lalitpur",
       addressCountry: "Nepal",
     },
-
-    updatedAt: now,
   };
 
-  const res = await col.updateOne(
-    { key: "default" },
-    { $set: defaultDoc, $setOnInsert: { createdAt: now } },
-    { upsert: true },
-  );
-  console.log(`site-settings upsert → matched=${res.matchedCount} upserted=${res.upsertedCount}`);
-  await mongoose.disconnect();
+  await db
+    .insert(siteSettings)
+    .values(values)
+    .onConflictDoUpdate({
+      target: siteSettings.key,
+      set: { ...values, updatedAt: new Date() },
+    });
+
+  console.log("site-settings seeded (key=default)");
+  await client.end();
 }
 
 main().catch((e) => {

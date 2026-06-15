@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+import { and, eq } from "drizzle-orm";
+import { db, client, navMenuItems } from "./_db";
 
 const HEADER = [
   { label: "About", href: "#about", icon: "user", orderIndex: 0 },
@@ -12,64 +13,67 @@ const HEADER = [
   { label: "Contact", href: "#contact", icon: "mail", orderIndex: 8 },
 ];
 
-const FOOTER: Array<{ label: string; href: string; icon: string; orderIndex: number; opensInNewTab?: boolean }> = [
+const FOOTER = [
   { label: "GitHub", href: "https://github.com/adhikariraju38", icon: "github", orderIndex: 0, opensInNewTab: true },
   { label: "LinkedIn", href: "https://linkedin.com/in/adhikariraju38", icon: "linkedin", orderIndex: 1, opensInNewTab: true },
-  { label: "Email", href: "mailto:itsmeerajuyadav@gmail.com", icon: "mail", orderIndex: 2 },
+  { label: "Email", href: "mailto:itsmeerajuyadav@gmail.com", icon: "mail", orderIndex: 2, opensInNewTab: false },
 ];
 
-async function main() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("MONGODB_URI is required");
-  await mongoose.connect(uri, { dbName: "myportfolio" });
-  const col = mongoose.connection.collection("navmenuitems");
-  const now = new Date();
+type Loc = "header" | "footer";
 
-  let upserts = 0;
+async function upsertItem(item: {
+  label: string;
+  href: string;
+  icon: string;
+  location: Loc;
+  orderIndex: number;
+  opensInNewTab: boolean;
+}) {
+  const existing = await db
+    .select({ id: navMenuItems.id })
+    .from(navMenuItems)
+    .where(and(eq(navMenuItems.location, item.location), eq(navMenuItems.href, item.href)))
+    .limit(1);
+
+  const found = existing[0];
+  if (found) {
+    await db
+      .update(navMenuItems)
+      .set({
+        label: item.label,
+        icon: item.icon,
+        orderIndex: item.orderIndex,
+        isActive: true,
+        opensInNewTab: item.opensInNewTab,
+        parentId: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(navMenuItems.id, found.id));
+    return 0;
+  }
+  await db.insert(navMenuItems).values({
+    label: item.label,
+    href: item.href,
+    icon: item.icon,
+    location: item.location,
+    orderIndex: item.orderIndex,
+    isActive: true,
+    opensInNewTab: item.opensInNewTab,
+    parentId: null,
+  });
+  return 1;
+}
+
+async function main() {
+  let inserted = 0;
   for (const it of HEADER) {
-    const r = await col.updateOne(
-      { location: "header", href: it.href },
-      {
-        $set: {
-          label: it.label,
-          href: it.href,
-          icon: it.icon,
-          location: "header",
-          orderIndex: it.orderIndex,
-          isActive: true,
-          opensInNewTab: false,
-          parentId: null,
-          updatedAt: now,
-        },
-        $setOnInsert: { createdAt: now },
-      },
-      { upsert: true },
-    );
-    if (r.upsertedCount) upserts += 1;
+    inserted += await upsertItem({ ...it, location: "header", opensInNewTab: false });
   }
   for (const it of FOOTER) {
-    const r = await col.updateOne(
-      { location: "footer", href: it.href },
-      {
-        $set: {
-          label: it.label,
-          href: it.href,
-          icon: it.icon,
-          location: "footer",
-          orderIndex: it.orderIndex,
-          isActive: true,
-          opensInNewTab: it.opensInNewTab ?? false,
-          parentId: null,
-          updatedAt: now,
-        },
-        $setOnInsert: { createdAt: now },
-      },
-      { upsert: true },
-    );
-    if (r.upsertedCount) upserts += 1;
+    inserted += await upsertItem({ ...it, location: "footer" });
   }
-  console.log(`nav-menu seed → upserted=${upserts}/${HEADER.length + FOOTER.length}`);
-  await mongoose.disconnect();
+  console.log(`nav-menu seeded → inserted=${inserted}/${HEADER.length + FOOTER.length}`);
+  await client.end();
 }
 
 main().catch((e) => {

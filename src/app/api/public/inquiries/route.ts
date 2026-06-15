@@ -2,10 +2,16 @@ import "server-only";
 import type { NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
 import DOMPurify from "isomorphic-dompurify";
-import { errorResponse, getClientIp, parseBody, successResponse, logServerError } from "@/lib/api-helpers";
+import {
+  errorResponse,
+  getClientIp,
+  parseBody,
+  successResponse,
+  logServerError,
+} from "@/lib/api-helpers";
 import { rateLimit } from "@/lib/rate-limit";
-import { getDb } from "@/lib/db";
-import { Inquiry } from "@/lib/db/models";
+import { db } from "@/lib/db";
+import { inquiries } from "@/lib/db/schema";
 import { inquirySubmitSchema } from "@/lib/validations";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
@@ -25,9 +31,8 @@ export async function POST(req: NextRequest): Promise<Response> {
   if (!parsed.success) return parsed.response;
 
   try {
-    await getDb();
     const clean = DOMPurify.sanitize(parsed.data.message, { ALLOWED_TAGS: [] });
-    await Inquiry.create({
+    await db.insert(inquiries).values({
       name: parsed.data.name.trim().slice(0, 120),
       email: parsed.data.email.toLowerCase().trim(),
       message: clean,

@@ -1,10 +1,10 @@
-import { Award } from "@/lib/db/models";
+import { awards } from "@/lib/db/schema";
 import { awardCreateSchema, awardUpdateSchema } from "@/lib/validations";
 import { crudCreate, crudList } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: Award,
+  table: awards,
   scope: "awards",
   createSchema: awardCreateSchema,
   updateSchema: awardUpdateSchema,

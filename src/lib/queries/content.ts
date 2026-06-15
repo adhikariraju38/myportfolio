@@ -1,20 +1,21 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
-import { getDb } from "@/lib/db";
+import { asc, desc, eq } from "drizzle-orm";
+import { db } from "@/lib/db";
 import {
-  HeroContent,
-  AboutContent,
-  Education,
-  Experience,
-  SkillCategory,
-  Skill,
-  Project,
-  Publication,
-  OpenSourceContribution,
-  Award,
-  Certification,
-  CommunityInvolvement,
-} from "@/lib/db/models";
+  heroContent,
+  aboutContent,
+  education,
+  experiences,
+  skillCategories,
+  skills,
+  projects,
+  publications,
+  openSourceContributions,
+  awards,
+  certifications,
+  communityInvolvements,
+} from "@/lib/db/schema";
 import { serialize } from "@/lib/db/serialize";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
@@ -45,19 +46,18 @@ async function safeMany<T>(fn: () => Promise<T[]>, scope: string): Promise<T[]> 
   }
 }
 
-const cached = <T>(
-  fn: () => Promise<T>,
-  key: string,
-  tag: string,
-): (() => Promise<T>) =>
+const cached = <T>(fn: () => Promise<T>, key: string, tag: string): (() => Promise<T>) =>
   unstable_cache(fn, [key], { tags: [tag, CACHE_TAGS.all] });
 
 export const getHero = cached(
   () =>
     safeOne(async () => {
-      await getDb();
-      const doc = await HeroContent.findOne({ key: "default" }).lean();
-      return doc ? (serialize(doc as Row) as Row) : null;
+      const [row] = await db
+        .select()
+        .from(heroContent)
+        .where(eq(heroContent.key, "default"))
+        .limit(1);
+      return row ? (serialize(row as Row) as Row) : null;
     }, "hero"),
   "hero",
   CACHE_TAGS.hero,
@@ -66,9 +66,12 @@ export const getHero = cached(
 export const getAbout = cached(
   () =>
     safeOne(async () => {
-      await getDb();
-      const doc = await AboutContent.findOne({ key: "default" }).lean();
-      return doc ? (serialize(doc as Row) as Row) : null;
+      const [row] = await db
+        .select()
+        .from(aboutContent)
+        .where(eq(aboutContent.key, "default"))
+        .limit(1);
+      return row ? (serialize(row as Row) as Row) : null;
     }, "about"),
   "about",
   CACHE_TAGS.about,
@@ -77,9 +80,12 @@ export const getAbout = cached(
 export const getEducation = cached(
   () =>
     safeOne(async () => {
-      await getDb();
-      const doc = await Education.findOne({ key: "default" }).lean();
-      return doc ? (serialize(doc as Row) as Row) : null;
+      const [row] = await db
+        .select()
+        .from(education)
+        .where(eq(education.key, "default"))
+        .limit(1);
+      return row ? (serialize(row as Row) as Row) : null;
     }, "education"),
   "education",
   CACHE_TAGS.education,
@@ -88,11 +94,12 @@ export const getEducation = cached(
 export const getExperiences = cached(
   () =>
     safeMany<Row>(async () => {
-      await getDb();
-      const docs = await Experience.find({ isVisible: true })
-        .sort({ orderIndex: 1, createdAt: 1 })
-        .lean();
-      return serialize(docs as Row[]) as Row[];
+      const rows = await db
+        .select()
+        .from(experiences)
+        .where(eq(experiences.isVisible, true))
+        .orderBy(asc(experiences.orderIndex), asc(experiences.createdAt));
+      return serialize(rows as Row[]) as Row[];
     }, "experiences"),
   "experiences",
   CACHE_TAGS.experiences,
@@ -101,14 +108,13 @@ export const getExperiences = cached(
 export const getSkills = cached(
   async () => {
     try {
-      await getDb();
-      const [cats, skills] = await Promise.all([
-        SkillCategory.find({}).sort({ orderIndex: 1 }).lean(),
-        Skill.find({}).sort({ categoryId: 1, orderIndex: 1 }).lean(),
+      const [cats, skillRows] = await Promise.all([
+        db.select().from(skillCategories).orderBy(asc(skillCategories.orderIndex)),
+        db.select().from(skills).orderBy(asc(skills.categoryId), asc(skills.orderIndex)),
       ]);
       return {
         categories: serialize(cats as Row[]) as Row[],
-        skills: serialize(skills as Row[]) as Row[],
+        skills: serialize(skillRows as Row[]) as Row[],
       };
     } catch (err) {
       logDbError("skills", err);
@@ -122,11 +128,12 @@ export const getSkills = cached(
 export const getProjects = cached(
   () =>
     safeMany<Row>(async () => {
-      await getDb();
-      const docs = await Project.find({ isPublished: true })
-        .sort({ orderIndex: 1, createdAt: 1 })
-        .lean();
-      return serialize(docs as Row[]) as Row[];
+      const rows = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.isPublished, true))
+        .orderBy(asc(projects.orderIndex), asc(projects.createdAt));
+      return serialize(rows as Row[]) as Row[];
     }, "projects"),
   "projects",
   CACHE_TAGS.projects,
@@ -135,11 +142,12 @@ export const getProjects = cached(
 export const getPublications = cached(
   () =>
     safeMany<Row>(async () => {
-      await getDb();
-      const docs = await Publication.find({ isVisible: true })
-        .sort({ year: -1, orderIndex: 1 })
-        .lean();
-      return serialize(docs as Row[]) as Row[];
+      const rows = await db
+        .select()
+        .from(publications)
+        .where(eq(publications.isVisible, true))
+        .orderBy(desc(publications.year), asc(publications.orderIndex));
+      return serialize(rows as Row[]) as Row[];
     }, "publications"),
   "publications",
   CACHE_TAGS.publications,
@@ -148,11 +156,12 @@ export const getPublications = cached(
 export const getOpenSource = cached(
   () =>
     safeMany<Row>(async () => {
-      await getDb();
-      const docs = await OpenSourceContribution.find({ isVisible: true })
-        .sort({ orderIndex: 1, createdAt: 1 })
-        .lean();
-      return serialize(docs as Row[]) as Row[];
+      const rows = await db
+        .select()
+        .from(openSourceContributions)
+        .where(eq(openSourceContributions.isVisible, true))
+        .orderBy(asc(openSourceContributions.orderIndex), asc(openSourceContributions.createdAt));
+      return serialize(rows as Row[]) as Row[];
     }, "open-source"),
   "open-source",
   CACHE_TAGS.openSource,
@@ -161,14 +170,21 @@ export const getOpenSource = cached(
 export const getAwards = cached(
   async () => {
     try {
-      await getDb();
-      const [awards, certifications] = await Promise.all([
-        Award.find({ isVisible: true }).sort({ orderIndex: 1 }).lean(),
-        Certification.find({ isVisible: true }).sort({ orderIndex: 1 }).lean(),
+      const [awardRows, certRows] = await Promise.all([
+        db
+          .select()
+          .from(awards)
+          .where(eq(awards.isVisible, true))
+          .orderBy(asc(awards.orderIndex)),
+        db
+          .select()
+          .from(certifications)
+          .where(eq(certifications.isVisible, true))
+          .orderBy(asc(certifications.orderIndex)),
       ]);
       return {
-        awards: serialize(awards as Row[]) as Row[],
-        certifications: serialize(certifications as Row[]) as Row[],
+        awards: serialize(awardRows as Row[]) as Row[],
+        certifications: serialize(certRows as Row[]) as Row[],
       };
     } catch (err) {
       logDbError("awards", err);
@@ -182,11 +198,12 @@ export const getAwards = cached(
 export const getCommunityInvolvement = cached(
   () =>
     safeMany<Row>(async () => {
-      await getDb();
-      const docs = await CommunityInvolvement.find({ isVisible: true })
-        .sort({ orderIndex: 1 })
-        .lean();
-      return serialize(docs as Row[]) as Row[];
+      const rows = await db
+        .select()
+        .from(communityInvolvements)
+        .where(eq(communityInvolvements.isVisible, true))
+        .orderBy(asc(communityInvolvements.orderIndex));
+      return serialize(rows as Row[]) as Row[];
     }, "community"),
   "community",
   CACHE_TAGS.community,

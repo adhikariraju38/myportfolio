@@ -1,10 +1,10 @@
-import { CommunityInvolvement } from "@/lib/db/models";
+import { communityInvolvements } from "@/lib/db/schema";
 import { communityCreateSchema, communityUpdateSchema } from "@/lib/validations";
 import { crudCreate, crudList } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: CommunityInvolvement,
+  table: communityInvolvements,
   scope: "community",
   createSchema: communityCreateSchema,
   updateSchema: communityUpdateSchema,

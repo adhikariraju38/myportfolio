@@ -1,15 +1,12 @@
 import "server-only";
-import { Types } from "mongoose";
 
 type Plain = Record<string, unknown>;
 
-function isObjectId(v: unknown): v is Types.ObjectId {
-  return v instanceof Types.ObjectId;
-}
-
+// Drizzle rows already expose `id` (uuid string) and plain JS values for jsonb /
+// text[] columns. The only non-JSON-safe values are `Date` timestamps, which we
+// convert to ISO strings so the API contract matches what the client expects.
 function serializeValue(v: unknown): unknown {
   if (v === null || v === undefined) return v;
-  if (isObjectId(v)) return v.toString();
   if (v instanceof Date) return v.toISOString();
   if (Array.isArray(v)) return v.map(serializeValue);
   if (typeof v === "object") return serializeObject(v as Plain);
@@ -19,11 +16,6 @@ function serializeValue(v: unknown): unknown {
 function serializeObject(obj: Plain): Plain {
   const out: Plain = {};
   for (const [k, v] of Object.entries(obj)) {
-    if (k === "__v") continue;
-    if (k === "_id") {
-      out.id = serializeValue(v);
-      continue;
-    }
     out[k] = serializeValue(v);
   }
   return out;

@@ -1,5 +1,6 @@
 import "server-only";
 import type { NextRequest } from "next/server";
+import { eq } from "drizzle-orm";
 import {
   errorResponse,
   getClientIp,
@@ -8,13 +9,9 @@ import {
   logServerError,
 } from "@/lib/api-helpers";
 import { rateLimit } from "@/lib/rate-limit";
-import { getDb } from "@/lib/db";
-import { User } from "@/lib/db/models";
-import {
-  constantTimeVerifyPassword,
-  createSession,
-  setSessionCookie,
-} from "@/lib/auth";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { constantTimeVerifyPassword, createSession, setSessionCookie } from "@/lib/auth";
 import { loginSchema } from "@/lib/validations/auth";
 
 export async function POST(req: NextRequest): Promise<Response> {
@@ -34,28 +31,27 @@ export async function POST(req: NextRequest): Promise<Response> {
   if (!parsed.success) return parsed.response;
 
   try {
-    await getDb();
-    const user = await User.findOne({ email: parsed.data.email.toLowerCase() });
-    const ok = await constantTimeVerifyPassword(
-      parsed.data.password,
-      user?.passwordHash ?? null,
-    );
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, parsed.data.email.toLowerCase()))
+      .limit(1);
+    const ok = await constantTimeVerifyPassword(parsed.data.password, user?.passwordHash ?? null);
 
     if (!user || !ok) return errorResponse("Invalid email or password", 401);
     if (!user.isActive) return errorResponse("Account disabled", 403);
 
-    const session = await createSession(user._id.toString(), {
+    const session = await createSession(user.id, {
       userAgent: req.headers.get("user-agent"),
       ipAddress: ip,
     });
     await setSessionCookie(session.token, session.expiresAt);
 
-    user.lastLoginAt = new Date();
-    await user.save();
+    await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
 
     return successResponse({
       user: {
-        id: user._id.toString(),
+        id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,
