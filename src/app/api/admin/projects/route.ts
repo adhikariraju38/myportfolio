@@ -1,10 +1,10 @@
-import { Project } from "@/lib/db/models";
+import { projects } from "@/lib/db/schema";
 import { projectCreateSchema, projectUpdateSchema } from "@/lib/validations";
 import { crudCreate, crudList } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: Project,
+  table: projects,
   scope: "projects",
   createSchema: projectCreateSchema,
   updateSchema: projectUpdateSchema,

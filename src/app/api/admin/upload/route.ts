@@ -1,8 +1,9 @@
 import "server-only";
 import type { NextRequest } from "next/server";
-import { Readable } from "stream";
 import { errorResponse, successResponse, withAdminAuth, logServerError } from "@/lib/api-helpers";
-import { getBucket } from "@/lib/db/gridfs";
+import { insertMedia } from "@/lib/db/media";
+
+export const runtime = "nodejs";
 
 const ALLOWED_MIMES = new Set([
   "image/png",
@@ -33,36 +34,26 @@ export const POST = withAdminAuth(async (req: NextRequest, { user }) => {
     return errorResponse(`Unsupported file type: ${file.type}`, 400);
   }
 
-  const bucket = await getBucket();
-  const filename = file.name || `upload-${Date.now()}`;
-  const upload = bucket.openUploadStream(filename, {
-    contentType: file.type,
-    metadata: { uploaderId: user.id, uploadedAt: new Date() },
-  });
-
   try {
     const buf = Buffer.from(await file.arrayBuffer());
-    await new Promise<void>((resolve, reject) => {
-      Readable.from(buf)
-        .pipe(upload)
-        .on("error", reject)
-        .on("finish", () => resolve());
+    const filename = file.name || `upload-${Date.now()}`;
+    const id = await insertMedia({
+      filename,
+      contentType: file.type,
+      size: file.size,
+      data: buf,
+      uploadedBy: user.id,
+    });
+
+    return successResponse({
+      id,
+      url: `/api/media/${id}`,
+      mimeType: file.type,
+      size: file.size,
+      filename,
     });
   } catch (err) {
     logServerError("upload", err);
-    try {
-      await bucket.delete(upload.id);
-    } catch {
-      // ignore
-    }
     return errorResponse("Upload failed", 500);
   }
-
-  return successResponse({
-    id: upload.id.toString(),
-    url: `/api/media/${upload.id.toString()}`,
-    mimeType: file.type,
-    size: file.size,
-    filename,
-  });
 });

@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import { db, client, homeSections, type SectionKey } from "./_db";
 
-const SECTIONS = [
+const SECTIONS: Array<{ key: SectionKey; label: string; orderIndex: number }> = [
   { key: "hero", label: "Hero", orderIndex: 0 },
   { key: "about", label: "About", orderIndex: 1 },
   { key: "experience", label: "Experience", orderIndex: 2 },
@@ -14,26 +14,17 @@ const SECTIONS = [
 ];
 
 async function main() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("MONGODB_URI is required");
-  await mongoose.connect(uri, { dbName: "myportfolio" });
-  const col = mongoose.connection.collection("homesections");
-  const now = new Date();
-
-  let upserts = 0;
   for (const s of SECTIONS) {
-    const r = await col.updateOne(
-      { key: s.key },
-      {
-        $set: { label: s.label, orderIndex: s.orderIndex, isVisible: true, updatedAt: now },
-        $setOnInsert: { createdAt: now },
-      },
-      { upsert: true },
-    );
-    if (r.upsertedCount) upserts += 1;
+    await db
+      .insert(homeSections)
+      .values({ key: s.key, label: s.label, orderIndex: s.orderIndex, isVisible: true })
+      .onConflictDoUpdate({
+        target: homeSections.key,
+        set: { label: s.label, orderIndex: s.orderIndex, updatedAt: new Date() },
+      });
   }
-  console.log(`home-sections seed → upserted=${upserts}/${SECTIONS.length}`);
-  await mongoose.disconnect();
+  console.log(`home-sections seeded → ${SECTIONS.length}`);
+  await client.end();
 }
 
 main().catch((e) => {

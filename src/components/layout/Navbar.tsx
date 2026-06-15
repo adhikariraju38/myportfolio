@@ -63,7 +63,7 @@ export function Navbar({ items, brand, logoUrl }: NavbarProps) {
           aria-label={brand || "Home"}
         >
           {logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- logo is an admin-uploaded GridFS URL streamed via /api/media; next/image domain config doesn't apply
+            // eslint-disable-next-line @next/next/no-img-element -- logo is an admin-uploaded image streamed via /api/media; next/image domain config doesn't apply
             <img src={logoUrl} alt={brand} className="h-5.5 w-auto" />
           ) : (
             <span

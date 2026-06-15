@@ -4,11 +4,12 @@ import {
   withAdminAuth,
   logServerError,
 } from "@/lib/api-helpers";
-import { deleteFile } from "@/lib/db/gridfs";
+import { deleteFile } from "@/lib/db/media";
 import { revalidateTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
-const isValidId = (id: string) => /^[a-fA-F0-9]{24}$/.test(id);
+const isValidId = (id: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
 export const DELETE = withAdminAuth(async (_req, ctx) => {
   const id = (await ctx.params)?.id ?? "";

@@ -1,14 +1,13 @@
-import { Publication } from "@/lib/db/models";
+import { publications } from "@/lib/db/schema";
 import { publicationCreateSchema, publicationUpdateSchema } from "@/lib/validations";
 import { crudCreate, crudList } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: Publication,
+  table: publications,
   scope: "publications",
   createSchema: publicationCreateSchema,
   updateSchema: publicationUpdateSchema,
-  defaultSort: { year: -1 as const, orderIndex: 1 as const },
   invalidate: [CACHE_TAGS.publications] as const,
 };
 

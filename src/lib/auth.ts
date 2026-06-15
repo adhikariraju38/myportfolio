@@ -2,8 +2,9 @@ import "server-only";
 import { randomBytes } from "crypto";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
-import { getDb } from "@/lib/db";
-import { User, Session, type UserDoc, type SessionDoc } from "@/lib/db/models";
+import { and, eq, gt } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { users, sessions, type User, type Session } from "@/lib/db/schema";
 import { SESSION_COOKIE_NAME } from "@/lib/auth-constants";
 
 export { SESSION_COOKIE_NAME };
@@ -46,35 +47,38 @@ export async function createSession(
   userId: string,
   meta: { userAgent?: string | null; ipAddress?: string | null } = {},
 ): Promise<CreatedSession> {
-  await getDb();
   const token = generateToken();
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
 
-  const session = await Session.create({
-    userId,
-    token,
-    expiresAt,
-    userAgent: meta.userAgent?.slice(0, 500) ?? undefined,
-    ipAddress: meta.ipAddress?.slice(0, 64) ?? undefined,
-  });
+  const [row] = await db
+    .insert(sessions)
+    .values({
+      userId,
+      token,
+      expiresAt,
+      userAgent: meta.userAgent?.slice(0, 500) ?? null,
+      ipAddress: meta.ipAddress?.slice(0, 64) ?? null,
+    })
+    .returning({ id: sessions.id });
 
-  return { token, expiresAt, sessionId: session._id.toString() };
+  if (!row) throw new Error("Failed to create session");
+  return { token, expiresAt, sessionId: row.id };
 }
 
 export interface SessionWithUser {
-  session: SessionDoc;
-  user: UserDoc;
+  session: Session;
+  user: User;
 }
 
 export async function getSessionWithUser(token: string): Promise<SessionWithUser | null> {
-  await getDb();
-  const session = await Session.findOne({
-    token,
-    expiresAt: { $gt: new Date() },
-  }).lean<SessionDoc>();
+  const [session] = await db
+    .select()
+    .from(sessions)
+    .where(and(eq(sessions.token, token), gt(sessions.expiresAt, new Date())))
+    .limit(1);
   if (!session) return null;
 
-  const user = await User.findById(session.userId).lean<UserDoc>();
+  const [user] = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
   if (!user) return null;
   if (!user.isActive) return null;
 
@@ -82,8 +86,7 @@ export async function getSessionWithUser(token: string): Promise<SessionWithUser
 }
 
 export async function deleteSession(token: string): Promise<void> {
-  await getDb();
-  await Session.deleteOne({ token });
+  await db.delete(sessions).where(eq(sessions.token, token));
 }
 
 export interface SafeUser {
@@ -94,12 +97,12 @@ export interface SafeUser {
   isActive: boolean;
 }
 
-function toSafeUser(user: UserDoc): SafeUser {
+function toSafeUser(user: User): SafeUser {
   return {
-    id: user._id.toString(),
+    id: user.id,
     email: user.email,
     name: user.name,
-    role: user.role as "super_admin" | "admin",
+    role: user.role,
     isActive: user.isActive,
   };
 }

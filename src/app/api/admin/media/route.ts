@@ -4,7 +4,7 @@ import {
   withAdminAuth,
   logServerError,
 } from "@/lib/api-helpers";
-import { listFiles } from "@/lib/db/gridfs";
+import { listFiles } from "@/lib/db/media";
 
 export const GET = withAdminAuth(async () => {
   try {

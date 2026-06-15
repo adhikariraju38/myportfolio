@@ -1,10 +1,10 @@
-import { Skill } from "@/lib/db/models";
+import { skills } from "@/lib/db/schema";
 import { skillCreateSchema, skillUpdateSchema } from "@/lib/validations";
 import { crudCreate, crudList } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: Skill,
+  table: skills,
   scope: "skills",
   createSchema: skillCreateSchema,
   updateSchema: skillUpdateSchema,

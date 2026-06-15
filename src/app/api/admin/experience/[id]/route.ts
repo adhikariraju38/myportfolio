@@ -1,10 +1,10 @@
-import { Experience } from "@/lib/db/models";
+import { experiences } from "@/lib/db/schema";
 import { experienceCreateSchema, experienceUpdateSchema } from "@/lib/validations";
 import { crudDelete, crudDetail, crudUpdate } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: Experience,
+  table: experiences,
   scope: "experience",
   createSchema: experienceCreateSchema,
   updateSchema: experienceUpdateSchema,

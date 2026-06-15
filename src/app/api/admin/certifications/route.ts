@@ -1,10 +1,10 @@
-import { Certification } from "@/lib/db/models";
+import { certifications } from "@/lib/db/schema";
 import { certificationCreateSchema, certificationUpdateSchema } from "@/lib/validations";
 import { crudCreate, crudList } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: Certification,
+  table: certifications,
   scope: "certifications",
   createSchema: certificationCreateSchema,
   updateSchema: certificationUpdateSchema,

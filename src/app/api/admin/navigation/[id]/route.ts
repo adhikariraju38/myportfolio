@@ -1,10 +1,10 @@
-import { NavMenuItem } from "@/lib/db/models";
+import { navMenuItems } from "@/lib/db/schema";
 import { navMenuItemCreateSchema, navMenuItemUpdateSchema } from "@/lib/validations";
 import { crudDelete, crudDetail, crudUpdate } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: NavMenuItem,
+  table: navMenuItems,
   scope: "navigation",
   createSchema: navMenuItemCreateSchema,
   updateSchema: navMenuItemUpdateSchema,

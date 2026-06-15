@@ -1,10 +1,10 @@
-import { Publication } from "@/lib/db/models";
+import { publications } from "@/lib/db/schema";
 import { publicationCreateSchema, publicationUpdateSchema } from "@/lib/validations";
 import { crudDelete, crudDetail, crudUpdate } from "@/lib/api-crud";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const cfg = {
-  model: Publication,
+  table: publications,
   scope: "publications",
   createSchema: publicationCreateSchema,
   updateSchema: publicationUpdateSchema,
